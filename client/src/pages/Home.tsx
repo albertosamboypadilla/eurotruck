@@ -1,6 +1,6 @@
 // Design system: réplica Eurotruck — industrial nocturno, contraste operativo, precisión modular y acciones visibles.
 // La referencia visual manda: fondo carbón/vino, azul ruta eléctrica, amarillo operativo, verde de servicio y fotografía de camiones.
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -116,6 +116,11 @@ function scrollToId(id: string) {
 
 export default function Home() {
   const [activeBrand, setActiveBrand] = useState<TruckBrand>("MERCEDES-BENZ");
+  const [outgoingBrand, setOutgoingBrand] = useState<TruckBrand | null>(null);
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
+  const [isSliding, setIsSliding] = useState(false);
+  const slideTimerRef = useRef<number | undefined>(undefined);
+  const [isFleetPaused, setIsFleetPaused] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [mobileNav, setMobileNav] = useState(false);
   const [language, setLanguage] = useState<"ES" | "EN">("ES");
@@ -138,14 +143,45 @@ export default function Home() {
 
   const filteredFaqs = useMemo(() => faqs.filter(([question, answer]) => `${question} ${answer}`.toLowerCase().includes(faqSearch.toLowerCase())), [faqSearch]);
 
-  function changeBrand(next: TruckBrand) {
+  function transitionToBrand(next: TruckBrand, direction: "next" | "prev") {
+    if (next === activeBrand) return;
+    if (slideTimerRef.current) window.clearTimeout(slideTimerRef.current);
+    setOutgoingBrand(activeBrand);
+    setSlideDirection(direction);
+    setIsSliding(true);
     setActiveBrand(next);
+    slideTimerRef.current = window.setTimeout(() => {
+      setOutgoingBrand(null);
+      setIsSliding(false);
+    }, 680);
+  }
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (isFleetPaused || reduceMotion) return;
+
+    const timer = window.setInterval(() => {
+      const nextIndex = (brands.indexOf(activeBrand) + 1) % brands.length;
+      transitionToBrand(brands[nextIndex], "next");
+    }, 5200);
+
+    return () => window.clearInterval(timer);
+  }, [activeBrand, isFleetPaused]);
+
+  useEffect(() => () => {
+    if (slideTimerRef.current) window.clearTimeout(slideTimerRef.current);
+  }, []);
+
+  function changeBrand(next: TruckBrand) {
+    const targetIndex = brands.indexOf(next);
+    const forwardDistance = (targetIndex - activeIndex + brands.length) % brands.length;
+    transitionToBrand(next, forwardDistance <= brands.length / 2 ? "next" : "prev");
     window.setTimeout(() => document.getElementById("hero-fleet")?.scrollIntoView({ behavior: "smooth", block: "center" }), 20);
   }
 
   function stepBrand(direction: number) {
     const nextIndex = (activeIndex + direction + brands.length) % brands.length;
-    setActiveBrand(brands[nextIndex]);
+    transitionToBrand(brands[nextIndex], direction > 0 ? "next" : "prev");
   }
 
   function submitRegistration(event: FormEvent<HTMLFormElement>) {
@@ -203,9 +239,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div id="hero-fleet" className="fleet-stage container-wide">
-            <div className="fleet-image-frame">
-              <img src={truckImages[activeBrand]} alt={`${activeBrand} — Eurotruck Repuestos y Mantenimiento`} className="fleet-image" key={activeBrand} />
+          <div id="hero-fleet" className="fleet-stage container-wide" onMouseEnter={() => setIsFleetPaused(true)} onMouseLeave={() => setIsFleetPaused(false)} onFocus={() => setIsFleetPaused(true)} onBlur={() => setIsFleetPaused(false)}>
+            <div className={`fleet-image-frame ${isSliding ? `fleet-image-frame--${slideDirection}` : ""}`}>
+              {outgoingBrand && <img src={truckImages[outgoingBrand]} alt="" aria-hidden="true" className="fleet-image fleet-image--outgoing" />}
+              <img src={truckImages[activeBrand]} alt={`${activeBrand} — Eurotruck Repuestos y Mantenimiento`} className={`fleet-image fleet-image--active ${isSliding ? "is-entering" : ""}`} key={activeBrand} />
               <div className="fleet-image-overlay" />
               <div className="fleet-grid" />
             </div>

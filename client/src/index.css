@@ -108,20 +108,26 @@
   .brand-pill.is-active { box-shadow: 0 0 0 1px rgba(45,118,255,.13), 0 6px 20px rgba(22,79,190,.15); }
   .fleet-stage { position: relative; z-index: 1; height: 552px; margin-top: 22px; }
   .fleet-image-frame { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(84,127,209,.38); border-radius: 9px; background: #09101a; box-shadow: 0 21px 80px rgba(0,0,0,.38), 0 0 0 1px rgba(0,0,0,.7); }
-  .fleet-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; animation: fleet-reveal 360ms var(--ease-out); }
-  .fleet-image-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,8,15,.65) 0%, rgba(3,8,15,.11) 48%, rgba(5,9,17,.65) 100%), linear-gradient(0deg, rgba(4,8,16,.92) 0%, transparent 54%, rgba(4,8,16,.24) 100%); }
-  .fleet-grid { position: absolute; inset: 0; opacity: .17; background-image: linear-gradient(rgba(97,137,210,.2) 1px, transparent 1px), linear-gradient(90deg, rgba(97,137,210,.2) 1px, transparent 1px); background-size: 80px 80px; mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 80%, transparent); }
-  .fleet-arrow { position: absolute; top: 50%; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(205,220,246,.3); border-radius: 50%; background: rgba(5,8,15,.72); color: #fff; cursor: pointer; transform: translateY(-50%); transition: background 160ms, border-color 160ms, transform 160ms; }
+  .fleet-image { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; will-change: transform, opacity; }
+  .fleet-image--outgoing { z-index: 1; opacity: 1; transform: translateX(0); }
+  .fleet-image--active { z-index: 2; opacity: 1; transform: translateX(0); }
+  .fleet-image--active.is-entering { animation: slide-in-from-right 680ms var(--ease-out) both; }
+  .fleet-image-frame--next .fleet-image--outgoing { animation: slide-out-to-left 680ms var(--ease-out) both; }
+  .fleet-image-frame--prev .fleet-image--active.is-entering { animation-name: slide-in-from-left; }
+  .fleet-image-frame--prev .fleet-image--outgoing { animation: slide-out-to-right 680ms var(--ease-out) both; }
+  .fleet-image-overlay { position: absolute; z-index: 3; inset: 0; background: linear-gradient(90deg, rgba(3,8,15,.65) 0%, rgba(3,8,15,.11) 48%, rgba(5,9,17,.65) 100%), linear-gradient(0deg, rgba(4,8,16,.92) 0%, transparent 54%, rgba(4,8,16,.24) 100%); pointer-events: none; }
+  .fleet-grid { position: absolute; z-index: 4; inset: 0; opacity: .17; background-image: linear-gradient(rgba(97,137,210,.2) 1px, transparent 1px), linear-gradient(90deg, rgba(97,137,210,.2) 1px, transparent 1px); background-size: 80px 80px; mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 80%, transparent); }
+  .fleet-arrow { position: absolute; z-index: 8; top: 50%; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(205,220,246,.3); border-radius: 50%; background: rgba(5,8,15,.72); color: #fff; cursor: pointer; transform: translateY(-50%); transition: background 160ms, border-color 160ms, transform 160ms; }
   .fleet-arrow:hover { border-color: var(--route-blue); background: var(--route-blue); transform: translateY(-50%) scale(1.07); }
   .fleet-arrow--left { left: 18px; }
   .fleet-arrow--right { right: 18px; }
-  .fleet-caption { position: absolute; bottom: 88px; left: 34px; max-width: 500px; }
+  .fleet-caption { position: absolute; z-index: 8; bottom: 88px; left: 34px; max-width: 500px; }
   .fleet-title { display: inline-block; border-radius: 5px; background: rgba(220,231,247,.88); padding: 7px 12px 6px; color: #263243; font: 800 1rem var(--technical); letter-spacing: .1em; }
   .fleet-caption p { margin: 9px 0 11px; color: #f2f5fa; font-size: 1rem; font-weight: 600; }
   .feature-chips { display: flex; gap: 7px; flex-wrap: wrap; }
   .feature-chips span { display: flex; align-items: center; gap: 5px; border: 1px solid rgba(45,118,255,.42); border-radius: 4px; background: rgba(10,24,53,.62); padding: 5px 8px; color: #9fc2ff; font: 500 .62rem var(--technical); }
   .feature-chips svg { color: var(--route-blue); }
-  .hero-ctas { position: absolute; bottom: 19px; left: 31px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .hero-ctas { position: absolute; z-index: 8; bottom: 19px; left: 31px; display: flex; gap: 8px; flex-wrap: wrap; }
   .cta { display: inline-flex; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: 7px; padding: 10px 15px; font: 700 .73rem var(--technical); cursor: pointer; transition: filter 160ms, transform 160ms, box-shadow 160ms; }
   .cta:hover { filter: brightness(1.13); transform: translateY(-2px); }
   .cta:active, .submit-button:active, .add-part-button:active { transform: scale(.97); }
@@ -302,7 +308,10 @@
   .floating-call { display: none; }
 }
 
-@keyframes fleet-reveal { from { opacity: .35; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+@keyframes slide-in-from-right { from { opacity: .94; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slide-out-to-left { from { opacity: 1; transform: translateX(0); } to { opacity: .5; transform: translateX(-100%); } }
+@keyframes slide-in-from-left { from { opacity: .94; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slide-out-to-right { from { opacity: 1; transform: translateX(0); } to { opacity: .5; transform: translateX(100%); } }
 @keyframes assistant-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 @media (max-width: 960px) {
