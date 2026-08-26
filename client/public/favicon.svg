@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Eurotruck">
+  <rect width="64" height="64" rx="12" fill="#0b111c"/>
+  <path d="M9 31h33v-7h12l3 8h3v3h-3v5h-6c0 4-3 7-7 7s-7-3-7-7H28c0 4-3 7-7 7s-7-3-7-7H9Z" fill="#2d76ff" stroke="#60a5fa" stroke-width="1.5"/>
+  <path d="M44 26h8l2 6h-10Z" fill="#f4f7fb"/>
+  <circle cx="21" cy="40" r="5" fill="#0f172a" stroke="#93c5fd"/><circle cx="44" cy="40" r="5" fill="#0f172a" stroke="#93c5fd"/>
+  <path d="M24 20a12 12 0 1 1 0 13h4a8 8 0 1 0 0-13Z" fill="#2563eb"/>
+</svg>

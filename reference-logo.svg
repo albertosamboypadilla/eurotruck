@@ -1,0 +1,30 @@
+<svg class="w-auto h-auto max-h-[85px] sm:max-h-[95px] overflow-visible drop-shadow-[0_4px_12px_rgba(29,78,216,0.35)]" style="width: 210px;" viewbox="0 0 320 180" xmlns="http://www.w3.org/2000/svg"><defs><lineargradient id="euroBlueGrad" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#2563eb"></stop><stop offset="50%" stop-color="#1d4ed8"></stop><stop offset="100%" stop-color="#1e40af"></stop></lineargradient><lineargradient id="euroGlow" x1="0%" x2="100%" y1="0%" y2="0%"><stop offset="0%" stop-color="#60a5fa"></stop><stop offset="100%" stop-color="#3b82f6"></stop></lineargradient><filter id="glow"><fegaussianblur result="coloredBlur" stddeviation="2"></fegaussianblur><femerge><femergenode in="coloredBlur"></femergenode><femergenode in="SourceGraphic"></femergenode></femerge></filter></defs><g style="transform: translateY(0.764723px); transform-origin: 50% 50%; transform-box: fill-box;"><path class="transition-all duration-300 group-hover:brightness-110" d="
+                  M 30,86 
+                  L 200,86 
+                  L 200,56 
+                  L 265,56 
+                  L 278,92 
+                  L 290,92 
+                  L 290,100 
+                  L 282,100 
+                  L 282,112 
+                  L 262,112 
+                  C 262,122 254,130 242,130 
+                  C 230,130 222,122 222,112 
+                  L 165,112 
+                  C 165,122 157,130 145,130 
+                  C 133,130 125,122 125,112 
+                  L 115,112 
+                  C 115,122 107,130 95,130 
+                  C 83,130 75,122 75,112 
+                  L 40,112 
+                  L 40,94 
+                  L 30,94 
+                  Z
+                " fill="url(#euroBlueGrad)" stroke="#1d4ed8" stroke-linejoin="round" stroke-width="1.5"></path><path d="M 212,62 L 255,62 L 263,84 L 212,84 Z" fill="#ffffff" opacity="0.95"></path><rect fill="#93c5fd" height="4" rx="1" width="8" x="280" y="94"></rect><g transform="translate(95, 112)"><circle cx="0" cy="0" fill="#0f172a" r="16" stroke="#1d4ed8" stroke-width="2.5"></circle><g style="transform: rotate(192.51deg); transform-origin: 50% 50%; transform-box: fill-box;"><circle cx="0" cy="0" fill="#1e293b" r="8"></circle><circle cx="0" cy="0" fill="#60a5fa" r="3.5"></circle><line stroke="#94a3b8" stroke-width="1.5" x1="-7" x2="7" y1="0" y2="0"></line><line stroke="#94a3b8" stroke-width="1.5" x1="0" x2="0" y1="-7" y2="7"></line></g></g><g transform="translate(145, 112)"><circle cx="0" cy="0" fill="#0f172a" r="16" stroke="#1d4ed8" stroke-width="2.5"></circle><g style="transform: rotate(192.51deg); transform-origin: 50% 50%; transform-box: fill-box;"><circle cx="0" cy="0" fill="#1e293b" r="8"></circle><circle cx="0" cy="0" fill="#60a5fa" r="3.5"></circle><line stroke="#94a3b8" stroke-width="1.5" x1="-7" x2="7" y1="0" y2="0"></line><line stroke="#94a3b8" stroke-width="1.5" x1="0" x2="0" y1="-7" y2="7"></line></g></g><g transform="translate(242, 112)"><circle cx="0" cy="0" fill="#0f172a" r="16" stroke="#1d4ed8" stroke-width="2.5"></circle><g style="transform: rotate(192.51deg); transform-origin: 50% 50%; transform-box: fill-box;"><circle cx="0" cy="0" fill="#1e293b" r="8"></circle><circle cx="0" cy="0" fill="#60a5fa" r="3.5"></circle><line stroke="#94a3b8" stroke-width="1.5" x1="-7" x2="7" y1="0" y2="0"></line><line stroke="#94a3b8" stroke-width="1.5" x1="0" x2="0" y1="-7" y2="7"></line></g></g><g filter="undefined" style="transform: translateY(-0.339572px) scale(1.00194); transform-origin: 50% 50%; transform-box: fill-box;"><path d="
+                    M 180,32
+                    A 42,42 0 1,0 180,82
+                    L 194,82
+                    A 52,52 0 1,1 194,32
+                    Z
+                  " fill="url(#euroBlueGrad)" stroke="#1e40af" stroke-width="1"></path><path d="M 94,44 L 176,44 L 172,53 L 94,53 Z" fill="url(#euroBlueGrad)"></path><path d="M 90,62 L 170,62 L 166,71 L 90,71 Z" fill="url(#euroBlueGrad)"></path><rect fill="url(#euroBlueGrad)" height="42" rx="2" width="10" x="188" y="44"></rect></g><g opacity="0.6"><line opacity="undefined" stroke="#60a5fa" stroke-linecap="round" stroke-width="2" x1="7.723919912910787" x2="22.723919912910787" y1="90" y2="90"></line><line opacity="undefined" stroke="#93c5fd" stroke-linecap="round" stroke-width="1.5" x1="17.154155630851164" x2="31.154155630851164" y1="102" y2="102"></line></g></g></svg>
