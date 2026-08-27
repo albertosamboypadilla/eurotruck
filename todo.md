@@ -193,3 +193,19 @@
 - [x] Mostrar “GTIN no registrado” de forma explícita en tarjetas y listados relevantes cuando no exista código importado.
 - [x] Añadir una prueba de referencia válida sin GTIN, conservando su SKU y rechazando códigos ajenos.
 - [ ] Ampliar el mapa GTIN con los 39.369 artículos restantes cuando exista una fuente oficial verificable para sus códigos.
+
+# Corrección solicitada: registro de cliente y orden de compra
+
+- [x] Reproducir el fallo del formulario de datos del cliente desde el carrito.
+- [x] Verificar validación, campos obligatorios, estado del formulario y llamada a orders.create.
+- [x] Corregir el registro para que cree la orden, genere el PDF y muestre la confirmación al cliente.
+- [x] Añadir o actualizar pruebas del flujo de cliente, PDF, error y persistencia sin dejar órdenes de prueba.
+- [x] Validar el checkout en escritorio y móvil, y publicar el checkpoint corregido.
+
+# Ajuste solicitado: carrito lateral y PDF al enviar
+
+- [x] Confirmar que Agregar no crea órdenes ni descarga PDF.
+- [x] Mostrar el artículo agregado inmediatamente en el carrito lateral derecho.
+- [x] Mantener cantidades, eliminación y total de piezas en el carrito antes del envío.
+- [x] Generar el PDF únicamente al enviar el formulario completo del cliente.
+- [x] Probar el flujo completo sin dejar órdenes temporales y publicar la corrección.

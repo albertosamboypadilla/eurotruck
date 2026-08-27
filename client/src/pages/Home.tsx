@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { attachGtins, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
+import { getOrderFormValidationError } from "@shared/orderFormHelpers";
 import {
   ArrowLeft,
   ArrowRight,
@@ -185,6 +186,7 @@ export default function Home() {
       if (existing) return items.map((item) => item.id === product.id ? { ...item, quantity: Math.min(item.quantity + 1, 99) } : item);
       return [...items, { ...product, quantity: 1 }];
     });
+    setCartOpen(true);
   }
 
   const activeIndex = brands.indexOf(activeBrand);
@@ -277,7 +279,12 @@ export default function Home() {
   async function submitRegistration(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setOrderError("");
-    if (!company.trim() || !customerEmail.trim() || !customerPhone.trim() || cartItems.length === 0) return;
+    const validationError = getOrderFormValidationError({ company, email: customerEmail, phone: customerPhone, itemCount: cartItems.length });
+    if (validationError) {
+      setOrderError(validationError);
+      if (cartItems.length === 0) window.setTimeout(() => scrollToId("catalogo"), 0);
+      return;
+    }
     try {
       const result = await createOrderMutation.mutateAsync({ company: company.trim(), email: customerEmail.trim(), phone: customerPhone.trim(), rnc: customerRnc.trim() || undefined, truckBrand, partsNote: partsNote.trim() || undefined, items: cartItems.map(item => ({ productId: item.id, quantity: item.quantity, sku: item.sku, name: item.name, brand: item.brand, application: item.application, category: item.category, image: item.image, sourceUrl: item.url })) });
       const bytes = Uint8Array.from(atob(result.pdfBase64), character => character.charCodeAt(0));
@@ -285,15 +292,18 @@ export default function Home() {
       const link = document.createElement("a");
       link.href = downloadUrl;
       link.download = `${result.orderNumber}.pdf`;
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(downloadUrl);
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
       setSubmittedOrder(result.orderNumber);
       setAfterHoursMessage(result.afterHoursMessage || "");
       setSubmitted(true);
       setCartItems([]);
       setCartOpen(false);
       window.setTimeout(() => setSubmitted(false), 10000);
-    } catch {
+    } catch (error) {
+      console.error("[Order submission]", error);
       setOrderError("No pudimos registrar la orden. Revisa los datos e inténtalo nuevamente.");
     }
   }
@@ -396,7 +406,7 @@ export default function Home() {
               <div className="form-grid"><label>Correo Electrónico<input id="reg-email-input" required type="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="Ej. compras@tuempresa.com" /></label><label>Marca de Camión Principal<select id="reg-brand-select" value={truckBrand} onChange={(event) => setTruckBrand(event.target.value)}><option>Scania</option><option>Volvo</option><option>Mercedes-Benz</option><option>MAN</option><option>Iveco</option><option>Multi-Flota / Todas</option></select></label></div>
               <label>Piezas que necesitas <small>(Opcional)</small><input id="reg-parts-input" value={partsNote} onChange={(event) => setPartsNote(event.target.value)} placeholder="Ej. Kit de embrague, filtros de aceite, disco de frenos..." /></label>
               <label className="checkbox-label"><input id="reg-onsite-service-checkbox" type="checkbox" /> <span className="fake-checkbox"><Check size={12} /></span>Requiero también servicio mecánico o instalación a domicilio</label>
-              <button className="submit-button" type="submit" disabled={createOrderMutation.isPending || cartItems.length === 0}>{submitted ? <><Check size={16} />Orden {submittedOrder} descargada — te contactaremos</> : createOrderMutation.isPending ? <>Generando orden…</> : <>Generar Orden de Compra <Send size={15} /></>}</button>
+              <button className="submit-button" type="submit" disabled={createOrderMutation.isPending}>{submitted ? <><Check size={16} />Orden {submittedOrder} descargada — te contactaremos</> : createOrderMutation.isPending ? <>Generando orden…</> : <>Enviar solicitud y descargar PDF <Send size={15} /></>}</button>
               <p className="form-note">Al enviar, un asesor de Eurotruck revisará tu requerimiento y te contactará directamente. Teléfono Eurotruck: (809) 413-0846.</p>{afterHoursMessage && <p className="form-after-hours" role="status">{afterHoursMessage}</p>}{orderError && <p className="form-error" role="alert">{orderError}</p>}
             </form>
           </div>
