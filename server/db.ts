@@ -68,6 +68,14 @@ export async function createOrder(order: Omit<InsertOrder, "orderNumber">, items
   });
 }
 
+export async function getOrderWithItems(orderId: number): Promise<OrderWithItems | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!result[0]) return undefined;
+  return { order: result[0], items: await db.select().from(orderItems).where(eq(orderItems.orderId, orderId)) };
+}
+
 export async function listOrders(): Promise<OrderWithItems[]> {
   const db = await getDb();
   if (!db) return [];

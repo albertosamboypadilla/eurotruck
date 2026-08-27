@@ -16,7 +16,7 @@
 - [x] Crear modelo persistente de órdenes con numeración consecutiva.
 - [x] Guardar cliente, artículos, fecha, estado y destinatarios de cada orden.
 - [x] Generar PDF descargable con formato de orden de compra.
-- [ ] Enviar automáticamente el PDF a eurotruckcxa@yahoo.com y albertosamboy89@gmail.com.
+- [x] Retirar el envío automático del PDF; la gestión será manual desde la bandeja.
 - [x] Conectar el checkout del carrito con la creación de la orden.
 - [x] Mostrar confirmación, número de orden y mensaje fuera de horario.
 - [x] Añadir pruebas del backend y validar build, descarga y flujo de error.
@@ -71,3 +71,29 @@
 - [x] Confirmar que el botón navega a /orders y muestra el login administrativo.
 - [x] Validar la navegación en escritorio y móvil.
 - [x] Verificar en viewport móvil que Acceso empresa sea visible/usables y navegue correctamente a /orders.
+
+# Simplificación solicitada
+
+- [x] Eliminar el envío automático de correo y dejar el PDF disponible para gestión manual.
+- [x] Retirar Rino 3D del carrito y de los elementos visibles donde no aporta valor.
+- [x] Rediseñar el carrito con resumen limpio, cantidades, eliminación y acción clara para continuar.
+- [x] Mantener la bandeja privada con los cinco usuarios y contacto manual por teléfono.
+- [x] Mostrar en cada orden el botón de llamada al cliente y los datos necesarios para atenderla.
+- [x] Validar responsive, PDF, usuarios, bandeja y pruebas tras la simplificación.
+- [x] Añadir en la bandeja privada una acción real para descargar o regenerar el PDF de cada orden.
+- [x] Validar que la gestión manual de la orden funciona sin correo automático.
+- [x] Añadir manejo real de cantidades en el carrito con incrementar y decrementar por línea.
+- [x] Añadir un botón de llamada al cliente claramente visible en cada orden.
+- [x] Verificar en móvil y escritorio el carrito simplificado y la descarga manual del PDF desde la bandeja.
+- [x] Añadir una prueba del procedimiento orders.pdf que verifique regeneración y descarga para una orden existente.
+- [x] Verificar en navegador desktop el carrito simplificado abierto con cantidades y la gestión manual del PDF.
+- [x] Verificar en navegador móvil el carrito simplificado abierto y la navegación básica de la bandeja.
+- [x] Verificar interactivamente el carrito simplificado abierto en desktop y móvil, mostrando controles de cantidad.
+- [x] Verificar interactivamente desde /orders la descarga manual/regeneración del PDF.
+- [x] Registrar evidencia de navegación básica de la bandeja en móvil.
+- [x] Completar la verificación interactiva móvil del carrito abierto con controles de cantidad.
+- [x] Validar la descarga manual del PDF desde /orders usando una sesión administrativa real.
+- [x] Confirmar una interacción básica de la bandeja en móvil con estado vacío u orden expandida.
+- [x] Crear temporalmente una orden de validación y eliminarla después de probar el PDF desde la UI.
+- [x] Guardar evidencia de una descarga real del PDF manual en /orders.
+- [x] Confirmar que la orden temporal desaparece de la bandeja después de eliminarla desde la UI.

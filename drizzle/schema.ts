@@ -42,6 +42,7 @@ export const orders = mysqlTable("orders", {
 export const orderItems = mysqlTable("order_items", {
   id: int("id").autoincrement().primaryKey(),
   orderId: int("orderId").notNull(),
+  quantity: int("quantity").notNull().default(1),
   productId: varchar("productId", { length: 180 }).notNull(),
   sku: varchar("sku", { length: 100 }).notNull(),
   name: text("name").notNull(),
