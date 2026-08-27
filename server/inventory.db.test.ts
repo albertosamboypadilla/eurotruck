@@ -64,4 +64,14 @@ describe("recordInventoryCount", () => {
     expect(state.scans).toHaveLength(2);
     expect(state.scans.map(scan => [scan.quantity, scan.tramo, scan.gondola])).toEqual([[4, "A", "G1"], [3, "B", "G2"]]);
   });
+
+  it("suma una unidad por cada lectura automática repetida", async () => {
+    const first = await recordInventoryCount({ productId: "p-scan", sku: "SCAN-1", name: "Filtro escaneado", quantity: 1, tramo: "GENERAL", gondola: "GENERAL", countedBy: "admin1" });
+    const second = await recordInventoryCount({ productId: "p-scan", sku: "SCAN-1", name: "Filtro escaneado", quantity: 1, tramo: "GENERAL", gondola: "GENERAL", countedBy: "admin1" });
+
+    expect(first.totalQuantity).toBe(1);
+    expect(second.totalQuantity).toBe(2);
+    expect(second.wasAlreadyCounted).toBe(true);
+    expect(state.scans.map(scan => scan.quantity)).toEqual([1, 1]);
+  });
 });

@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { claimOrder, createOrder, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listOrders, recordInventoryCount } from "./db";
+import { claimOrder, createInventoryItem, createOrder, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listOrders, recordInventoryCount } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -63,9 +63,13 @@ export const appRouter = router({
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede acceder al inventario" });
       return listInventory();
     }),
-    record: adminProcedure.input(z.object({ productId: z.string().max(180), sku: z.string().max(100), name: z.string().max(500), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional(), quantity: z.number().int().min(1).max(9999), tramo: z.string().trim().min(1).max(80), gondola: z.string().trim().min(1).max(80) })).mutation(async ({ ctx, input }) => {
+    record: adminProcedure.input(z.object({ productId: z.string().max(180), sku: z.string().max(100), name: z.string().max(500), description: z.string().max(2000).optional(), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional(), quantity: z.number().int().min(1).max(9999), tramo: z.string().trim().min(1).max(80), gondola: z.string().trim().min(1).max(80) })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede registrar inventario" });
       return recordInventoryCount({ ...input, countedBy: "admin1" });
+    }),
+    create: adminProcedure.input(z.object({ sku: z.string().trim().min(1).max(100), name: z.string().trim().min(1).max(500), description: z.string().max(2000).optional(), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional() })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede agregar artículos" });
+      return createInventoryItem(input, "admin1");
     }),
   }),
 });

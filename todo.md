@@ -124,3 +124,37 @@
 - [x] Validar pruebas, búsqueda real, acumulación y navegación de salida.
 - [x] Mostrar y tipar explícitamente la descripción del catálogo principal en Inventory.
 - [x] Verificar con una prueba que Inventory conserva la descripción al resolver un artículo fragmentado.
+
+# Extensión solicitada: inventario visual y artículos nuevos
+
+- [x] Mostrar en Inventory todos los artículos del catálogo principal con carga paginada o virtualizada.
+- [x] Marcar visualmente en verde cada artículo que ya tenga conteo registrado.
+- [x] Mantener el estado verde y el total acumulado al refrescar el inventario.
+- [x] Añadir botón visible para agregar un artículo nuevo.
+- [x] Guardar artículos nuevos con referencia, descripción, marca y aplicación.
+- [x] Permitir contar artículos nuevos con cantidad, tramo y góndola.
+- [x] Restringir el alta de artículos nuevos y sus conteos a admin1.
+- [x] Validar pruebas, responsive y flujo real del inventario extendido.
+- [x] Diferenciar artículos nuevos con cantidad cero de artículos realmente contados para el estado verde y el aviso de repetición.
+- [x] Centralizar y probar la regla que considera contado a un artículo solo cuando su total acumulado es mayor que cero.
+
+# Verificación final solicitada por la extensión
+
+- [x] Crear un artículo y conteo temporal de validación, confirmar visualmente la fila verde y limpiar el dato temporal.
+- [x] Refrescar Inventory después del conteo y confirmar el verde y total persistidos.
+- [x] Validar en viewport móvil el listado, paginación, Agregar nuevo, formulario y resumen.
+- [x] Validar en viewport móvil autenticado de /inventory el listado, paginación, botón Agregar nuevo, formulario y resumen, con evidencia clara.
+- [x] Repetir la comprobación móvil después de confirmar que no quedan errores de render o HMR en Inventory.tsx.
+- [x] Validar /inventory en un viewport móvil autenticado real con evidencia clara del listado, paginación, Agregar nuevo, formulario y resumen.
+- [x] Confirmar con logs actuales y una nueva ejecución que no existen errores de Vite/HMR en Inventory.tsx.
+- [ ] Validar /inventory con admin1 en una ventana física de 375px de ancho y documentar listado, paginación, alta y resumen.
+
+# Mejora solicitada: acumulación automática por escaneo
+
+- [x] Hacer que cada escaneo de una referencia registre automáticamente 1 unidad.
+- [x] Mostrar el artículo encontrado y el nuevo total después de cada escaneo.
+- [x] Sumar lecturas repetidas del mismo artículo y conservar el historial de scans.
+- [x] Mantener la suma cuando el mismo artículo se escanee en otra ubicación.
+- [x] Cubrir el flujo de escaneo acumulativo con pruebas y validación real.
+- [x] Mantener visible la paginación del catálogo completo después de un escaneo automático, mostrando el resultado en el resumen y en el aviso.
+- [x] Evitar un segundo registro accidental desde el formulario manual después de un escaneo automático, manteniendo el artículo y total como confirmación.

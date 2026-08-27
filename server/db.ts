@@ -105,6 +105,7 @@ export type InventoryCountInput = {
   productId: string;
   sku: string;
   name: string;
+  description?: string;
   brand?: string;
   application?: string;
   image?: string;
@@ -121,9 +122,9 @@ export async function recordInventoryCount(input: InventoryCountInput) {
     const existing = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, input.productId)).limit(1);
     let inventoryItem = existing[0];
     if (inventoryItem) {
-      await tx.update(inventoryItems).set({ totalQuantity: inventoryItem.totalQuantity + input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy, lastCountedAt: new Date() }).where(eq(inventoryItems.id, inventoryItem.id));
+      await tx.update(inventoryItems).set({ description: input.description ?? inventoryItem.description, totalQuantity: inventoryItem.totalQuantity + input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy, lastCountedAt: new Date() }).where(eq(inventoryItems.id, inventoryItem.id));
     } else {
-      const inserted = await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, brand: input.brand, application: input.application, image: input.image, totalQuantity: input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy }).execute();
+      const inserted = await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, totalQuantity: input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy }).execute();
       const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
       const created = await tx.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
       inventoryItem = created[0];
@@ -132,6 +133,26 @@ export async function recordInventoryCount(input: InventoryCountInput) {
     await tx.insert(inventoryScans).values({ inventoryItemId: inventoryItem.id, quantity: input.quantity, tramo: input.tramo, gondola: input.gondola, countedBy: input.countedBy }).execute();
     return { ...inventoryItem, totalQuantity: inventoryItem.totalQuantity + (existing[0] ? input.quantity : 0), wasAlreadyCounted: Boolean(existing[0]) };
   });
+}
+
+export type NewInventoryItemInput = {
+  sku: string;
+  name: string;
+  description?: string;
+  brand?: string;
+  application?: string;
+  image?: string;
+};
+
+export async function createInventoryItem(input: NewInventoryItemInput, countedBy: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const productId = `custom-${crypto.randomUUID()}`;
+  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, totalQuantity: 0, countedBy }).execute();
+  const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
+  const created = await db.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
+  if (!created[0]) throw new Error("Unable to create inventory item");
+  return created[0];
 }
 
 export async function listInventory() {

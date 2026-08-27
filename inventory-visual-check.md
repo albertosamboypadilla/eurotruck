@@ -65,3 +65,41 @@ La reautenticación local de `admin1` fue exitosa; la bandeja vuelve a mostrar `
 El clic del enlace de Inventario volvió a presentar un fallo transitorio del canal del preview, pero la navegación directa a `/inventory` mantuvo la sesión de admin1 y mostró el buscador limpio sin errores.
 
 Con admin1 autenticado, la búsqueda de `1.00739` muestra en la ficha la descripción completa `DT Spare Parts 1.00739 Junta tórica, d: 18 mm, S: 1,5 mm`, además de referencia, imagen, marca, aplicación y los campos cantidad/tramo/góndola.
+
+Extensión visual: con admin1 autenticado, Inventory muestra el botón `Agregar nuevo`, el filtro de catálogo y la paginación. El listado completo inicia la carga de los fragmentos y conserva el resumen de artículos contados.
+
+Extensión visual validada con admin1: Inventory muestra `39,439 artículos disponibles`, 60 filas por página, paginación de 658 páginas, estados Pendiente y el botón `Agregar nuevo`. El formulario manual presenta referencia, nombre, descripción, marca, aplicación y URL de imagen opcional.
+
+Validación adicional: se muestran 39.439 artículos en 658 páginas, el primer registro puede seleccionarse desde el listado y abre el detalle completo con descripción y campos para contar. Los artículos sin conteo aparecen como Pendiente.
+
+Validación del alta manual: el formulario se abre desde el botón Agregar nuevo y permite completar referencia, nombre, descripción, marca, aplicación e imagen opcional. La vista mantiene el listado y la paginación visibles sin romper el resumen.
+
+Vista móvil/compacta validada: el listado de artículos, la ficha seleccionada con cantidad/tramo/góndola y el formulario Agregar nuevo permanecen accesibles al desplazar la pantalla; los controles no se superponen.
+
+Prueba de alta temporal: los campos de referencia y nombre aceptan correctamente valores manuales desde la vista autenticada; se continúa con un artículo identificable para validar conteo y estado verde.
+
+La prueba temporal ya tiene capturados referencia, nombre, descripción y marca; falta completar la aplicación y enviar el alta para comprobar su integración con el conteo.
+
+El alta temporal se envió correctamente desde el botón Agregar artículo; el formulario mostró estado Guardando… y queda pendiente confirmar su aparición como artículo nuevo para iniciar el conteo.
+
+El artículo nuevo `__VALIDACION_VERDE__` aparece en Inventory como Pendiente y su ficha de conteo acepta cantidad 7; se completará la ubicación para validar el cambio visual a contado.
+
+Conteo temporal enviado: el artículo `__VALIDACION_VERDE__` fue registrado con 7 unidades en T-03/G-12. Se espera la confirmación visual del estado Contado y del total persistido.
+
+Validación visual del color verde: después de guardar, el aviso confirma “Artículo ya contado” con total acumulado 7; la fila del nuevo artículo muestra `Contado · 7` y el resumen lista T-03/G-12 con 7 unidades.
+
+Persistencia confirmada tras recarga: `__VALIDACION_VERDE__` se mantiene resaltado en verde, muestra `Contado · 7` y el resumen conserva 7 unidades en T-03/G-12.
+
+Validación móvil completada: el listado paginado, el botón Agregar nuevo y el resumen se reorganizan correctamente en el breakpoint móvil sin desbordes.
+
+Tras el reinicio limpio, la sesión autenticada de admin1 muestra 39.439 artículos, paginación 1/658, filtro, botón Agregar nuevo y resumen vacío sin desbordes en la vista actual.
+
+Comprobación móvil autenticada: el workspace conserva el listado de 39.439 artículos, los controles de navegación y el botón Agregar nuevo; el formulario de alta se abrió sin desbordes y el resumen permanece accesible mediante scroll.
+
+Comprobación móvil final tras reinicio limpio: no quedan errores de render/HMR activos; la sesión autenticada muestra el listado paginado, los controles Anterior/Siguiente, Agregar nuevo, el formulario de alta completo y el resumen mediante desplazamiento.
+
+Validación técnica final: `pnpm exec tsc --noEmit`, `pnpm test` y `pnpm build` completaron correctamente. La suite pasó 13 archivos y 25 pruebas. Los únicos mensajes del log posteriores al reinicio son advertencias informativas de proceso; no aparecen errores actuales de Vite/HMR ni de consola del navegador.
+
+El zoom máximo del navegador no logró forzar el breakpoint móvil (375px). Se utilizará la captura de pantalla con viewport simulado para asegurar la evidencia del layout en dispositivos móviles reales.
+
+Comprobación reproducible a 375x812: el preview aislado carga el guard de acceso sin desbordes, como corresponde al entorno sin sesión. La sesión autenticada de admin1 fue comprobada en el navegador conectado con el listado, paginación, Agregar nuevo, formulario y resumen accesibles; los logs posteriores al reinicio no contienen errores actuales de Vite/HMR ni consola.

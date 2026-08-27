@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { listInventory, recordInventoryCount } = vi.hoisted(() => ({
+const { createInventoryItem, listInventory, recordInventoryCount } = vi.hoisted(() => ({
+  createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   listInventory: vi.fn(async () => []),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
 }));
 
 vi.mock("./db", () => ({
+  createInventoryItem,
   listInventory,
   recordInventoryCount,
   claimOrder: vi.fn(),
@@ -29,6 +31,13 @@ describe("inventory procedures", () => {
     await expect(appRouter.createCaller(context(admin1)).inventory.list()).resolves.toEqual([]);
     await expect(appRouter.createCaller(context(admin2)).inventory.list()).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(listInventory).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite agregar un artículo a admin1 e inyecta su identidad", async () => {
+    const newArticle = { sku: "NUEVO-1", name: "Artículo nuevo", description: "Descripción nueva", brand: "Eurotruck", application: "Iveco" };
+    await expect(appRouter.createCaller(context(admin1)).inventory.create(newArticle)).resolves.toMatchObject({ productId: "custom-1", countedBy: "admin1" });
+    expect(createInventoryItem).toHaveBeenCalledWith(newArticle, "admin1");
+    await expect(appRouter.createCaller(context(admin2)).inventory.create(newArticle)).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite registrar a admin1, inyecta su identidad y rechaza admin2", async () => {

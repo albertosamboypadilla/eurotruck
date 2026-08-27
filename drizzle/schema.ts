@@ -26,6 +26,7 @@ export const inventoryItems = mysqlTable("inventory_items", {
   productId: varchar("productId", { length: 180 }).notNull().unique(),
   sku: varchar("sku", { length: 100 }).notNull(),
   name: text("name").notNull(),
+  description: text("description"),
   brand: varchar("brand", { length: 120 }),
   application: varchar("application", { length: 120 }),
   image: text("image"),
