@@ -97,3 +97,19 @@
 - [x] Crear temporalmente una orden de validación y eliminarla después de probar el PDF desde la UI.
 - [x] Guardar evidencia de una descarga real del PDF manual en /orders.
 - [x] Confirmar que la orden temporal desaparece de la bandeja después de eliminarla desde la UI.
+
+# Módulo de inventario para admin1
+
+- [x] Crear acceso Inventario visible únicamente para admin1.
+- [x] Abrir el inventario en una ventana/ruta separada protegida.
+- [x] Permitir buscar o escanear una referencia del catálogo.
+- [x] Registrar cantidad, tramo y góndola por artículo.
+- [x] Sumar conteos del mismo artículo cuando aparezca en otra área.
+- [x] Notificar cuando un artículo ya fue contado y mostrar el acumulado.
+- [x] Validar permisos, persistencia, responsive y pruebas del inventario.
+- [x] Añadir pruebas unitarias del acumulado de conteos y aviso de artículo repetido.
+- [x] Añadir pruebas de que solo admin1 puede listar o registrar inventario.
+- [x] Validar visualmente /inventory en escritorio y móvil.
+- [x] Corregir la resolución de sesión local para que admin1 pueda abrir /inventory aunque exista una sesión OAuth de preview.
+- [x] Hacer que Salir cierre tanto la sesión local como la sesión OAuth/preview cuando ambas existan.
+- [x] Conectar el botón Salir de /inventory al cierre de sesión local y OAuth igual que la bandeja.

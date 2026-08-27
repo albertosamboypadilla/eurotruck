@@ -16,21 +16,23 @@ export async function createContext(
 ): Promise<TrpcContext> {
   let user: User | null = null;
 
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    user = null;
+  // Local admin sessions take precedence over an OAuth/preview identity. This
+  // keeps the private admin workspace consistent across /orders and /inventory.
+  const token = parseCookieHeader(opts.req.headers.cookie ?? "")[SESSION_COOKIE];
+  const session = await readAdminSession(token);
+  if (session) {
+    const admin = await getLocalAdminByUsername(session.username);
+    if (admin?.active) {
+      const now = new Date();
+      user = { id: -admin.id, openId: `local:${admin.username}`, name: admin.username, email: null, loginMethod: "local", role: "admin", createdAt: now, updatedAt: now, lastSignedIn: now };
+    }
   }
 
   if (!user) {
-    const token = parseCookieHeader(opts.req.headers.cookie ?? "")[SESSION_COOKIE];
-    const session = await readAdminSession(token);
-    if (session) {
-      const admin = await getLocalAdminByUsername(session.username);
-      if (admin?.active) {
-        const now = new Date();
-        user = { id: -admin.id, openId: `local:${admin.username}`, name: admin.username, email: null, loginMethod: "local", role: "admin", createdAt: now, updatedAt: now, lastSignedIn: now };
-      }
+    try {
+      user = await sdk.authenticateRequest(opts.req);
+    } catch (error) {
+      user = null;
     }
   }
 

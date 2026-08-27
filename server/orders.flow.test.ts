@@ -10,11 +10,14 @@ import { appRouter } from "./routers";
 
 describe("order flow", () => {
   it("returns a numbered PDF as base64 and after-hours message", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T23:00:00.000Z"));
     const caller = appRouter.createCaller({ req: {} as never, res: {} as never, user: null });
     const result = await caller.orders.create({ company: "Flota Caribe", email: "cliente@example.com", phone: "8095551234", items: [{ productId: "p1", sku: "DT-001", name: "Filtro de aceite" }] });
     expect(result.orderNumber).toBe("ET-2026-000009");
     expect(Buffer.from(result.pdfBase64, "base64").subarray(0, 4).toString()).toBe("%PDF");
     expect(result.afterHoursMessage).toContain("Buenas tardes");
+    vi.useRealTimers();
   });
 
   it("accepts protected deletion and builds the expected WhatsApp destination", async () => {

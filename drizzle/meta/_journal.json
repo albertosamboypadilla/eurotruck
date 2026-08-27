@@ -43,6 +43,13 @@
       "when": 1787801774413,
       "tag": "0005_blushing_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787829915368,
+      "tag": "0006_left_mantis",
+      "breakpoints": true
     }
   ]
 }

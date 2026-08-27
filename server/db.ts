@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, localAdmins, orderItems, orders, users } from "../drizzle/schema";
+import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
 
@@ -99,4 +99,43 @@ export async function deleteOrder(orderId: number) {
     await tx.delete(orders).where(eq(orders.id, orderId));
     return true;
   });
+}
+
+export type InventoryCountInput = {
+  productId: string;
+  sku: string;
+  name: string;
+  brand?: string;
+  application?: string;
+  image?: string;
+  quantity: number;
+  tramo: string;
+  gondola: string;
+  countedBy: string;
+};
+
+export async function recordInventoryCount(input: InventoryCountInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const existing = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, input.productId)).limit(1);
+    let inventoryItem = existing[0];
+    if (inventoryItem) {
+      await tx.update(inventoryItems).set({ totalQuantity: inventoryItem.totalQuantity + input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy, lastCountedAt: new Date() }).where(eq(inventoryItems.id, inventoryItem.id));
+    } else {
+      const inserted = await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, brand: input.brand, application: input.application, image: input.image, totalQuantity: input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy }).execute();
+      const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
+      const created = await tx.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
+      inventoryItem = created[0];
+    }
+    if (!inventoryItem) throw new Error("Unable to save inventory item");
+    await tx.insert(inventoryScans).values({ inventoryItemId: inventoryItem.id, quantity: input.quantity, tramo: input.tramo, gondola: input.gondola, countedBy: input.countedBy }).execute();
+    return { ...inventoryItem, totalQuantity: inventoryItem.totalQuantity + (existing[0] ? input.quantity : 0), wasAlreadyCounted: Boolean(existing[0]) };
+  });
+}
+
+export async function listInventory() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(inventoryItems).orderBy(desc(inventoryItems.updatedAt));
 }

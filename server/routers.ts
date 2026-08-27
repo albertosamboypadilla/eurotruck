@@ -3,11 +3,12 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { claimOrder, createOrder, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listOrders } from "./db";
+import { claimOrder, createOrder, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listOrders, recordInventoryCount } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
 import { isEurotruckAfterHours } from "@shared/orderHelpers";
+import { isInventoryAdmin } from "@shared/inventoryHelpers";
 
 const orderItemInput = z.object({
   productId: z.string().max(180), quantity: z.number().int().min(1).max(99).default(1), sku: z.string().max(100), name: z.string().max(500), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), category: z.string().max(160).optional(), image: z.string().max(2000).optional(), sourceUrl: z.string().max(2000).optional(),
@@ -56,6 +57,16 @@ export const appRouter = router({
       return { success: true } as const;
     }),
     remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => ({ success: await deleteOrder(input.id) })),
+  }),
+  inventory: router({
+    list: adminProcedure.query(async ({ ctx }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede acceder al inventario" });
+      return listInventory();
+    }),
+    record: adminProcedure.input(z.object({ productId: z.string().max(180), sku: z.string().max(100), name: z.string().max(500), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional(), quantity: z.number().int().min(1).max(9999), tramo: z.string().trim().min(1).max(80), gondola: z.string().trim().min(1).max(80) })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede registrar inventario" });
+      return recordInventoryCount({ ...input, countedBy: "admin1" });
+    }),
   }),
 });
 

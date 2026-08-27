@@ -678,3 +678,22 @@
 
 .orders-button--call { border-color: rgba(82, 190, 143, .45); background: rgba(30, 139, 94, .15); color: #92e4bb; text-decoration: none; }
 .orders-button--call:hover { background: rgba(30, 139, 94, .28); }
+
+/* Inventory workspace */
+.inventory-page{min-height:100vh;background:#f4f7fb;color:#10213a;padding:32px clamp(16px,4vw,56px)}
+.inventory-header{max-width:1280px;margin:0 auto 28px;display:flex;justify-content:space-between;gap:24px;align-items:flex-end}
+.inventory-header h1{margin:6px 0;font-size:clamp(2rem,4vw,3.5rem);letter-spacing:-.05em}
+.inventory-header p{margin:0;color:#617087;max-width:620px}
+.inventory-header-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.orders-button--inventory{background:#0d5fd4;color:#fff;border-color:#0d5fd4}
+.inventory-workspace{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:20px;align-items:start}
+.inventory-scan-panel,.inventory-summary{background:#fff;border:1px solid #dce5f0;border-radius:24px;box-shadow:0 18px 46px rgba(31,61,101,.08);padding:clamp(20px,3vw,34px)}
+.inventory-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px;color:#0d5fd4}
+.inventory-panel-heading h2{color:#10213a;margin:4px 0 0;font-size:1.35rem}
+.inventory-scan-form label,.inventory-count-fields label{display:grid;gap:8px;color:#617087;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.inventory-scan-form>div{display:flex;align-items:center;gap:10px;background:#eef4fb;border:1px solid #cbd9e8;border-radius:14px;padding:6px 8px 6px 14px;margin-top:8px}
+.inventory-scan-form>div>svg{color:#0d5fd4;flex:0 0 auto}.inventory-scan-form input{border:0;background:transparent;outline:0;min-width:0;flex:1;padding:11px 0;font:inherit;color:#10213a}
+.inventory-alert{display:flex;gap:9px;align-items:flex-start;padding:12px 14px;border-radius:12px;margin-top:16px;font-size:.88rem;line-height:1.4}.inventory-alert--error{background:#fff0f0;color:#a52a35}.inventory-alert--success{background:#edfbf3;color:#187342}.inventory-alert--warning{background:#fff7df;color:#8a5a00}
+.inventory-product-card{margin-top:20px;border:1px solid #dce5f0;border-radius:18px;padding:18px}.inventory-product-main{display:flex;gap:14px;align-items:center}.inventory-product-main img,.inventory-product-placeholder{width:74px;height:74px;object-fit:contain;border-radius:12px;background:#f1f5f9}.inventory-product-placeholder{display:grid;place-items:center;color:#0d5fd4}.inventory-product-main span{font-size:.72rem;color:#0d5fd4;font-weight:800;letter-spacing:.08em}.inventory-product-main h3{margin:3px 0;font-size:1rem;color:#10213a}.inventory-product-main small{color:#718198}.inventory-count-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.inventory-count-fields input{width:100%;box-sizing:border-box;border:1px solid #cbd9e8;border-radius:10px;padding:11px;background:#fff;color:#10213a;font:inherit}.inventory-save-button{width:100%;justify-content:center;margin-top:16px}
+.inventory-list{display:grid;gap:10px;max-height:620px;overflow:auto}.inventory-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px;border:1px solid #e5ebf3;border-radius:14px}.inventory-row strong{font-size:.72rem;color:#0d5fd4;letter-spacing:.06em}.inventory-row h3{margin:4px 0;font-size:.9rem;color:#10213a}.inventory-row small{color:#718198}.inventory-row>b{font-size:1.35rem;color:#0d5fd4}.inventory-empty{display:grid;place-items:center;gap:10px;text-align:center;color:#718198;padding:54px 16px}
+@media (max-width:800px){.inventory-header{display:block}.inventory-header-actions{justify-content:flex-start;margin-top:18px}.inventory-workspace{grid-template-columns:1fr}.inventory-summary{order:2}.inventory-count-fields{grid-template-columns:1fr}.inventory-scan-form>div{align-items:stretch;flex-wrap:wrap}.inventory-scan-form>div input{flex-basis:calc(100% - 34px)}.inventory-scan-form>div .orders-button{width:100%;justify-content:center}}

@@ -21,6 +21,33 @@ export const localAdmins = mysqlTable("local_admins", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const inventoryItems = mysqlTable("inventory_items", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: varchar("productId", { length: 180 }).notNull().unique(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  name: text("name").notNull(),
+  brand: varchar("brand", { length: 120 }),
+  application: varchar("application", { length: 120 }),
+  image: text("image"),
+  totalQuantity: int("totalQuantity").notNull().default(0),
+  lastTramo: varchar("lastTramo", { length: 80 }),
+  lastGondola: varchar("lastGondola", { length: 80 }),
+  countedBy: varchar("countedBy", { length: 40 }).notNull(),
+  lastCountedAt: timestamp("lastCountedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const inventoryScans = mysqlTable("inventory_scans", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull(),
+  quantity: int("quantity").notNull(),
+  tramo: varchar("tramo", { length: 80 }).notNull(),
+  gondola: varchar("gondola", { length: 80 }).notNull(),
+  countedBy: varchar("countedBy", { length: 40 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   orderNumber: varchar("orderNumber", { length: 32 }).notNull().unique(),
