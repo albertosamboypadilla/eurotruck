@@ -578,3 +578,59 @@
 .cart-rino-actions button:focus-visible, .cart-item > button:focus-visible, .cart-checkout-button:focus-visible { outline: 2px solid #8ab6ff; outline-offset: 2px; }
 .rino-inline-action { border: 0; background: none; padding: 0; color: #a8c8ff; font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 .rino-inline-action:hover { color: #fff; }
+
+/* Private order inbox */
+.orders-page { min-height: 100vh; background: #071323; color: #e7effb; padding: 48px clamp(18px, 5vw, 76px); }
+.orders-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; max-width: 1180px; margin: 0 auto 30px; border-bottom: 1px solid rgba(120, 153, 204, .2); padding-bottom: 24px; }
+.orders-eyebrow { color: #6ea4ff; font: 700 .64rem var(--technical); letter-spacing: .16em; }
+.orders-header h1 { margin: 8px 0 7px; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.06em; }
+.orders-header p, .orders-state p, .orders-empty p { margin: 0; color: #8fa6c5; font-size: .82rem; }
+.orders-header-actions, .order-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.orders-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #4e84e8; border-radius: 8px; background: #2b6ddd; padding: 10px 13px; color: #fff; font: 700 .66rem var(--technical); cursor: pointer; text-decoration: none; }
+.orders-button--ghost { border-color: rgba(130, 162, 211, .34); background: rgba(17, 37, 70, .65); color: #c0d3ef; }
+.orders-button--whatsapp { border-color: #2ea96b; background: #188b58; }
+.orders-button--danger { border-color: rgba(236, 106, 124, .5); background: rgba(133, 40, 56, .45); color: #ffc0c9; }
+.orders-button:disabled { cursor: wait; opacity: .55; }
+.orders-list { display: grid; gap: 12px; max-width: 1180px; margin: 0 auto; }
+.order-card { overflow: hidden; border: 1px solid rgba(98, 135, 198, .25); border-radius: 13px; background: rgba(13, 31, 59, .8); box-shadow: 0 13px 32px rgba(0, 0, 0, .12); }
+.order-card--open { border-color: rgba(91, 145, 242, .72); }
+.order-card-summary { display: grid; grid-template-columns: 150px minmax(170px, 1fr) 85px 180px; align-items: center; gap: 14px; width: 100%; border: 0; background: transparent; padding: 18px 20px; color: inherit; text-align: left; cursor: pointer; }
+.order-number { color: #82b0ff; font: 800 .75rem var(--technical); letter-spacing: .08em; }
+.order-client { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.order-client b { overflow: hidden; color: #eff5ff; font-size: .84rem; text-overflow: ellipsis; white-space: nowrap; }
+.order-client small, .order-date { color: #8ba5c7; font-size: .68rem; }
+.order-status { justify-self: start; border-radius: 999px; padding: 6px 8px; font: 800 .57rem var(--technical); }
+.order-status--new { background: rgba(50, 125, 255, .18); color: #91baff; }
+.order-status--contacted { background: rgba(234, 180, 55, .15); color: #f5cc70; }
+.order-status--closed { background: rgba(65, 179, 119, .15); color: #82dfaf; }
+.order-card-detail { border-top: 1px solid rgba(100, 139, 206, .2); background: rgba(7, 18, 36, .42); padding: 22px 20px 20px; }
+.order-contact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.order-contact div { display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(100, 139, 206, .17); border-radius: 8px; padding: 11px; }
+.order-contact small { color: #7693b9; font: 700 .57rem var(--technical); letter-spacing: .05em; text-transform: uppercase; }
+.order-contact a { overflow-wrap: anywhere; color: #c5dcff; font-size: .75rem; }
+.order-card-detail h3 { margin: 0 0 10px; color: #edf4ff; font-size: .88rem; }
+.order-items { display: grid; gap: 6px; }
+.order-item { display: grid; grid-template-columns: 100px 1fr 200px; gap: 12px; align-items: center; border-bottom: 1px solid rgba(100, 139, 206, .12); padding: 9px 0; }
+.order-item span { color: #76a7ff; font: 700 .63rem var(--technical); }
+.order-item b { color: #d9e7fb; font-size: .73rem; }
+.order-item small { color: #87a0c1; font-size: .63rem; }
+.order-note { border-left: 2px solid #4c83e6; margin: 17px 0; background: rgba(55, 104, 197, .09); padding: 10px 12px; color: #a9bddb; font-size: .72rem; }
+.order-note b { color: #d7e8ff; }
+.order-actions { margin-top: 19px; }
+.orders-state, .orders-empty { display: flex; min-height: 50vh; flex-direction: column; align-items: center; justify-content: center; gap: 12px; max-width: 500px; margin: 0 auto; text-align: center; }
+.orders-state h1, .orders-state h2, .orders-empty h2 { margin: 0; color: #eef5ff; }
+.orders-spin { animation: orders-spin 900ms linear infinite; color: #73a7ff; }
+@keyframes orders-spin { to { transform: rotate(360deg); } }
+@media (max-width: 760px) { .orders-page { padding: 28px 13px; } .orders-header { align-items: flex-start; flex-direction: column; } .order-card-summary { grid-template-columns: 1fr auto; gap: 9px; padding: 15px; } .order-number { grid-column: 1 / -1; } .order-date { grid-column: 1 / -1; } .order-status { grid-column: 2; grid-row: 2 / 4; } .order-contact { grid-template-columns: 1fr; } .order-item { grid-template-columns: 1fr; gap: 4px; } .order-actions .orders-button { flex: 1; } }
+
+.form-error { margin: 9px 0 0; border-left: 2px solid #ee6e7e; padding-left: 10px; color: #ff9fac; font-size: .72rem; }
+.submit-button:disabled { cursor: not-allowed; opacity: .5; }
+
+.form-after-hours { margin: 10px 0 0; border-left: 2px solid #e7b54b; background: rgba(231, 181, 75, .09); padding: 10px 12px; color: #f0cc7a; font-size: .72rem; }
+.admin-login-page { display: grid; min-height: 100vh; place-items: center; background: #071323; padding: 20px; }
+.admin-login-card { display: grid; gap: 13px; width: min(100%, 420px); border: 1px solid rgba(105, 148, 220, .28); border-radius: 15px; background: rgba(13, 31, 59, .9); padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.25); color: #edf4ff; }
+.admin-login-card h1 { margin: 0; font-size: 2rem; letter-spacing: -.06em; }
+.admin-login-card p { margin: -4px 0 7px; color: #91a7c5; font-size: .78rem; line-height: 1.6; }
+.admin-login-card label { display: grid; gap: 6px; color: #b9cce6; font: 700 .65rem var(--technical); letter-spacing: .04em; text-transform: uppercase; }
+.admin-login-card input { border: 1px solid rgba(117, 153, 211, .28); border-radius: 7px; background: #091a31; padding: 11px 12px; color: #fff; font: 400 .82rem var(--body); outline: none; }
+.admin-login-card input:focus { border-color: #6ea4ff; box-shadow: 0 0 0 3px rgba(70, 124, 230, .18); }

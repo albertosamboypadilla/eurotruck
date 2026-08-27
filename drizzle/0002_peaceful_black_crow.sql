@@ -1,0 +1,2 @@
+ALTER TABLE `orders` ADD `notificationRecipients` text DEFAULT ('eurotruckcxa@yahoo.com,albertosamboy89@gmail.com') NOT NULL;--> statement-breakpoint
+ALTER TABLE `orders` ADD `afterHours` int DEFAULT 0 NOT NULL;

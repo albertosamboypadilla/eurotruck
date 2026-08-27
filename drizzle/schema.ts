@@ -1,17 +1,7 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -22,7 +12,48 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
+export const localAdmins = mysqlTable("local_admins", {
+  id: int("id").autoincrement().primaryKey(),
+  username: varchar("username", { length: 40 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 128 }).notNull(),
+  passwordSalt: varchar("passwordSalt", { length: 64 }).notNull(),
+  active: int("active").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const orders = mysqlTable("orders", {
+  id: int("id").autoincrement().primaryKey(),
+  orderNumber: varchar("orderNumber", { length: 32 }).notNull().unique(),
+  company: varchar("company", { length: 180 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 40 }).notNull(),
+  rnc: varchar("rnc", { length: 40 }),
+  truckBrand: varchar("truckBrand", { length: 80 }),
+  partsNote: text("partsNote"),
+  notificationRecipients: varchar("notificationRecipients", { length: 640 }).notNull().default("eurotruckcxa@yahoo.com,albertosamboy@gmail.com"),
+  afterHours: int("afterHours").notNull().default(0),
+  status: mysqlEnum("status", ["new", "contacted", "closed"]).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const orderItems = mysqlTable("order_items", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  productId: varchar("productId", { length: 180 }).notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  name: text("name").notNull(),
+  brand: varchar("brand", { length: 120 }),
+  application: varchar("application", { length: 120 }),
+  category: varchar("category", { length: 160 }),
+  image: text("image"),
+  sourceUrl: text("sourceUrl"),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
-
-// TODO: Add your tables here
+export type LocalAdmin = typeof localAdmins.$inferSelect;
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = typeof orderItems.$inferInsert;

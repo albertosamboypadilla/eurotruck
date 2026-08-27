@@ -1,0 +1,1 @@
+Verificación visual de /orders: tras la carga de autenticación, la página muestra “EUROTRUCK / OPERACIONES”, “Bandeja de órdenes”, botones Actualizar y Salir, y el estado “No hay órdenes recibidas”. La ruta no expone órdenes al estado vacío y la interfaz responde en el navegador de preview.

@@ -1,0 +1,1 @@
+ALTER TABLE `orders` MODIFY COLUMN `notificationRecipients` varchar(640) NOT NULL DEFAULT 'eurotruckcxa@yahoo.com,albertosamboy@gmail.com';
