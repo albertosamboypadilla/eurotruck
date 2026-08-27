@@ -64,3 +64,10 @@
 - [x] Validar con pruebas de concurrencia, permisos y descarga PDF.
 - [x] Añadir prueba de que orders.take rechaza usuarios no autenticados o no administradores.
 - [x] Añadir prueba de orders.take con usuario autenticado cuyo rol no sea admin.
+
+# Acceso visible a la bandeja
+
+- [x] Añadir botón visible de Acceso empresa/Bandeja de órdenes en la página principal.
+- [x] Confirmar que el botón navega a /orders y muestra el login administrativo.
+- [x] Validar la navegación en escritorio y móvil.
+- [x] Verificar en viewport móvil que Acceso empresa sea visible/usables y navegue correctamente a /orders.

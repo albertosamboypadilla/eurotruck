@@ -310,7 +310,7 @@ export default function Home() {
                 <button className={language === "ES" ? "is-selected" : ""} onClick={() => setLanguage("ES")}>ES</button>
                 <button className={language === "EN" ? "is-selected" : ""} onClick={() => setLanguage("EN")}>EN</button>
               </div>
-              <button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingCart size={14} />Carrito <b>{cartCount}</b></button>
+              <a className="company-access-button" href="/orders" aria-label="Abrir acceso de empresa y bandeja de órdenes"><ShieldCheck size={14} />Acceso empresa</a><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingCart size={14} />Carrito <b>{cartCount}</b></button>
             </div>
             <div className="contact-lines">
               <a href="tel:8098930258"><span>COTIZACIONES (KELVIN)</span><strong>(809) 893-0258</strong></a>
@@ -318,9 +318,9 @@ export default function Home() {
               <a href="tel:8095911222"><span>OFICINA CENTRAL</span><strong>(809) 591-1222</strong></a>
             </div>
           </div>
-          <button className="mobile-menu-button" onClick={() => setMobileNav((value) => !value)} aria-label="Abrir menú">{mobileNav ? <X /> : <Menu />}</button>
+          <a className="mobile-company-access-top" href="/orders" aria-label="Abrir acceso empresa"><ShieldCheck size={16} /></a><button className="mobile-menu-button" onClick={() => setMobileNav((value) => !value)} aria-label="Abrir menú">{mobileNav ? <X /> : <Menu />}</button>
         </div>
-        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label="Navegación principal"><div className="portal-nav-links">{[['Inicio', 'inicio'], ['Venta de Piezas', 'catalogo'], ['Servicio a Domicilio', 'registro'], ['Marcas', 'hero-fleet'], ['Preguntas Frecuentes', 'faq'], ['Contacto', 'contacto']].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div></nav>
+        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label="Navegación principal"><div className="portal-nav-links">{[['Inicio', 'inicio'], ['Venta de Piezas', 'catalogo'], ['Servicio a Domicilio', 'registro'], ['Marcas', 'hero-fleet'], ['Preguntas Frecuentes', 'faq'], ['Contacto', 'contacto']].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div><a className="mobile-company-access" href="/orders"><ShieldCheck size={14} />Acceso empresa / Bandeja de órdenes</a></nav>
       </header>
 
       <main>
