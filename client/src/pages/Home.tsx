@@ -1,6 +1,7 @@
 // Design system: réplica Eurotruck — industrial nocturno, contraste operativo, precisión modular y acciones visibles.
 // La referencia visual manda: fondo carbón/vino, azul ruta eléctrica, amarillo operativo, verde de servicio y fotografía de camiones.
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import dieselCatalog from "../data/diesel-catalog.json";
 import {
   ArrowLeft,
   ArrowRight,
@@ -57,20 +58,11 @@ const brandMeta: Record<TruckBrand, { copy: string; chips: string[]; dot: string
 
 const brands = Object.keys(truckImages) as TruckBrand[];
 
-const products = [
-  { id: "dt-liner-110090", brand: "Scania", code: "1.10090", name: "Camisa de cilindro de motor (con anillos de junta)", category: "Motor & Turbos", badges: ["Scania"], icon: Cog },
-  { id: "dt-gasket-210050", brand: "Volvo", code: "2.10050", name: "Juego de juntas de culata / empaquetadura", category: "Motor & Turbos", badges: ["Volvo", "Renault Trucks"], icon: ShieldCheck },
-  { id: "dt-piston-461905", brand: "Mercedes-Benz", code: "4.61905", name: "Pistón completo de motor", category: "Motor & Turbos", badges: ["Mercedes-Benz"], icon: CircleDot },
-  { id: "dt-valve-intake-110111", brand: "Scania", code: "1.10111", name: "Válvula de admisión de motor", category: "Motor & Turbos", badges: ["Scania"], icon: Zap },
-  { id: "dt-valve-exhaust-110112", brand: "Scania", code: "1.10112", name: "Válvula de escape de motor (blindada)", category: "Motor & Turbos", badges: ["Scania"], icon: Cog },
-  { id: "dt-oilpump-212150", brand: "Volvo", code: "2.12150", name: "Bomba de aceite de engranajes de motor", category: "Motor & Turbos", badges: ["Volvo", "Renault Trucks"], icon: BatteryCharging },
-  { id: "dt-waterpump-461520", brand: "Mercedes-Benz", code: "4.61520", name: "Bomba de agua de refrigeración de motor", category: "Motor & Turbos", badges: ["Mercedes-Benz"], icon: PackageCheck },
-  { id: "dt-camshaft-460150", brand: "Mercedes-Benz", code: "4.60150", name: "Árbol de levas de distribución", category: "Motor & Turbos", badges: ["Mercedes-Benz"], icon: Cog },
-  { id: "dt-bearing-111200", brand: "Scania", code: "1.11200", name: "Juego de cojinetes de biela (estándar)", category: "Motor & Turbos", badges: ["Scania"], icon: CircleDot },
-  { id: "dt-injector-213050", brand: "Volvo", code: "2.13050", name: "Inyector bomba unitario / Inyector Diésel", category: "Eléctrico 24V", badges: ["Volvo", "Renault Trucks"], icon: BatteryCharging },
-  { id: "dt-tensioner-115105", brand: "Scania", code: "1.15105", name: "Polea tensora de correa de accesorios (automático)", category: "Aire & Suspensión", badges: ["Scania"], icon: CircleDot },
-  { id: "dt-cooler-312050", brand: "MAN", code: "3.12050", name: "Intercambiador térmico / Enfriador de aceite de motor", category: "Aire & Suspensión", badges: ["MAN"], icon: Box },
-];
+const catalogPageSize = 24;
+const sourceCatalogCount = 5897;
+const formatCount = (value: number) => new Intl.NumberFormat("es-DO").format(value);
+const catalogBrands = ["Todas las Marcas", ...Array.from(new Set(dieselCatalog.map((product) => product.brand))).sort()];
+const catalogCategories = ["Todas las Piezas", ...Array.from(new Set(dieselCatalog.map((product) => product.category))).sort()];
 
 const faqs = [
   ["¿Qué marcas de piezas vendemos?", "Trabajamos con repuestos para Scania, Volvo, Mercedes-Benz, MAN e Iveco, además de referencias compatibles Renault Trucks y alternativas OEM seleccionadas."],
@@ -130,18 +122,39 @@ export default function Home() {
   const [catalogSearch, setCatalogSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState("Todas las Marcas");
   const [categoryFilter, setCategoryFilter] = useState("Todas las Piezas");
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState<(typeof dieselCatalog)[number] | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const activeIndex = brands.indexOf(activeBrand);
-  const filteredProducts = useMemo(() => products.filter((product) => {
-    const haystack = `${product.name} ${product.brand} ${product.code}`.toLowerCase();
+  const filteredProducts = useMemo(() => dieselCatalog.filter((product) => {
+    const haystack = `${product.name} ${product.brand} ${product.sku} ${product.manufacturer} ${product.category} ${product.usage.join(" ")}`.toLowerCase();
     return (!catalogSearch || haystack.includes(catalogSearch.toLowerCase())) &&
       (brandFilter === "Todas las Marcas" || product.brand === brandFilter) &&
       (categoryFilter === "Todas las Piezas" || product.category === categoryFilter);
   }), [catalogSearch, brandFilter, categoryFilter]);
+  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / catalogPageSize));
+  const visibleProducts = useMemo(() => filteredProducts.slice((catalogPage - 1) * catalogPageSize, catalogPage * catalogPageSize), [filteredProducts, catalogPage]);
 
   const filteredFaqs = useMemo(() => faqs.filter(([question, answer]) => `${question} ${answer}`.toLowerCase().includes(faqSearch.toLowerCase())), [faqSearch]);
+
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [catalogSearch, brandFilter, categoryFilter]);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedProduct(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [selectedProduct]);
 
   function transitionToBrand(next: TruckBrand, direction: "next" | "prev") {
     if (next === activeBrand) return;
@@ -301,12 +314,23 @@ export default function Home() {
         <section className="catalog-section" id="catalogo">
           <div className="catalog-backdrop" />
           <div className="container-wide catalog-content">
-            <div className="catalog-heading"><div><SectionLabel>REPUESTOS GENUINOS &amp; OEM</SectionLabel><h2>Catálogo de Repuestos<br /><span>para Camiones Europeos</span></h2></div><p>Repuestos importados de Europa y Brasil, envíos por Caribe Express y auxilio mecánico directo a patio. Solicita tu cotización instantánea.</p></div>
+            <div className="catalog-heading"><div><SectionLabel>REPUESTOS GENUINOS &amp; OEM</SectionLabel><h2>Catálogo de Repuestos<br /><span>para Camiones Europeos</span></h2></div><p>Índice real del portal Diesel Technic con miniaturas visibles, búsqueda por referencia y acceso directo a cada ficha. Selecciona una tarjeta para ver la imagen ampliada y el enlace del artículo.</p></div>
             <div className="catalog-toolbar"><div className="catalog-search"><Search size={17} /><input value={catalogSearch} onChange={(event) => setCatalogSearch(event.target.value)} placeholder="Buscar pieza, código o marca..." /></div><button className="add-part-button" onClick={() => scrollToId("registro")}><Plus size={15} />Agregar Repuesto</button></div>
-            <div className="filter-row"><div className="filter-group"><span>Marca:</span>{["Todas las Marcas", "Scania", "Volvo", "Mercedes-Benz", "MAN", "Iveco"].map((filter) => <button className={brandFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setBrandFilter(filter)}>{filter}</button>)}</div><div className="filter-group"><span>Categoría:</span>{["Todas las Piezas", "Embragues", "Frenos", "Motor & Turbos", "Aire & Suspensión", "Eléctrico 24V"].map((filter) => <button className={categoryFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setCategoryFilter(filter)}>{filter}</button>)}</div></div>
-            <div className="catalog-meta"><span><PackageCheck size={14} />{filteredProducts.length} referencias disponibles para cotización</span><span><span className="status-dot" />Actualizado para tu operación</span></div>
-            <div className="product-grid">{filteredProducts.map((product) => { const Icon = product.icon; return <article className="product-card" key={product.id}><div className="product-visual"><div className="product-visual-glow" /><Icon size={49} strokeWidth={1.1} /><span>SUBIR FOTO</span><small>Presiona para usar cámara o galería</small></div><div className="product-info"><div className="product-kicker"><span>CATEGORÍA M01: MOTOR</span><span>DT Spare Parts</span><b>{product.code}</b></div><div className="product-badges">{product.badges.map((badge) => <span key={badge}>{badge}</span>)}</div><h3>{product.name}</h3><div className="product-footer"><span className="stock"><span className="status-dot" />En Stock</span><button onClick={() => setCartCount((count) => count + 1)}><Plus size={13} />Agregar</button></div></div></article>; })}</div>
+            <div className="filter-row"><div className="filter-group"><span>Marca:</span>{catalogBrands.map((filter) => <button className={brandFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setBrandFilter(filter)}>{filter}</button>)}</div><div className="filter-group"><span>Categoría:</span>{catalogCategories.slice(0, 18).map((filter) => <button className={categoryFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setCategoryFilter(filter)}>{filter}</button>)}</div></div>
+            <div className="catalog-meta"><span><PackageCheck size={14} />{formatCount(filteredProducts.length)} referencias visibles · {formatCount(sourceCatalogCount)} resultados del portal</span><span><span className="status-dot" />Miniaturas enlazadas a Diesel Technic</span></div>
+            <div className="product-grid">{visibleProducts.map((product) => {
+              const badges = product.badges.map((badge) => typeof badge === "string" ? badge : (badge.id || "PROMOCIÓN"));
+              const productBadges = badges.length > 0 ? badges : (product.isProductPromotion ? ["PROMOCIÓN"] : []);
+              return <article className="product-card" key={product.id}>
+                <button className="product-open" onClick={() => setSelectedProduct(product)} aria-label={`Ver ${product.name}, referencia ${product.sku}`}>
+                  <div className="product-visual product-visual--photo">{product.image ? <img src={product.image} alt={`${product.name} — ${product.sku}`} loading="lazy" /> : <div className="product-no-image"><PackageCheck size={38} /><span>Imagen no disponible en la fuente</span></div>}<span className="product-image-hint"><ArrowUpRight size={13} />Abrir imagen</span></div>
+                  <div className="product-info"><div className="product-kicker"><span>{product.category}</span><span>{product.brand}</span><b>{product.sku}</b></div>{productBadges.length > 0 && <div className="product-badges">{productBadges.slice(0, 3).map((badge) => <span key={badge}>{badge}</span>)}</div>}<h3>{product.name}</h3><p className="product-usage">{product.usage.slice(0, 2).join(" · ") || product.manufacturer || "Aplicación europea"}</p><div className="product-footer"><span className="stock"><span className="status-dot" />Referencia Diesel Technic</span><span className="product-more">Ver detalle <ArrowUpRight size={13} /></span></div></div>
+                </button>
+                <button className="product-add-button" onClick={() => setCartCount((count) => count + 1)}><Plus size={13} />Agregar</button>
+              </article>;
+            })}</div>
             {filteredProducts.length === 0 && <div className="empty-catalog"><Search size={22} /><p>No encontramos una referencia con esos filtros.</p><button onClick={() => { setCatalogSearch(""); setBrandFilter("Todas las Marcas"); setCategoryFilter("Todas las Piezas"); }}>Limpiar filtros</button></div>}
+            {filteredProducts.length > 0 && <div className="catalog-pagination"><button disabled={catalogPage === 1} onClick={() => setCatalogPage((page) => Math.max(1, page - 1))}><ArrowLeft size={14} />Anterior</button><span>Página <b>{catalogPage}</b> de <b>{pageCount}</b></span><button disabled={catalogPage === pageCount} onClick={() => setCatalogPage((page) => Math.min(pageCount, page + 1))}>Siguiente<ArrowRight size={14} /></button></div>}
           </div>
         </section>
 
@@ -314,6 +338,8 @@ export default function Home() {
           <div className="container-wide faq-layout"><div className="faq-side"><SectionLabel>PREGUNTAS FRECUENTES</SectionLabel><h2>Todo lo que necesitas saber sobre <span>Eurotruck</span></h2><p>Si no encuentras tu respuesta, escríbenos y un asesor te orientará según tu flota.</p><a href="mailto:eurotruckcxa@yahoo.com">Hablar con un asesor <ArrowUpRight size={14} /></a></div><div className="faq-main"><div className="faq-search"><Search size={16} /><input id="faq-search-input" value={faqSearch} onChange={(event) => setFaqSearch(event.target.value)} placeholder="Buscar en preguntas (ej: Caribe Express, Grúa, Kelvin, Marcas...)" /></div><div className="faq-list">{filteredFaqs.map(([question, answer]) => { const originalIndex = faqs.findIndex(([item]) => item === question); const isOpen = openFaq === originalIndex; return <div className={isOpen ? "faq-item is-open" : "faq-item"} key={question}><button onClick={() => setOpenFaq(isOpen ? null : originalIndex)}><span><b>{String(originalIndex + 1).padStart(2, "0")}</b>{question}</span><ChevronDown size={17} /></button>{isOpen && <p>{answer}</p>}</div>; })}</div></div></div>
         </section>
       </main>
+
+      {selectedProduct && <div className="product-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}><div className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title"><button className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label="Cerrar detalle"><X size={17} /></button><div className="product-modal-media">{selectedProduct.imageFull || selectedProduct.image ? <img src={selectedProduct.imageFull || selectedProduct.image} alt={`${selectedProduct.name} — ${selectedProduct.sku}`} /> : <div className="product-no-image"><PackageCheck size={48} /><span>Imagen no disponible en la fuente</span></div>}</div><div className="product-modal-copy"><SectionLabel>DETALLE DE REFERENCIA</SectionLabel><span className="product-modal-sku">{selectedProduct.sku}</span><h2 id="product-modal-title">{selectedProduct.name}</h2><p>{selectedProduct.description}</p><div className="product-modal-facts"><span><b>Marca</b>{selectedProduct.brand}</span><span><b>Aplicación</b>{selectedProduct.usage.slice(0, 3).join(", ") || selectedProduct.manufacturer || "Multibrand"}</span><span><b>Categoría</b>{selectedProduct.category}</span><span><b>Empaque</b>{selectedProduct.packagingAmount} {selectedProduct.salesUnit}</span></div>{selectedProduct.replaces && <p className="product-modal-replaces"><b>Reemplaza:</b> {selectedProduct.replaces}</p>}<div className="product-modal-actions"><a className="modal-source-link" href={selectedProduct.url} target="_blank" rel="noreferrer">Ver artículo en Diesel Technic <ArrowUpRight size={14} /></a><button className="modal-add-button" onClick={() => { setCartCount((count) => count + 1); setSelectedProduct(null); }}><Plus size={14} />Agregar a cotización</button></div></div></div></div>}
 
       <footer className="site-footer" id="contacto">
         <div className="container-wide footer-main"><div className="footer-brand"><EurotruckLogo compact /><p>Tu aliado en la carretera. Repuestos europeos, mantenimiento y servicio técnico móvil para flotas que no pueden parar.</p><div className="footer-socials"><a href="https://www.facebook.com/p/Eurotruck-100069794508624/?locale=es_LA" target="_blank" rel="noreferrer"><Facebook size={15} /></a><a href="https://www.instagram.com/eurotrucksrl_rd/" target="_blank" rel="noreferrer"><Instagram size={15} /></a><a href="mailto:eurotruckcxa@yahoo.com"><Mail size={15} /></a></div></div><div className="footer-column"><span>EXPLORA</span><button onClick={() => scrollToId("catalogo")}>Venta de Piezas <ChevronRight size={13} /></button><button onClick={() => scrollToId("servicios")}>Servicios <ChevronRight size={13} /></button><button onClick={() => scrollToId("faq")}>Preguntas Frecuentes <ChevronRight size={13} /></button></div><div className="footer-column"><span>CONTACTO DIRECTO</span><a href="tel:8098930258"><small>COTIZACIONES (KELVIN)</small>(809) 893-0258</a><a href="tel:8099499406"><small>RESCATE 24H &amp; TALLER</small>(809) 949-9406</a><a href="tel:8095911222"><small>OFICINA CENTRAL</small>(809) 591-1222</a></div><div className="footer-column footer-location"><span>OPERACIONES</span><p><MapPin size={15} />Santo Domingo, República Dominicana</p><p><Factory size={15} />Atención para flotas y empresas</p><a className="footer-mail" href="mailto:eurotruckcxa@yahoo.com"><Mail size={15} />eurotruckcxa@yahoo.com</a></div></div><div className="container-wide footer-bottom"><span>© 2026 Eurotruck Repuestos / Servicios</span><span>Precisión europea. Respuesta local.</span></div>
