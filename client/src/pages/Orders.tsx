@@ -18,7 +18,7 @@ export default function Orders() {
   const { user, loading: authLoading, logout } = useAuth();
   const [expanded, setExpanded] = useState<number | null>(null);
   const [pdfOrderId, setPdfOrderId] = useState<number | null>(null);
-  const localLogout = trpc.auth.localLogout.useMutation({ onSuccess: async () => { await logout(); window.location.reload(); } });
+  const localLogout = trpc.auth.localLogout.useMutation({ onSuccess: async () => { await logout(); window.location.href = "/"; } });
   const ordersQuery = trpc.orders.list.useQuery(undefined, { enabled: user?.role === "admin", retry: false });
   const pdfQuery = trpc.orders.pdf.useQuery({ id: pdfOrderId ?? 0 }, { enabled: pdfOrderId !== null });
   const takeOrder = trpc.orders.take.useMutation({ onSuccess: () => ordersQuery.refetch() });

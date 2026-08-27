@@ -113,3 +113,14 @@
 - [x] Corregir la resolución de sesión local para que admin1 pueda abrir /inventory aunque exista una sesión OAuth de preview.
 - [x] Hacer que Salir cierre tanto la sesión local como la sesión OAuth/preview cuando ambas existan.
 - [x] Conectar el botón Salir de /inventory al cierre de sesión local y OAuth igual que la bandeja.
+
+# Ajuste solicitado: salida e inventario con catálogo principal
+
+- [x] Hacer que Salir desde el acceso de empresa vuelva siempre a `/`.
+- [x] Hacer que Salir desde `/inventory` vuelva siempre a `/`.
+- [x] Reutilizar en Inventario todos los registros disponibles en el catálogo de la página principal.
+- [x] Mantener en Inventario los mismos datos de referencia, descripción, marca y aplicación del catálogo principal.
+- [x] Permitir escanear/buscar una referencia y registrar cantidad, tramo y góndola sobre esos datos.
+- [x] Validar pruebas, búsqueda real, acumulación y navegación de salida.
+- [x] Mostrar y tipar explícitamente la descripción del catálogo principal en Inventory.
+- [x] Verificar con una prueba que Inventory conserva la descripción al resolver un artículo fragmentado.

@@ -47,3 +47,21 @@ La carga bajo demanda resolvió el problema: al buscar `1.00739`, el fragmento n
 ## Comprobación responsive del workspace
 
 En la sesión autenticada de admin1, el navegador mantuvo visible el artículo seleccionado, los tres campos y el panel de resumen durante el ajuste de zoom/viewport. El scroll no detectó desplazamiento inesperado ni desbordamiento horizontal; las reglas CSS apilan el resumen debajo del formulario por debajo de 800 px y convierten cantidad, tramo y góndola en una sola columna.
+
+## Ajuste de navegación y catálogo principal
+
+La sesión local de `admin1` sigue entrando a la bandeja y mantiene visible el acceso a Inventario. La modificación pendiente de esta iteración es que `Salir` debe llevar a `/` y que Inventory debe consumir los mismos registros completos que Home, no un índice reducido independiente.
+
+La navegación directa a `/inventory` funcionó con admin1 tras un fallo transitorio del clic de preview. El workspace carga sin error y presenta el buscador preparado para recibir una referencia.
+
+La búsqueda real de `1.00739` con el catálogo completo abrió `Junta tórica` y ahora muestra su miniatura, marca `DT Spare Parts` y aplicación `Iveco`, confirmando que Inventory está reutilizando los datos completos de Home, no solo la versión mínima anterior.
+
+La prueba del botón `Salir` de Inventory terminó en la URL raíz `/` y mostró la página principal de Eurotruck, tal como se solicitó.
+
+La verificación reproducible confirmó `source_records=39439`, `shard_records=39439`, `missing=0`, `extra=0` y coincidencia de imagen/aplicación para `1.00739`. Inventory usa ahora el catálogo completo de Home por fragmentos, mientras que las búsquedas por referencia cargan únicamente el fragmento necesario.
+
+La reautenticación local de `admin1` fue exitosa; la bandeja vuelve a mostrar `Inventario`, `Actualizar` y `Salir`.
+
+El clic del enlace de Inventario volvió a presentar un fallo transitorio del canal del preview, pero la navegación directa a `/inventory` mantuvo la sesión de admin1 y mostró el buscador limpio sin errores.
+
+Con admin1 autenticado, la búsqueda de `1.00739` muestra en la ficha la descripción completa `DT Spare Parts 1.00739 Junta tórica, d: 18 mm, S: 1,5 mm`, además de referencia, imagen, marca, aplicación y los campos cantidad/tramo/góndola.
