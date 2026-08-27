@@ -1,10 +1,11 @@
-# Alineación visual con la referencia
+# Ajuste visual según Eurotruck oficial
 
-- [x] Comparar encabezado, navegación y jerarquía de contenido con la referencia.
-- [x] Ajustar la presentación de artículos para conservar la misma lógica visual de la referencia.
-- [x] Ajustar la sección final y el pie de página con la misma estructura de cierre.
-- [x] Mantener identidad, logo, contactos, asistente Rino y funciones actuales de Eurotruck.
-- [x] Verificar fidelidad visual en escritorio y móvil; guardar checkpoint y entregar.
-
-- [ ] Guardar un nuevo checkpoint de la versión alineada visualmente con la referencia.
-- [ ] Entregar al usuario la actualización visual final con el checkpoint adjunto.
+- [x] Comparar la página oficial con la interfaz actual.
+- [x] Eliminar la barra superior de 50 000 artículos, plataforma, entrega rápida y servicio.
+- [x] Convertir el buscador superior a un azul oscuro integrado con Eurotruck.
+- [x] Hacer más suaves y atractivos el título del catálogo y las tarjetas de artículos.
+- [x] Ajustar Rino para que se vea claro junto al catálogo sin tapar datos.
+- [x] Mantener miniaturas, modal, filtros, paginación, carrito y enlaces.
+- [x] Verificar escritorio y móvil, guardar checkpoint y entregar.
+- [ ] Guardar un nuevo checkpoint de la versión con barra superior eliminada, buscador azul oscuro y catálogo/Rino suavizados.
+- [ ] Entregar al usuario la actualización visual final con el nuevo checkpoint adjunto.
