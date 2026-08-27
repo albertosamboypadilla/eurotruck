@@ -102,7 +102,7 @@
   .contact-lines span { color: #7790ba; font: 600 .49rem var(--technical); letter-spacing: .11em; }
   .contact-lines--green span { color: #46d6a5; }
   .contact-lines strong { color: var(--white); font: 700 .67rem var(--technical); letter-spacing: .05em; }
-  .main-nav { position: relative; display: flex; min-height: 76px; flex-direction: column; align-items: stretch; justify-content: center; gap: 0; border-top: 1px solid rgba(116,150,207,.12); background: rgba(3,10,20,.36); }
+  .main-nav { position: relative; display: flex; min-height: 42px; flex-direction: row; align-items: center; justify-content: center; gap: 0; border-top: 1px solid rgba(116,150,207,.12); background: rgba(3,10,20,.36); }
   .portal-nav-primary, .portal-nav-links { display: flex; align-items: center; justify-content: center; }
   .portal-nav-primary { min-height: 34px; justify-content: flex-start; border-bottom: 1px solid rgba(116,150,207,.12); background: rgba(255,255,255,.04); }
   .portal-nav-primary button { display: inline-flex; align-items: center; gap: 7px; border: 0; border-right: 1px solid rgba(116,150,207,.16); background: transparent; padding: 9px 21px; color: #bad0e2; font: 700 .58rem var(--technical); letter-spacing: .06em; cursor: pointer; transition: background 160ms, color 160ms; }
@@ -455,9 +455,8 @@
   .portal-header-search { display: none; }
   .main-nav { display: none; min-height: auto; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 0 13px; }
   .main-nav--open { display: flex; }
-  .portal-nav-primary, .portal-nav-links { flex-direction: column; align-items: stretch; }
-  .portal-nav-primary { border-bottom: 0; }
-  .portal-nav-primary button { justify-content: space-between; border-right: 0; border-bottom: 1px solid rgba(116,150,207,.12); padding: 10px 5px; text-align: left; }
+  .portal-nav-links { flex-direction: column; align-items: stretch; }
+  .main-nav { min-height: auto; }
   .main-nav button { padding: 11px 5px; text-align: left; }
   .main-nav button::after { right: 0; bottom: 2px; left: 0; }
   .hero-section { min-height: 860px; padding-top: 28px; }

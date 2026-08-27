@@ -283,7 +283,7 @@ export default function Home() {
           </div>
           <button className="mobile-menu-button" onClick={() => setMobileNav((value) => !value)} aria-label="Abrir menú">{mobileNav ? <X /> : <Menu />}</button>
         </div>
-        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label="Navegación principal"><div className="portal-nav-primary"><button onClick={() => scrollToId("catalogo")}>DIVISIÓN DE PRODUCTOS <ChevronDown size={13} /></button><button onClick={() => scrollToId("catalogo")}>GRUPOS DE PRODUCTOS <ChevronDown size={13} /></button><button onClick={() => scrollToId("catalogo")}>PROMOCIONES</button><button onClick={() => scrollToId("catalogo")}>PIEZAS UNIVERSALES</button></div><div className="portal-nav-links">{[['Inicio', 'inicio'], ['Venta de Piezas', 'catalogo'], ['Servicio a Domicilio', 'registro'], ['Marcas', 'hero-fleet'], ['Preguntas Frecuentes', 'faq'], ['Contacto', 'contacto']].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div></nav>
+        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label="Navegación principal"><div className="portal-nav-links">{[['Inicio', 'inicio'], ['Venta de Piezas', 'catalogo'], ['Servicio a Domicilio', 'registro'], ['Marcas', 'hero-fleet'], ['Preguntas Frecuentes', 'faq'], ['Contacto', 'contacto']].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div></nav>
       </header>
 
       <main>
