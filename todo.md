@@ -9,4 +9,4 @@
 - [x] Implementar estados de ayuda reales en el panel de Rino según carrito vacío o con artículos.
 - [x] Conectar Rino a acciones verificables para pieza, orden, teléfono, correo y horario.
 - [x] Validar drawer del carrito en móvil y teclado con foco y cierre accesible.
-- [ ] Guardar un checkpoint nuevo después de los cambios del carrito con Rino.
+- [x] Guardar un checkpoint nuevo después de los cambios del carrito con Rino.
