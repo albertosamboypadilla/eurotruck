@@ -1,7 +1,6 @@
 // Design system: réplica Eurotruck — industrial nocturno, contraste operativo, precisión modular y acciones visibles.
 // La referencia visual manda: fondo carbón/vino, azul ruta eléctrica, amarillo operativo, verde de servicio y fotografía de camiones.
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import dieselCatalog from "../data/diesel-catalog.json";
 import {
   ArrowLeft,
   ArrowRight,
@@ -58,11 +57,39 @@ const brandMeta: Record<TruckBrand, { copy: string; chips: string[]; dot: string
 
 const brands = Object.keys(truckImages) as TruckBrand[];
 
+type CatalogProduct = {
+  id: string;
+  sku: string;
+  name: string;
+  description: string;
+  slug: string;
+  url: string;
+  image: string;
+  imageFull: string;
+  imageSource: string;
+  application: string;
+  applicationId: string;
+  brand: string;
+  brandId: string;
+  manufacturer: string;
+  category: string;
+  subcategory: string;
+  usage: string[];
+  replaces: string;
+  mainOe: string;
+  packagingAmount: number;
+  salesUnit: string;
+  badges: Array<string | { id: string; visible?: { from?: string; till?: string } }>;
+  isProductNews: boolean;
+  isProductPromotion: boolean;
+  crossReferences: Array<{ competitor: string; referenceNo: string }>;
+};
+
+const catalogFileUrl = "/manus-storage/diesel-catalog-all_60b23acb.json";
 const catalogPageSize = 24;
-const sourceCatalogCount = 5897;
+const catalogSourceCounts: Record<string, number> = { Iveco: 5897, Scania: 7005, Volvo: 8511, "Mercedes-Benz": 11299, MAN: 6958 };
+const catalogApplications = ["Todas las aplicaciones", "Iveco", "Scania", "Volvo", "Mercedes-Benz", "MAN"];
 const formatCount = (value: number) => new Intl.NumberFormat("es-DO").format(value);
-const catalogBrands = ["Todas las Marcas", ...Array.from(new Set(dieselCatalog.map((product) => product.brand))).sort()];
-const catalogCategories = ["Todas las Piezas", ...Array.from(new Set(dieselCatalog.map((product) => product.category))).sort()];
 
 const faqs = [
   ["¿Qué marcas de piezas vendemos?", "Trabajamos con repuestos para Scania, Volvo, Mercedes-Benz, MAN e Iveco, además de referencias compatibles Renault Trucks y alternativas OEM seleccionadas."],
@@ -119,29 +146,46 @@ export default function Home() {
   const [assistantOpen, setAssistantOpen] = useState(true);
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState("");
+  const [applicationFilter, setApplicationFilter] = useState("Todas las aplicaciones");
   const [brandFilter, setBrandFilter] = useState("Todas las Marcas");
   const [categoryFilter, setCategoryFilter] = useState("Todas las Piezas");
   const [catalogPage, setCatalogPage] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState<(typeof dieselCatalog)[number] | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const activeIndex = brands.indexOf(activeBrand);
-  const filteredProducts = useMemo(() => dieselCatalog.filter((product) => {
+  const catalogBrands = useMemo(() => ["Todas las Marcas", ...Array.from(new Set(catalog.map((product) => product.brand))).sort()], [catalog]);
+  const catalogCategories = useMemo(() => ["Todas las Piezas", ...Array.from(new Set(catalog.map((product) => product.category))).sort()], [catalog]);
+  const filteredProducts = useMemo(() => catalog.filter((product) => {
     const haystack = `${product.name} ${product.brand} ${product.sku} ${product.manufacturer} ${product.category} ${product.usage.join(" ")}`.toLowerCase();
     return (!catalogSearch || haystack.includes(catalogSearch.toLowerCase())) &&
+      (applicationFilter === "Todas las aplicaciones" || product.application === applicationFilter) &&
       (brandFilter === "Todas las Marcas" || product.brand === brandFilter) &&
       (categoryFilter === "Todas las Piezas" || product.category === categoryFilter);
-  }), [catalogSearch, brandFilter, categoryFilter]);
+  }), [catalog, catalogSearch, applicationFilter, brandFilter, categoryFilter]);
+  const applicationResultCount = applicationFilter === "Todas las aplicaciones" ? Object.values(catalogSourceCounts).reduce((total, count) => total + count, 0) : (catalogSourceCounts[applicationFilter] || filteredProducts.length);
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / catalogPageSize));
   const visibleProducts = useMemo(() => filteredProducts.slice((catalogPage - 1) * catalogPageSize, catalogPage * catalogPageSize), [filteredProducts, catalogPage]);
 
   const filteredFaqs = useMemo(() => faqs.filter(([question, answer]) => `${question} ${answer}`.toLowerCase().includes(faqSearch.toLowerCase())), [faqSearch]);
 
   useEffect(() => {
+    let cancelled = false;
+    fetch(catalogFileUrl)
+      .then((response) => { if (!response.ok) throw new Error(`Catalog ${response.status}`); return response.json() as Promise<CatalogProduct[]>; })
+      .then((items) => { if (!cancelled) { setCatalog(items); setCatalogLoading(false); } })
+      .catch(() => { if (!cancelled) { setCatalogError(true); setCatalogLoading(false); } });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     setCatalogPage(1);
-  }, [catalogSearch, brandFilter, categoryFilter]);
+  }, [catalogSearch, applicationFilter, brandFilter, categoryFilter]);
 
   useEffect(() => {
     if (!selectedProduct) return;
@@ -316,8 +360,11 @@ export default function Home() {
           <div className="container-wide catalog-content">
             <div className="catalog-heading"><div><SectionLabel>REPUESTOS GENUINOS &amp; OEM</SectionLabel><h2>Catálogo de Repuestos<br /><span>para Camiones Europeos</span></h2></div><p>Índice real del portal Diesel Technic con miniaturas visibles, búsqueda por referencia y acceso directo a cada ficha. Selecciona una tarjeta para ver la imagen ampliada y el enlace del artículo.</p></div>
             <div className="catalog-toolbar"><div className="catalog-search"><Search size={17} /><input value={catalogSearch} onChange={(event) => setCatalogSearch(event.target.value)} placeholder="Buscar pieza, código o marca..." /></div><button className="add-part-button" onClick={() => scrollToId("registro")}><Plus size={15} />Agregar Repuesto</button></div>
-            <div className="filter-row"><div className="filter-group"><span>Marca:</span>{catalogBrands.map((filter) => <button className={brandFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setBrandFilter(filter)}>{filter}</button>)}</div><div className="filter-group"><span>Categoría:</span>{catalogCategories.slice(0, 18).map((filter) => <button className={categoryFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setCategoryFilter(filter)}>{filter}</button>)}</div></div>
-            <div className="catalog-meta"><span><PackageCheck size={14} />{formatCount(filteredProducts.length)} referencias visibles · {formatCount(sourceCatalogCount)} resultados del portal</span><span><span className="status-dot" />Miniaturas enlazadas a Diesel Technic</span></div>
+            <div className="filter-row"><div className="filter-group filter-group--applications"><span>Aplicación:</span>{catalogApplications.map((filter) => <button className={applicationFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setApplicationFilter(filter)}>{filter}</button>)}</div><div className="filter-group"><span>Marca:</span>{catalogBrands.map((filter) => <button className={brandFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setBrandFilter(filter)}>{filter}</button>)}</div><div className="filter-group"><span>Categoría:</span>{catalogCategories.slice(0, 18).map((filter) => <button className={categoryFilter === filter ? "filter-chip is-active" : "filter-chip"} key={filter} onClick={() => setCategoryFilter(filter)}>{filter}</button>)}</div></div>
+            <div className="catalog-meta"><span><PackageCheck size={14} />{catalogLoading ? "Cargando catálogo..." : `${formatCount(filteredProducts.length)} referencias visibles · ${formatCount(applicationResultCount)} resultados del portal`}</span><span><span className="status-dot" />Miniaturas enlazadas a Diesel Technic</span></div>
+            {catalogLoading && <div className="catalog-loading">Cargando las miniaturas y referencias de las aplicaciones...</div>}
+            {catalogError && <div className="empty-catalog"><Search size={22} /><p>No fue posible cargar el índice Diesel Technic.</p><button onClick={() => window.location.reload()}>Reintentar</button></div>}
+            {!catalogLoading && !catalogError && <>
             <div className="product-grid">{visibleProducts.map((product) => {
               const badges = product.badges.map((badge) => typeof badge === "string" ? badge : (badge.id || "PROMOCIÓN"));
               const productBadges = badges.length > 0 ? badges : (product.isProductPromotion ? ["PROMOCIÓN"] : []);
@@ -331,6 +378,7 @@ export default function Home() {
             })}</div>
             {filteredProducts.length === 0 && <div className="empty-catalog"><Search size={22} /><p>No encontramos una referencia con esos filtros.</p><button onClick={() => { setCatalogSearch(""); setBrandFilter("Todas las Marcas"); setCategoryFilter("Todas las Piezas"); }}>Limpiar filtros</button></div>}
             {filteredProducts.length > 0 && <div className="catalog-pagination"><button disabled={catalogPage === 1} onClick={() => setCatalogPage((page) => Math.max(1, page - 1))}><ArrowLeft size={14} />Anterior</button><span>Página <b>{catalogPage}</b> de <b>{pageCount}</b></span><button disabled={catalogPage === pageCount} onClick={() => setCatalogPage((page) => Math.min(pageCount, page + 1))}>Siguiente<ArrowRight size={14} /></button></div>}
+            </>}
           </div>
         </section>
 

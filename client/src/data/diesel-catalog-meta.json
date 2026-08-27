@@ -1,8 +1,30 @@
 {
-  "sourceResults": 5897,
-  "uniqueProducts": 5671,
-  "duplicatesRemoved": 226,
-  "sourceQuery": "applications=55&sort_by=_score&desc=1",
-  "sourceEndpoint": "https://partnerportal.dieseltechnic.com/api/search/filteredSearch",
-  "generatedAt": "2026-08-26"
+  "sourceResults": {
+    "Iveco": 5897,
+    "Scania": 7005,
+    "Volvo": 8511,
+    "Mercedes-Benz": 11299,
+    "MAN": 6958
+  },
+  "uniqueProducts": {
+    "Iveco": 5671,
+    "Scania": 7004,
+    "Volvo": 8510,
+    "Mercedes-Benz": 11296,
+    "MAN": 6958
+  },
+  "duplicatesRemoved": {
+    "Iveco": 226,
+    "Scania": 1,
+    "Volvo": 1,
+    "Mercedes-Benz": 3,
+    "MAN": 0
+  },
+  "applicationIds": {
+    "Iveco": "55",
+    "Scania": "103",
+    "Volvo": "120",
+    "Mercedes-Benz": "74",
+    "MAN": "69"
+  }
 }

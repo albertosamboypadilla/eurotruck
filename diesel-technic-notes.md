@@ -65,3 +65,7 @@ La consulta `start=0&length=5897&sort_by=_score&desc=1&applications=55` muestra 
 ## Catálogo completo recuperado
 
 La sesión Chromium validada permitió consultar el endpoint POST `/api/search/filteredSearch` en 59 bloques de 100 y recuperar exactamente 5897 registros, sin fallos. Cada registro incluye `sku`, `name`, `slug`, `usageList`, `manufacturer`, `image.src`, `brand`, `categories`, `crossReferences` y badges. Hay 226 SKUs repetidos en la respuesta y deberán deduplicarse por SKU/slug antes de construir las tarjetas. Algunas referencias, como 7.00491, usan una imagen de aviso (`0000/important_advice_design.jpg`) en lugar de una foto de pieza; se conservará la imagen entregada por el portal y se marcará como disponible según fuente, sin inventar imágenes.
+
+## Aplicaciones adicionales
+
+Se confirmaron los IDs de aplicación en el portal: Iveco `55` con 5897 resultados, Scania `103` con 7005, Volvo `120` con 8511, Mercedes-Benz `74` con 11299 y MAN `69` con 6958. La consulta masiva se completó en bloques de 1000 para Scania, Volvo, Mercedes-Benz y MAN, con 0 fallos. La respuesta contiene rutas de imagen `image.src` para todos los registros de las cuatro aplicaciones. El catálogo consolidado contiene 39439 referencias únicas tras deduplicar únicamente repeticiones internas por SKU.

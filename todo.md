@@ -1,8 +1,8 @@
-# Catálogo Diesel Technic con miniaturas visibles
+# Catálogo por aplicaciones adicionales
 
-- [x] Confirmar el patrón real de miniatura para cada referencia y la limitación de paginación del portal.
-- [x] Preparar registros reales del catálogo con nombre, referencia, marca, imagen y enlace.
-- [x] Mostrar la miniatura directamente en cada tarjeta antes de seleccionar el artículo.
-- [x] Abrir un modal mediano al hacer clic en la miniatura o tarjeta con imagen grande y enlace externo.
-- [x] Verificar carga diferida, búsqueda, paginación y responsive sin inventar datos.
-- [x] Guardar checkpoint y entregar la actualización.
+- [x] Identificar los códigos reales de Scania, Volvo, Mercedes-Benz y MAN en el portal.
+- [x] Recuperar los bloques paginados de 100 artículos por aplicación.
+- [x] Consolidar y deduplicar los registros sin perder la aplicación de origen.
+- [x] Integrar un selector de aplicación: Iveco, Scania, Volvo, Mercedes-Benz y MAN.
+- [x] Mantener miniaturas, modal full-size, enlaces, filtros y paginación por aplicación.
+- [x] Validar cobertura, rendimiento y responsive; guardar checkpoint y entregar.
