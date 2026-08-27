@@ -145,7 +145,10 @@ export default function Home() {
   const [isSliding, setIsSliding] = useState(false);
   const slideTimerRef = useRef<number | undefined>(undefined);
   const [isFleetPaused, setIsFleetPaused] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState<CatalogProduct[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [rinoTopic, setRinoTopic] = useState<"pieces" | "order" | "hours" | "contact">("pieces");
+  const cartCount = cartItems.length;
   const [mobileNav, setMobileNav] = useState(false);
   const [language, setLanguage] = useState<"ES" | "EN">("ES");
   const [assistantOpen, setAssistantOpen] = useState(true);
@@ -162,6 +165,10 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  function addToCart(product: CatalogProduct) {
+    setCartItems((items) => items.some((item) => item.id === product.id) ? items : [...items, product]);
+  }
 
   const activeIndex = brands.indexOf(activeBrand);
   const catalogBrands = useMemo(() => ["Todas las Marcas", ...Array.from(new Set(catalog.map((product) => product.brand))).sort()], [catalog]);
@@ -193,9 +200,12 @@ export default function Home() {
   }, [catalogSearch, applicationFilter, brandFilter, categoryFilter]);
 
   useEffect(() => {
-    if (!selectedProduct) return;
+    if (!selectedProduct && !cartOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedProduct(null);
+      if (event.key === "Escape") {
+        setSelectedProduct(null);
+        setCartOpen(false);
+      }
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
@@ -203,7 +213,7 @@ export default function Home() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [selectedProduct]);
+  }, [selectedProduct, cartOpen]);
 
   function transitionToBrand(next: TruckBrand, direction: "next" | "prev") {
     if (next === activeBrand) return;
@@ -273,7 +283,7 @@ export default function Home() {
                 <button className={language === "ES" ? "is-selected" : ""} onClick={() => setLanguage("ES")}>ES</button>
                 <button className={language === "EN" ? "is-selected" : ""} onClick={() => setLanguage("EN")}>EN</button>
               </div>
-              <button className="cart-button" onClick={() => scrollToId("catalogo")}><ShoppingCart size={14} />Carrito <b>{cartCount}</b></button>
+              <button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingCart size={14} />Carrito <b>{cartCount}</b></button>
             </div>
             <div className="contact-lines">
               <a href="tel:8098930258"><span>COTIZACIONES (KELVIN)</span><strong>(809) 893-0258</strong></a>
@@ -377,7 +387,7 @@ export default function Home() {
                   <div className="product-visual product-visual--photo">{product.image ? <img src={product.image} alt={`${product.name} — ${product.sku}`} loading="lazy" /> : <div className="product-no-image"><PackageCheck size={38} /><span>Imagen no disponible en la fuente</span></div>}<span className="product-image-hint"><ArrowUpRight size={13} />Abrir imagen</span></div>
                   <div className="product-info"><div className="product-kicker"><span>{product.category}</span><span>{product.brand}</span><b>{product.sku}</b></div>{productBadges.length > 0 && <div className="product-badges">{productBadges.slice(0, 3).map((badge) => <span key={badge}>{badge}</span>)}</div>}<h3>{product.name}</h3><div className="product-source-facts"><span><small>Reemplaza</small>{product.replaces || "—"}</span><span><small>Adecuado para</small>{product.application}</span><span><small>Empaque</small>{product.packagingAmount} {product.salesUnit}</span><span><small>Precio neto</small>Bajo demanda</span></div><div className="product-footer"><span className="stock"><span className="status-dot" />{product.application}</span><span className="product-more">Más información <ArrowUpRight size={13} /></span></div></div>
                 </button>
-                <button className="product-add-button" onClick={() => setCartCount((count) => count + 1)}><Plus size={13} />Agregar</button>
+                <button className="product-add-button" onClick={() => addToCart(product)}><Plus size={13} />Agregar</button>
               </article>;
             })}</div>
             {filteredProducts.length === 0 && <div className="empty-catalog"><Search size={22} /><p>No encontramos una referencia con esos filtros.</p><button onClick={() => { setCatalogSearch(""); setBrandFilter("Todas las Marcas"); setCategoryFilter("Todas las Piezas"); }}>Limpiar filtros</button></div>}
@@ -391,7 +401,9 @@ export default function Home() {
         </section>
       </main>
 
-      {selectedProduct && <div className="product-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}><div className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title"><button className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label="Cerrar detalle"><X size={17} /></button><div className="product-modal-media">{selectedProduct.imageFull || selectedProduct.image ? <img src={selectedProduct.imageFull || selectedProduct.image} alt={`${selectedProduct.name} — ${selectedProduct.sku}`} /> : <div className="product-no-image"><PackageCheck size={48} /><span>Imagen no disponible en la fuente</span></div>}</div><div className="product-modal-copy"><SectionLabel>DETALLE DE REFERENCIA</SectionLabel><span className="product-modal-sku">{selectedProduct.sku}</span><h2 id="product-modal-title">{selectedProduct.name}</h2><p>{selectedProduct.description}</p><div className="product-modal-facts"><span><b>Marca</b>{selectedProduct.brand}</span><span><b>Aplicación</b>{selectedProduct.usage.slice(0, 3).join(", ") || selectedProduct.manufacturer || "Multibrand"}</span><span><b>Categoría</b>{selectedProduct.category}</span><span><b>Empaque</b>{selectedProduct.packagingAmount} {selectedProduct.salesUnit}</span></div>{selectedProduct.replaces && <p className="product-modal-replaces"><b>Reemplaza:</b> {selectedProduct.replaces}</p>}<div className="product-modal-actions"><a className="modal-source-link" href={selectedProduct.url} target="_blank" rel="noreferrer">Ver artículo en Diesel Technic <ArrowUpRight size={14} /></a><button className="modal-add-button" onClick={() => { setCartCount((count) => count + 1); setSelectedProduct(null); }}><Plus size={14} />Agregar a cotización</button></div></div></div></div>}
+      {cartOpen && <div className="cart-drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title"><div className="cart-drawer-head"><div><SectionLabel>COTIZACIÓN EUROTRUCK</SectionLabel><h2 id="cart-title">Tu carrito de piezas</h2></div><button autoFocus className="product-modal-close" onClick={() => setCartOpen(false)} aria-label="Cerrar carrito"><X size={17} /></button></div>{cartItems.length === 0 ? <div className="cart-empty"><ShoppingCart size={34} /><h3>Tu carrito está vacío</h3><p>Agrega piezas del catálogo y Rino te ayudará a preparar la cotización.</p><button className="modal-add-button" onClick={() => { setCartOpen(false); scrollToId("catalogo"); }}>Ver catálogo <ArrowRight size={14} /></button></div> : <><div className="cart-items">{cartItems.map((item) => <div className="cart-item" key={item.id}><img src={item.image} alt="" /><div><b>{item.name}</b><small>{item.sku} · {item.application}</small></div><button onClick={() => setCartItems((items) => items.filter((cartItem) => cartItem.id !== item.id))} aria-label={`Eliminar ${item.name}`}><X size={14} /></button></div>)}</div><div className="cart-total"><span>{cartCount} referencia{cartCount === 1 ? "" : "s"} seleccionada{cartCount === 1 ? "" : "s"}</span><strong>Cotización bajo demanda</strong></div><button className="cart-checkout-button" onClick={() => scrollToId("registro")}><ClipboardList size={15} />Solicitar cotización</button></>}<div className="cart-rino-helper"><img src="/manus-storage/rino-assistant-3d_3bdd6acb.png" alt="Rino Asistente" /><div className="cart-rino-copy"><b>Rino te ayuda</b><span>{rinoTopic === "pieces" && (cartCount ? `Ya tienes ${cartCount} referencia${cartCount === 1 ? "" : "s"}. Puedes quitar o continuar agregando piezas.` : "Busca por referencia, descripción o marca en el catálogo.")}{rinoTopic === "order" && "Al solicitar la cotización te guiaremos para registrar tus datos y preparar la orden."}{rinoTopic === "hours" && <>Atendemos de 8:30 AM a 5:00 PM. <button className="rino-inline-action" onClick={() => { setRinoTopic("order"); scrollToId("registro"); }}>Continuar solicitud</button></>}{rinoTopic === "contact" && <>Cotizaciones <a className="rino-inline-action" href="tel:8098930258">(809) 893-0258</a> · Oficina <a className="rino-inline-action" href="tel:8095911222">(809) 591-1222</a> · <a className="rino-inline-action" href="mailto:eurotruckcxa@yahoo.com">correo electrónico</a></>}</span><div className="cart-rino-actions"><button className={rinoTopic === "pieces" ? "is-active" : ""} onClick={() => { setRinoTopic("pieces"); setCartOpen(false); scrollToId("catalogo"); }}>Piezas</button><button className={rinoTopic === "order" ? "is-active" : ""} onClick={() => { setRinoTopic("order"); scrollToId("registro"); }}>Orden</button><button className={rinoTopic === "hours" ? "is-active" : ""} onClick={() => setRinoTopic("hours")}>Horario</button><button className={rinoTopic === "contact" ? "is-active" : ""} onClick={() => setRinoTopic("contact")}>Contacto</button></div></div></div></aside></div>}
+
+      {selectedProduct && <div className="product-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}><div className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title"><button className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label="Cerrar detalle"><X size={17} /></button><div className="product-modal-media">{selectedProduct.imageFull || selectedProduct.image ? <img src={selectedProduct.imageFull || selectedProduct.image} alt={`${selectedProduct.name} — ${selectedProduct.sku}`} /> : <div className="product-no-image"><PackageCheck size={48} /><span>Imagen no disponible en la fuente</span></div>}</div><div className="product-modal-copy"><SectionLabel>DETALLE DE REFERENCIA</SectionLabel><span className="product-modal-sku">{selectedProduct.sku}</span><h2 id="product-modal-title">{selectedProduct.name}</h2><p>{selectedProduct.description}</p><div className="product-modal-facts"><span><b>Marca</b>{selectedProduct.brand}</span><span><b>Aplicación</b>{selectedProduct.usage.slice(0, 3).join(", ") || selectedProduct.manufacturer || "Multibrand"}</span><span><b>Categoría</b>{selectedProduct.category}</span><span><b>Empaque</b>{selectedProduct.packagingAmount} {selectedProduct.salesUnit}</span></div>{selectedProduct.replaces && <p className="product-modal-replaces"><b>Reemplaza:</b> {selectedProduct.replaces}</p>}<div className="product-modal-actions"><a className="modal-source-link" href={selectedProduct.url} target="_blank" rel="noreferrer">Ver artículo en Diesel Technic <ArrowUpRight size={14} /></a><button className="modal-add-button" onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); setCartOpen(true); }}><Plus size={14} />Agregar a cotización</button></div></div></div></div>}
 
       <footer className="site-footer" id="contacto">
         <div className="footer-portal-strip"><div className="container-wide footer-portal-strip-inner"><span>EUROTRUCK / PORTAL DE PIEZAS</span><span>Consulta por referencia, descripción o aplicación</span><a href="mailto:eurotruckcxa@yahoo.com">Contactar HelpDesk <ArrowUpRight size={13} /></a></div></div>
@@ -400,7 +412,7 @@ export default function Home() {
       </footer>
 
       <div className={`assistant-widget ${assistantOpen ? "assistant-widget--open" : ""}`}>
-        {assistantOpen && <div className="assistant-panel"><div className="assistant-head"><div className="assistant-avatar"><img src="/manus-storage/rino-assistant-3d_3bdd6acb.png" alt="" /></div><div><b>Rino Asistente</b><span><i /> Eurotruck</span></div><button onClick={() => setAssistantOpen(false)} aria-label="Cerrar asistente"><X size={13} /></button></div><p>¡Buenas tardes! Soy Rino, tu asistente mecánico. ¿Buscas repuestos o necesitas servicio a domicilio?</p><button className="assistant-primary" onClick={() => scrollToId("registro")}>Preguntarle a Rino <ChevronRight size={14} /></button><div className="assistant-actions"><button onClick={() => scrollToId("catalogo")}><ShoppingCart size={13} />Carrito de Pedidos <small>({cartCount})</small></button><button onClick={() => scrollToId("registro")}><ClipboardList size={13} />Registrar Empresa</button></div><small className="assistant-hint">Puedes arrastrarme por la pantalla</small></div>}
+        {assistantOpen && <div className="assistant-panel"><div className="assistant-head"><div className="assistant-avatar"><img src="/manus-storage/rino-assistant-3d_3bdd6acb.png" alt="" /></div><div><b>Rino Asistente</b><span><i /> Eurotruck</span></div><button onClick={() => setAssistantOpen(false)} aria-label="Cerrar asistente"><X size={13} /></button></div><p>¡Buenas tardes! Soy Rino, tu asistente mecánico. ¿Buscas repuestos o necesitas servicio a domicilio?</p><button className="assistant-primary" onClick={() => scrollToId("registro")}>Preguntarle a Rino <ChevronRight size={14} /></button><div className="assistant-actions"><button onClick={() => setCartOpen(true)}><ShoppingCart size={13} />Carrito de Pedidos <small>({cartCount})</small></button><button onClick={() => scrollToId("registro")}><ClipboardList size={13} />Registrar Empresa</button></div><small className="assistant-hint">Puedes arrastrarme por la pantalla</small></div>}
         <button className="assistant-trigger" onClick={() => setAssistantOpen((value) => !value)} aria-label="Abrir Rino Asistente"><img src="/manus-storage/rino-assistant-3d_3bdd6acb.png" alt="Rino Asistente" /><span><MessageCircle size={15} /></span></button>
       </div>
 
