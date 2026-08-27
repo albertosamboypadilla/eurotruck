@@ -43,3 +43,9 @@
 - `/assets/man_tgx_truck_1787097406233-CNJ-oN3n.jpg`
 - `/assets/iveco_sway_truck_1787097417514-CP2jESjc.jpg`
 - Logo visible como isotipo de camión en azul con texto EUROTRUCK / REPUESTOS / SERVICIOS.
+
+## Estructura portal observada el 27 de agosto de 2026
+
+Fuente: https://partnerportal.dieseltechnic.com/es/search/results?start=0&length=25&sort_by=_score&desc=1&applications=55
+
+La referencia muestra una franja superior gris con el conteo de artículos, plataforma abierta 24 horas, entrega rápida, servicio 360° y HelpDesk. Debajo presenta logo a la izquierda, buscador central con etiqueta “Buscar piezas”, selector de idioma, carrito e inicio de sesión. Después utiliza una navegación horizontal con “DIVISIÓN DE PRODUCTOS”, “GRUPOS DE PRODUCTOS”, “PROMOCIONES” y “PIEZAS UNIVERSALES”. El cuerpo dispone los filtros por Aplicaciones, Serie/Tipo, Año de fabricación, Norma de emisiones, Marcas, Grupos de productos, Divisiones y Promociones. La zona de resultados indica “5897 Resultados encontrados”, ofrece ordenamiento por relevancia/número/descripción/aplicación y tarjetas con imagen, referencia, nombre, badges, reemplazos, aplicación, empaque, stock, precio bajo demanda, selección, comparación, bloc de notas y carrito. El cierre incluye selección masiva, comparación, bloc de notas, carrito y un footer con dirección de Diesel Technic, HelpDesk, Divisiones, Grupos de productos, Información, Perfiles de marca y redes sociales.
