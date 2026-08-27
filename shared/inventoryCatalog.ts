@@ -6,6 +6,7 @@ export type InventoryCatalogProduct = {
   brand?: string;
   application?: string;
   image?: string;
+  gtins?: string[];
   [key: string]: unknown;
 };
 
@@ -23,5 +24,8 @@ export function getInventorySearchShardKeys(query: string): string[] {
 export function findInventoryCatalogProduct(items: InventoryCatalogProduct[], query: string): InventoryCatalogProduct | undefined {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return undefined;
-  return items.find(item => item.sku?.toLowerCase() === normalized || item.id?.toLowerCase() === normalized || item.name?.toLowerCase().includes(normalized));
+  return items.find(item => {
+    const identifiers = [item.sku, item.id, ...(Array.isArray(item.gtins) ? item.gtins : [])].map(value => String(value ?? "").trim().toLowerCase());
+    return identifiers.includes(normalized) || [item.name, item.description, item.brand, item.application].some(value => String(value ?? "").toLowerCase().includes(normalized));
+  });
 }

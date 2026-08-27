@@ -158,3 +158,38 @@
 - [x] Cubrir el flujo de escaneo acumulativo con pruebas y validación real.
 - [x] Mantener visible la paginación del catálogo completo después de un escaneo automático, mostrando el resultado en el resumen y en el aviso.
 - [x] Evitar un segundo registro accidental desde el formulario manual después de un escaneo automático, manteniendo el artículo y total como confirmación.
+
+# Integración GTIN Diesel Technic
+
+- [x] Inspeccionar el portal Diesel Technic y confirmar dónde expone el GTIN para las aplicaciones ya integradas.
+- [ ] Obtener de forma completa los GTIN disponibles para Scania, Volvo, Mercedes-Benz y MAN, sin inventar valores faltantes.
+- [x] Asociar cada GTIN a la referencia correcta y conservar los artículos sin GTIN con estado explícito.
+- [x] Extender el catálogo compartido, el inventario y la búsqueda para mostrar y localizar por GTIN.
+- [x] Validar cobertura, deduplicación, rendimiento, permisos y ausencia de errores en la carga por fragmentos.
+- [x] Permitir búsqueda exacta y parcial por número de referencia y por cualquiera de los GTIN asociados a cada artículo.
+- [x] Mostrar el número de referencia y los GTIN verificados en las tarjetas, detalle e inventario.
+- [x] Incorporar los GTIN obtenidos en el archivo oficial, conservando varios GTIN cuando una referencia tenga más de uno.
+- [x] Validar búsquedas por referencia y GTIN con un artículo real presente en Scania, Volvo, Mercedes-Benz y MAN.
+
+# Captura GTIN desde detalles
+
+- [ ] Procesar las páginas de detalle de cada referencia de Scania, Volvo, Mercedes-Benz, MAN e Iveco con pausas y límite de concurrencia.
+- [ ] Extraer el campo GTIN del detalle y asociarlo únicamente al SKU de la misma página.
+- [ ] Conservar todos los GTIN cuando una referencia tenga más de un código y registrar los artículos sin GTIN.
+- [ ] Habilitar búsqueda por referencia y GTIN en catálogo e inventario.
+- [ ] Validar una muestra real por cada marca y generar cobertura de la importación.
+
+# Alcance Scania solicitado
+
+- [ ] Recorrer el filtro Scania `applications=103` y recopilar los enlaces de detalle disponibles.
+- [ ] Extraer de cada detalle el SKU/referencia y todos sus GTIN, excluyendo referencias OE o sustituidas.
+- [ ] Añadir el mapa verificado de Scania al catálogo y permitir localizarlo por referencia o GTIN.
+- [ ] Validar el escaneo con el GTIN de un artículo real y conservar la referencia original en el resultado.
+- [x] Procesar `catalogo_gtin_dt_spare_parts_final.csv`, validar sus columnas y asociar sus referencias con el catálogo Eurotruck.
+- [x] Registrar cobertura, duplicados, conflictos y filas sin coincidencia antes de publicar los GTIN.
+- [x] Añadir pruebas unitarias para coincidencia exacta por GTIN, múltiples GTIN y referencias que no tengan código importado.
+- [x] Ejecutar TypeScript, Vitest y build después de integrar la búsqueda GTIN.
+- [x] Corregir la coincidencia parcial por SKU/número de referencia en el helper compartido.
+- [x] Mostrar “GTIN no registrado” de forma explícita en tarjetas y listados relevantes cuando no exista código importado.
+- [x] Añadir una prueba de referencia válida sin GTIN, conservando su SKU y rechazando códigos ajenos.
+- [ ] Ampliar el mapa GTIN con los 39.369 artículos restantes cuando exista una fuente oficial verificable para sus códigos.
