@@ -13,4 +13,14 @@ describe("order inbox authorization", () => {
     const caller = appRouter.createCaller({ ...baseContext, user: null });
     await expect(caller.orders.remove({ id: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
+
+  it("rejects taking orders without an administrator session", async () => {
+    const caller = appRouter.createCaller({ ...baseContext, user: null });
+    await expect(caller.orders.take({ id: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("rejects taking orders for an authenticated non-admin user", async () => {
+    const caller = appRouter.createCaller({ ...baseContext, user: { id: 2, openId: "user-2", name: "Cliente", email: "cliente@example.com", loginMethod: "oauth", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() } });
+    await expect(caller.orders.take({ id: 1 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
 });

@@ -634,3 +634,6 @@
 .admin-login-card label { display: grid; gap: 6px; color: #b9cce6; font: 700 .65rem var(--technical); letter-spacing: .04em; text-transform: uppercase; }
 .admin-login-card input { border: 1px solid rgba(117, 153, 211, .28); border-radius: 7px; background: #091a31; padding: 11px 12px; color: #fff; font: 400 .82rem var(--body); outline: none; }
 .admin-login-card input:focus { border-color: #6ea4ff; box-shadow: 0 0 0 3px rgba(70, 124, 230, .18); }
+
+.order-status--taken { background: rgba(234, 180, 55, .15); color: #f5cc70; }
+.order-assigned { display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(234, 180, 55, .3); border-radius: 8px; padding: 9px 11px; color: #f0cc7a; font-size: .68rem; }

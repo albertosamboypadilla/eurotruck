@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -73,6 +73,14 @@ export async function listOrders(): Promise<OrderWithItems[]> {
   if (!db) return [];
   const rows = await db.select().from(orders).orderBy(desc(orders.createdAt));
   return Promise.all(rows.map(async order => ({ order, items: await db.select().from(orderItems).where(eq(orderItems.orderId, order.id)) })));
+}
+
+export async function claimOrder(orderId: number, adminUsername: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.update(orders).set({ status: "taken", assignedAdmin: adminUsername, assignedAt: new Date() }).where(and(eq(orders.id, orderId), eq(orders.status, "new"))).execute();
+  const affectedRows = Number((result as unknown as { affectedRows?: number })?.affectedRows ?? (result as unknown as Array<{ affectedRows?: number }>)[0]?.affectedRows ?? 0);
+  return affectedRows > 0;
 }
 
 export async function deleteOrder(orderId: number) {

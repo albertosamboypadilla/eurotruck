@@ -32,7 +32,9 @@ export const orders = mysqlTable("orders", {
   partsNote: text("partsNote"),
   notificationRecipients: varchar("notificationRecipients", { length: 640 }).notNull().default("eurotruckcxa@yahoo.com,albertosamboy@gmail.com"),
   afterHours: int("afterHours").notNull().default(0),
-  status: mysqlEnum("status", ["new", "contacted", "closed"]).default("new").notNull(),
+  status: mysqlEnum("status", ["new", "taken", "closed"]).default("new").notNull(),
+  assignedAdmin: varchar("assignedAdmin", { length: 40 }),
+  assignedAt: timestamp("assignedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

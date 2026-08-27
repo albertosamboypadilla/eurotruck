@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { createOrder, deleteOrder, getLocalAdminByUsername, listOrders } from "./db";
+import { claimOrder, createOrder, deleteOrder, getLocalAdminByUsername, listOrders } from "./db";
 import { buildOrderPdf, ORDER_RECIPIENTS, sendOrderEmail } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -46,6 +46,11 @@ export const appRouter = router({
       return { orderNumber: created.order.orderNumber, pdfBase64: pdf.toString("base64"), emailSent, afterHours, afterHoursMessage: afterHours ? "Buenas tardes. Recibimos tu solicitud; mañana será atendida por nuestro equipo Eurotruck." : null };
     }),
     list: adminProcedure.query(async () => listOrders()),
+    take: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      const claimed = await claimOrder(input.id, ctx.user.name || ctx.user.email || "admin");
+      if (!claimed) throw new TRPCError({ code: "CONFLICT", message: "Esta orden ya fue tomada por otro usuario" });
+      return { success: true } as const;
+    }),
     remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => ({ success: await deleteOrder(input.id) })),
   }),
 });

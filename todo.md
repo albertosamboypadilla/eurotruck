@@ -52,3 +52,15 @@
 - [x] Probar de forma determinista el generador de numeración y el caso fuera de horario.
 - [x] Extraer y probar el helper real usado por la UI para construir enlaces de WhatsApp.
 - [x] Extraer y probar directamente el formato consecutivo real ET-YYYY-###### de las órdenes.
+
+# Órdenes abiertas y asignación
+
+- [x] Mantener la orden en estado abierta/nueva después de descargar el PDF.
+- [x] Añadir selección explícita de artículos desde las tarjetas del catálogo.
+- [x] Permitir que un administrador tome una orden abierta desde la bandeja.
+- [x] Registrar el administrador que tomó la orden y la fecha de asignación.
+- [x] Evitar que dos administradores tomen simultáneamente la misma orden.
+- [x] Mostrar estados abierta, tomada y cerrada en la bandeja.
+- [x] Validar con pruebas de concurrencia, permisos y descarga PDF.
+- [x] Añadir prueba de que orders.take rechaza usuarios no autenticados o no administradores.
+- [x] Añadir prueba de orders.take con usuario autenticado cuyo rol no sea admin.
