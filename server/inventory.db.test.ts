@@ -1,15 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { inventoryItems } from "../drizzle/schema";
+import { inventoryItems, inventoryScans } from "../drizzle/schema";
 
 const { fakeDb, state } = vi.hoisted(() => {
-  const state: { item: any; scans: any[]; insertCount: number } = { item: undefined, scans: [], insertCount: 0 };
+  const state: { item: any; scans: any[]; insertCount: number; scanSelectCalls: number; targetScanId: number } = { item: undefined, scans: [], insertCount: 0, scanSelectCalls: 0, targetScanId: 0 };
   const tx = {
     select: () => ({
-      from: (table: unknown) => ({
-        where: () => ({
-          limit: async () => table === inventoryItems && state.item ? [state.item] : [],
-        }),
-      }),
+      from: (table: unknown) => {
+        const result = {
+          limit: async () => {
+            if (table === inventoryItems) return state.item ? [state.item] : [];
+            state.scanSelectCalls += 1;
+            if (state.scanSelectCalls === 1) return state.scans.filter(scan => scan.id === state.targetScanId);
+            return [...state.scans];
+          },
+          orderBy: async () => [...state.scans],
+        };
+        return { where: () => result, orderBy: async () => [...state.scans] };
+      },
     }),
     insert: (table: unknown) => ({
       values: (payload: any) => ({
@@ -19,11 +26,17 @@ const { fakeDb, state } = vi.hoisted(() => {
             state.insertCount += 1;
             return [{ insertId: 7 }];
           }
-          state.scans.push(payload);
+          state.scans.push({ id: state.scans.length + 1, inventoryItemId: state.item?.id, ...payload });
           state.insertCount += 1;
-          return [{ insertId: state.scans.length }];
+          return [{ insertId: state.scans.at(-1)?.id }];
         },
       }),
+    }),
+    delete: (table: unknown) => ({
+      where: async () => {
+        if (table === inventoryScans) state.scans = state.scans.filter(scan => scan.id !== state.targetScanId);
+        return { affectedRows: 1 };
+      },
     }),
     update: () => ({
       set: (payload: any) => ({
@@ -40,13 +53,15 @@ const { fakeDb, state } = vi.hoisted(() => {
 
 vi.mock("drizzle-orm/mysql2", () => ({ drizzle: vi.fn(() => fakeDb) }));
 
-import { recordInventoryCount } from "./db";
+import { deleteInventoryScan, recordInventoryCount } from "./db";
 
-describe("recordInventoryCount", () => {
+describe("inventory persistence", () => {
   beforeEach(() => {
     state.item = undefined;
     state.scans.length = 0;
     state.insertCount = 0;
+    state.scanSelectCalls = 0;
+    state.targetScanId = 0;
     process.env.DATABASE_URL = "mysql://inventory-test";
   });
 
@@ -73,5 +88,20 @@ describe("recordInventoryCount", () => {
     expect(second.totalQuantity).toBe(2);
     expect(second.wasAlreadyCounted).toBe(true);
     expect(state.scans.map(scan => scan.quantity)).toEqual([1, 1]);
+  });
+
+  it("elimina la segunda lectura y restaura la última ubicación anterior", async () => {
+    await recordInventoryCount({ productId: "p-delete", sku: "DELETE-1", name: "Filtro para corregir", quantity: 1, tramo: "GENERAL", gondola: "GENERAL", countedBy: "admin1" });
+    await recordInventoryCount({ productId: "p-delete", sku: "DELETE-1", name: "Filtro para corregir", quantity: 1, tramo: "T-02", gondola: "G-04", countedBy: "admin1" });
+    state.targetScanId = 2;
+    state.scanSelectCalls = 0;
+
+    const result = await deleteInventoryScan(2);
+
+    expect(result).toMatchObject({ found: true, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" });
+    expect(state.scans).toHaveLength(1);
+    expect(state.item.totalQuantity).toBe(1);
+    expect(state.item.lastTramo).toBe("GENERAL");
+    expect(state.item.lastGondola).toBe("GENERAL");
   });
 });

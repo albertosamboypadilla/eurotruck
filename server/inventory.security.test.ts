@@ -1,13 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createInventoryItem, listInventory, recordInventoryCount } = vi.hoisted(() => ({
+const { createInventoryItem, deleteInventoryScan, listInventory, recordInventoryCount } = vi.hoisted(() => ({
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
+  deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
   listInventory: vi.fn(async () => []),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
 }));
 
 vi.mock("./db", () => ({
   createInventoryItem,
+  deleteInventoryScan,
   listInventory,
   recordInventoryCount,
   claimOrder: vi.fn(),
@@ -45,5 +47,12 @@ describe("inventory procedures", () => {
     expect(recordInventoryCount).toHaveBeenCalledWith({ ...input, countedBy: "admin1" });
     await expect(appRouter.createCaller(context(admin2)).inventory.record(input)).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(recordInventoryCount).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite eliminar una lectura a admin1 y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.deleteScan({ scanId: 7 })).resolves.toMatchObject({ found: true, scanId: 7 });
+    expect(deleteInventoryScan).toHaveBeenCalledWith(7);
+    await expect(appRouter.createCaller(context(admin2)).inventory.deleteScan({ scanId: 7 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(deleteInventoryScan).toHaveBeenCalledTimes(1);
   });
 });

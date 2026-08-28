@@ -20,3 +20,37 @@ export function getInventoryScanLocation(tramo?: string | null, gondola?: string
     gondola: gondola?.trim() || "GENERAL",
   };
 }
+
+export type InventoryScanSnapshot = {
+  id: number;
+  quantity: number;
+  tramo: string;
+  gondola: string;
+  createdAt: Date | string;
+};
+
+export function rebuildInventoryAfterScanRemoval(scans: InventoryScanSnapshot[], scanId: number) {
+  const ordered = [...scans].sort((left, right) => {
+    const dateDifference = new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+    return dateDifference || right.id - left.id;
+  });
+  const removed = ordered.find(scan => scan.id === scanId);
+  if (!removed) {
+    return {
+      found: false as const,
+      removedQuantity: 0,
+      totalQuantity: ordered.reduce((total, scan) => total + scan.quantity, 0),
+      lastTramo: ordered[0]?.tramo ?? null,
+      lastGondola: ordered[0]?.gondola ?? null,
+    };
+  }
+  const remaining = ordered.filter(scan => scan.id !== scanId);
+  const latest = remaining[0];
+  return {
+    found: true as const,
+    removedQuantity: removed.quantity,
+    totalQuantity: remaining.reduce((total, scan) => total + scan.quantity, 0),
+    lastTramo: latest?.tramo ?? null,
+    lastGondola: latest?.gondola ?? null,
+  };
+}

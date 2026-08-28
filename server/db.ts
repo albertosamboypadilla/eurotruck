@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
+import { rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -135,6 +136,28 @@ export async function recordInventoryCount(input: InventoryCountInput) {
   });
 }
 
+export async function listInventoryScans(inventoryItemId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(inventoryScans).where(eq(inventoryScans.inventoryItemId, inventoryItemId)).orderBy(desc(inventoryScans.createdAt), desc(inventoryScans.id));
+}
+
+export async function deleteInventoryScan(scanId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const found = await tx.select().from(inventoryScans).where(eq(inventoryScans.id, scanId)).limit(1);
+    const scan = found[0];
+    if (!scan) return { found: false as const, scanId };
+    const history = await tx.select().from(inventoryScans).where(eq(inventoryScans.inventoryItemId, scan.inventoryItemId)).orderBy(desc(inventoryScans.createdAt), desc(inventoryScans.id));
+    const summary = rebuildInventoryAfterScanRemoval(history, scanId);
+    if (!summary.found) return { found: false as const, scanId };
+    await tx.delete(inventoryScans).where(eq(inventoryScans.id, scanId));
+    await tx.update(inventoryItems).set({ totalQuantity: summary.totalQuantity, lastTramo: summary.lastTramo, lastGondola: summary.lastGondola }).where(eq(inventoryItems.id, scan.inventoryItemId));
+    return { found: true as const, scanId, inventoryItemId: scan.inventoryItemId, removedQuantity: summary.removedQuantity, totalQuantity: summary.totalQuantity, lastTramo: summary.lastTramo, lastGondola: summary.lastGondola };
+  });
+}
+
 export type NewInventoryItemInput = {
   sku: string;
   name: string;
@@ -158,5 +181,14 @@ export async function createInventoryItem(input: NewInventoryItemInput, countedB
 export async function listInventory() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inventoryItems).orderBy(desc(inventoryItems.updatedAt));
+  const items = await db.select().from(inventoryItems).orderBy(desc(inventoryItems.updatedAt));
+  if (!items.length) return [];
+  const scans = await db.select().from(inventoryScans).orderBy(desc(inventoryScans.createdAt), desc(inventoryScans.id));
+  const scansByItem = new Map<number, typeof scans>();
+  scans.forEach(scan => {
+    const history = scansByItem.get(scan.inventoryItemId) || [];
+    history.push(scan);
+    scansByItem.set(scan.inventoryItemId, history);
+  });
+  return items.map(item => ({ ...item, scanCount: scansByItem.get(item.id)?.length || 0, lastScanId: scansByItem.get(item.id)?.[0]?.id || null }));
 }

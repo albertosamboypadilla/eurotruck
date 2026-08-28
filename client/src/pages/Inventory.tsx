@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Barcode, Boxes, CheckCircle2, ChevronLeft, ChevronRight, LoaderCircle, LogIn, LogOut, PackageSearch, Plus, RefreshCw, ScanLine, X } from "lucide-react";
+import { AlertTriangle, Barcode, Boxes, CheckCircle2, ChevronLeft, ChevronRight, LoaderCircle, LogIn, LogOut, MapPin, PackageSearch, Plus, RefreshCw, ScanLine, Trash2, X } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted } from "@shared/inventoryHelpers";
@@ -26,6 +26,39 @@ const emptyArticle = { sku: "", name: "", description: "", brand: "", applicatio
 const catalogPageSize = 60;
 
 type NewArticleForm = typeof emptyArticle;
+type InventoryLocation = { id: string; tramo: string; gondola: string };
+const defaultInventoryLocation: InventoryLocation = { id: "general", tramo: "GENERAL", gondola: "GENERAL" };
+const activeInventoryLocationStorageKey = "eurotruck-inventory-active-location";
+
+function getStoredInventoryLocations(): InventoryLocation[] {
+  if (typeof window === "undefined") return [defaultInventoryLocation];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem("eurotruck-inventory-locations") || "[]") as Partial<InventoryLocation>[];
+    const locations = parsed.filter(location => location.id && location.tramo && location.gondola).map(location => ({ id: String(location.id), tramo: String(location.tramo), gondola: String(location.gondola) }));
+    return [defaultInventoryLocation, ...locations.filter(location => location.id !== defaultInventoryLocation.id)];
+  } catch {
+    return [defaultInventoryLocation];
+  }
+}
+
+function persistInventoryLocations(locations: InventoryLocation[]) {
+  window.localStorage.setItem("eurotruck-inventory-locations", JSON.stringify(locations.filter(location => location.id !== defaultInventoryLocation.id)));
+}
+
+function getStoredActiveInventoryLocation() {
+  const locations = getStoredInventoryLocations();
+  if (typeof window === "undefined") return defaultInventoryLocation.id;
+  const storedId = window.localStorage.getItem(activeInventoryLocationStorageKey);
+  return storedId && locations.some(location => location.id === storedId) ? storedId : defaultInventoryLocation.id;
+}
+
+function persistActiveInventoryLocation(locationId: string) {
+  window.localStorage.setItem(activeInventoryLocationStorageKey, locationId);
+}
+
+function formatInventoryScanDate(value: string | Date) {
+  return new Date(value).toLocaleString("es-DO", { dateStyle: "short", timeStyle: "short" });
+}
 
 type InventoryRow = {
   id: number;
@@ -40,6 +73,17 @@ type InventoryRow = {
   totalQuantity: number;
   lastTramo?: string | null;
   lastGondola?: string | null;
+  lastScanId?: number | null;
+  scanCount?: number;
+};
+
+type InventoryScanRow = {
+  id: number;
+  quantity: number;
+  tramo: string;
+  gondola: string;
+  countedBy: string;
+  createdAt: string | Date;
 };
 
 function InventoryLogin() {
@@ -66,8 +110,14 @@ export default function Inventory() {
   const [lastScanAutoRecorded, setLastScanAutoRecorded] = useState(false);
   const [lastScanTotal, setLastScanTotal] = useState<number | null>(null);
   const [quantity, setQuantity] = useState("1");
-  const [tramo, setTramo] = useState("GENERAL");
-  const [gondola, setGondola] = useState("GENERAL");
+  const [tramo, setTramo] = useState(defaultInventoryLocation.tramo);
+  const [gondola, setGondola] = useState(defaultInventoryLocation.gondola);
+  const [savedLocations, setSavedLocations] = useState<InventoryLocation[]>(getStoredInventoryLocations);
+  const [activeLocationId, setActiveLocationId] = useState(getStoredActiveInventoryLocation);
+  const [showLocationForm, setShowLocationForm] = useState(false);
+  const [newLocationTramo, setNewLocationTramo] = useState("");
+  const [newLocationGondola, setNewLocationGondola] = useState("");
+  const [expandedInventoryId, setExpandedInventoryId] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [showNewArticle, setShowNewArticle] = useState(false);
@@ -76,8 +126,11 @@ export default function Inventory() {
   const inputRef = useRef<HTMLInputElement>(null);
   const catalogCache = useRef<Record<string, InventoryCatalogProduct[]>>({});
   const inventoryQuery = trpc.inventory.list.useQuery(undefined, { enabled: isAdmin1, retry: false });
+  const historyInput = useMemo(() => ({ inventoryItemId: expandedInventoryId ?? 1 }), [expandedInventoryId]);
+  const historyQuery = trpc.inventory.history.useQuery(historyInput, { enabled: isAdmin1 && expandedInventoryId !== null, retry: false });
   const localLogout = trpc.auth.localLogout.useMutation({ onSuccess: async () => { await logout(); window.location.href = "/"; } });
-  const recordCount = trpc.inventory.record.useMutation({ onSuccess: result => { setNotice(buildInventoryNotice(result.wasAlreadyCounted, Number(quantity), result.totalQuantity)); setLastScanTotal(result.totalQuantity); setScanCode(""); setQuantity("1"); inventoryQuery.refetch(); inputRef.current?.focus(); }, onError: mutationError => { setLastScanTotal(null); setError(mutationError.message || "No se pudo guardar el conteo."); } });
+  const recordCount = trpc.inventory.record.useMutation({ onSuccess: result => { setNotice(buildInventoryNotice(result.wasAlreadyCounted, Number(quantity), result.totalQuantity)); setLastScanTotal(result.totalQuantity); setScanCode(""); setQuantity("1"); void inventoryQuery.refetch(); if (expandedInventoryId === result.id) void historyQuery.refetch(); inputRef.current?.focus(); }, onError: mutationError => { setLastScanTotal(null); setError(mutationError.message || "No se pudo guardar el conteo."); } });
+  const deleteScan = trpc.inventory.deleteScan.useMutation({ onSuccess: async result => { setNotice(`Se eliminó ${result.removedQuantity === 1 ? "1 unidad" : `${result.removedQuantity} unidades`}. Total restante: ${result.totalQuantity}.`); setError(""); setSelectedProduct(null); setLastScanAutoRecorded(false); setLastScanTotal(null); await Promise.all([inventoryQuery.refetch(), historyQuery.refetch()]); inputRef.current?.focus(); }, onError: mutationError => setError(mutationError.message || "No se pudo eliminar la lectura.") });
   const createArticle = trpc.inventory.create.useMutation({
     onSuccess: created => {
       const createdProduct: InventoryCatalogProduct = { id: String(created.productId), sku: created.sku, name: created.name, description: created.description ?? undefined, brand: created.brand ?? undefined, application: created.application ?? undefined, image: created.image ?? undefined };
@@ -118,6 +171,13 @@ export default function Inventory() {
       fetch(gtinMapFileUrl).then(response => { if (!response.ok) throw new Error(`GTIN map ${response.status}`); return response.json() as Promise<GtinMap>; }),
     ]).then(([items, map]) => { setGtinMap(map); setCatalogProducts(items.map(item => attachGtins(item, map))); }).catch(() => setError("No fue posible cargar el catálogo completo para inventario.")).finally(() => setCatalogLoading(false));
   }, [isAdmin1]);
+
+  useEffect(() => {
+    const active = savedLocations.find(location => location.id === activeLocationId);
+    if (!active) return;
+    setTramo(active.tramo);
+    setGondola(active.gondola);
+  }, [activeLocationId, savedLocations]);
 
   const countedItems = useMemo(() => (inventoryQuery.data || []).filter(item => isInventoryItemCounted(item.totalQuantity)), [inventoryQuery.data]);
   const countedByProduct = useMemo(() => new Map(countedItems.map(item => [item.productId, item])), [countedItems]);
@@ -164,6 +224,8 @@ export default function Inventory() {
   };
   const submitScan = (event: FormEvent) => { event.preventDefault(); void findProduct(scanCode); };
   const submitCount = (event: FormEvent) => { event.preventDefault(); if (!selectedProduct) return; setError(""); const location = getInventoryScanLocation(tramo, gondola); recordCount.mutate({ productId: selectedProduct.id, sku: selectedProduct.sku, name: selectedProduct.name, description: selectedProduct.description, brand: selectedProduct.brand, application: selectedProduct.application, image: selectedProduct.image, quantity: Number(quantity), tramo: location.tramo, gondola: location.gondola }); };
+  const selectLocation = (locationId: string) => { if (!savedLocations.some(location => location.id === locationId)) return; setActiveLocationId(locationId); persistActiveInventoryLocation(locationId); };
+  const submitNewLocation = (event: FormEvent) => { event.preventDefault(); const location = getInventoryScanLocation(newLocationTramo, newLocationGondola); const id = `${location.tramo}::${location.gondola}`.toLowerCase(); const nextLocation: InventoryLocation = { id, ...location }; setSavedLocations(current => { const next = [...current.filter(item => item.id !== id), nextLocation]; persistInventoryLocations(next); return next; }); setActiveLocationId(id); persistActiveInventoryLocation(id); setShowLocationForm(false); setNewLocationTramo(""); setNewLocationGondola(""); setNotice(`Área activa: ${location.tramo} / ${location.gondola}. Las siguientes lecturas conservarán esta ubicación.`); };
   const submitNewArticle = (event: FormEvent) => { event.preventDefault(); setNewArticleError(""); createArticle.mutate({ sku: newArticle.sku.trim(), name: newArticle.name.trim(), description: newArticle.description.trim() || undefined, brand: newArticle.brand.trim() || undefined, application: newArticle.application.trim() || undefined, image: newArticle.image.trim() || undefined }); };
   const updateNewArticle = (field: keyof NewArticleForm, value: string) => setNewArticle(current => ({ ...current, [field]: value }));
 
@@ -175,18 +237,18 @@ export default function Inventory() {
     <header className="inventory-header"><div><span className="orders-eyebrow">EUROTRUCK / CONTROL DE EXISTENCIAS</span><h1>Inventario</h1><p>Trabaja sobre el mismo catálogo de la página principal. Los artículos contados se marcan en verde y acumulan sus unidades por ubicación.</p></div><div className="inventory-header-actions"><a className="orders-button orders-button--ghost" href="/orders">Bandeja de órdenes</a><button className="orders-button orders-button--ghost" onClick={() => { setCatalogLoading(true); void fetch(catalogIndexUrl).then(response => response.json() as Promise<InventoryCatalogProduct[]>).then(items => setCatalogProducts(items.map(item => attachGtins(item, gtinMap)))).finally(() => setCatalogLoading(false)); void inventoryQuery.refetch(); }}><RefreshCw size={15} />Actualizar</button><button className="orders-button orders-button--ghost" onClick={() => localLogout.mutate()} disabled={localLogout.isPending}><LogOut size={15} />{localLogout.isPending ? "Saliendo…" : "Salir"}</button></div></header>
     <section className="inventory-workspace">
       <div className="inventory-scan-panel">
-        <div className="inventory-panel-heading"><div><span className="orders-eyebrow">01 / ESCANEO</span><h2>Buscar artículo</h2></div><Barcode size={30} /></div>
+        <div className="inventory-scan-location"><div><span className="orders-eyebrow">01 / ÁREA DE CONTEO</span><strong>Ubicación activa</strong><small>Selecciona o agrega el tramo y la góndola antes de escanear. Cada lectura se guardará automáticamente en esta área hasta que la cambies.</small><select value={activeLocationId} onChange={event => selectLocation(event.target.value)} aria-label="Seleccionar ubicación activa">{savedLocations.map(location => <option key={location.id} value={location.id}>{location.tramo} / {location.gondola}</option>)}</select><button type="button" className="inventory-location-add" onClick={() => setShowLocationForm(current => !current)}><Plus size={13} />{showLocationForm ? "Cerrar alta de área" : "Agregar otra área"}</button></div><div className="inventory-scan-location-fields"><label>Tramo<input value={tramo} readOnly aria-readonly="true" /></label><label>Góndola<input value={gondola} readOnly aria-readonly="true" /></label></div>{showLocationForm && <form className="inventory-location-form" onSubmit={submitNewLocation}><label>Nuevo tramo<input required value={newLocationTramo} onChange={event => setNewLocationTramo(event.target.value)} placeholder="Ej. T-03" /></label><label>Nueva góndola<input required value={newLocationGondola} onChange={event => setNewLocationGondola(event.target.value)} placeholder="Ej. G-12" /></label><button type="submit" className="orders-button orders-button--inventory"><Plus size={14} />Guardar y activar</button></form>}</div>
+        <div className="inventory-panel-heading"><div><span className="orders-eyebrow">02 / ESCANEO</span><h2>Buscar artículo</h2></div><Barcode size={30} /></div>
         <form className="inventory-scan-form" onSubmit={submitScan}><label htmlFor="inventory-scan">Referencia o código de barras · cada lectura suma 1 unidad</label><div><ScanLine size={18} /><input ref={inputRef} id="inventory-scan" autoFocus value={scanCode} onChange={event => setScanCode(event.target.value)} placeholder={catalogLoading ? "Cargando catálogo…" : "Escanea referencia o GTIN…"} disabled={catalogLoading || recordCount.isPending} /><button className="orders-button" type="submit" disabled={catalogLoading || recordCount.isPending || !scanCode.trim()}><PackageSearch size={15} />{recordCount.isPending ? "Sumando…" : "Registrar +1"}</button></div></form>
-        <div className="inventory-scan-location"><div><strong>Ubicación activa</strong><small>Cada escaneo suma 1 unidad aquí. Cámbiala antes de trabajar otra zona.</small></div><div className="inventory-scan-location-fields"><label>Tramo<input value={tramo} onChange={event => setTramo(event.target.value)} placeholder="GENERAL" /></label><label>Góndola<input value={gondola} onChange={event => setGondola(event.target.value)} placeholder="GENERAL" /></label></div></div>
         <div className="inventory-catalog-toolbar"><div><strong>Catálogo completo</strong><small>{catalogLoading ? "Cargando referencias…" : `${allProducts.length.toLocaleString("es-DO")} artículos disponibles · ${Object.keys(gtinMap).length.toLocaleString("es-DO")} con GTIN`}</small></div><button type="button" className="orders-button orders-button--inventory" onClick={() => { setShowNewArticle(true); setNewArticleError(""); }}><Plus size={15} />Agregar nuevo</button></div>
         <label className="inventory-catalog-filter">Filtrar artículos<input value={catalogBrowseQuery} onChange={event => setCatalogBrowseQuery(event.target.value)} placeholder="Referencia, GTIN, descripción, marca o aplicación" /></label>
         {error && <div className="inventory-alert inventory-alert--error" role="alert"><AlertTriangle size={16} />{error}</div>}{notice && <div className="inventory-alert inventory-alert--success" role="status"><CheckCircle2 size={16} />{notice}</div>}
-        <div className="inventory-catalog-list" aria-live="polite">{catalogLoading && catalogProducts.length === 0 ? <div className="inventory-empty"><LoaderCircle className="orders-spin" />Cargando todos los artículos…</div> : visibleCatalogProducts.length === 0 ? <div className="inventory-empty"><PackageSearch size={28} /><p>No hay artículos que coincidan con ese filtro.</p></div> : visibleCatalogProducts.map(product => { const counted = countedByProduct.get(product.id); return <button type="button" className={`inventory-catalog-row${counted ? " is-counted" : ""}`} key={product.id} onClick={() => selectProduct(product)}><span className="inventory-catalog-thumb">{product.image ? <img src={product.image} alt="" loading="lazy" /> : <Boxes size={18} />}</span><span className="inventory-catalog-copy"><strong>{product.sku}</strong>{product.gtins?.length ? <em>GTIN {product.gtins.join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<b>{product.name}</b><small>{product.brand || "—"} · {product.application || "Aplicación general"}</small></span><span className="inventory-catalog-status">{counted ? <><CheckCircle2 size={15} />Contado · {counted.totalQuantity}</> : "Pendiente"}</span></button>; })}</div>
+        <div className="inventory-catalog-list" aria-live="polite">{catalogLoading && catalogProducts.length === 0 ? <div className="inventory-empty"><LoaderCircle className="orders-spin" />Cargando todos los artículos…</div> : visibleCatalogProducts.length === 0 ? <div className="inventory-empty"><PackageSearch size={28} /><p>No hay artículos que coincidan con ese filtro.</p></div> : visibleCatalogProducts.map(product => { const counted = countedByProduct.get(product.id); return <button type="button" className={`inventory-catalog-row${counted ? " is-counted" : ""}`} key={product.id} onClick={() => selectProduct(product)}><span className="inventory-catalog-thumb">{product.image ? <img src={product.image} alt="" loading="lazy" /> : <Boxes size={18} />}</span><span className="inventory-catalog-copy"><strong>{product.sku}</strong>{product.gtins?.length ? <em>GTIN {product.gtins.join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<small className="inventory-catalog-location"><MapPin size={12} />{counted ? `Última ubicación: ${counted.lastTramo || "—"} / ${counted.lastGondola || "—"}` : "Ubicación pendiente"}</small><b>{product.name}</b><small>{product.brand || "—"} · {product.application || "Aplicación general"}</small></span><span className="inventory-catalog-status">{counted ? <><CheckCircle2 size={15} />Contado · {counted.totalQuantity}</> : "Pendiente"}</span></button>; })}</div>
         <div className="inventory-pagination"><small>Mostrando {catalogMatches.length ? (catalogPage - 1) * catalogPageSize + 1 : 0}–{Math.min(catalogPage * catalogPageSize, catalogMatches.length)} de {catalogMatches.length.toLocaleString("es-DO")}</small><div><button type="button" className="orders-button orders-button--ghost" disabled={catalogPage <= 1} onClick={() => setCatalogPage(page => page - 1)}><ChevronLeft size={15} />Anterior</button><span>Página {catalogPage} / {catalogPageCount}</span><button type="button" className="orders-button orders-button--ghost" disabled={catalogPage >= catalogPageCount} onClick={() => setCatalogPage(page => page + 1)}>Siguiente<ChevronRight size={15} /></button></div></div>
-        {selectedProduct && <form className="inventory-product-card" onSubmit={submitCount}><div className="inventory-product-main">{selectedProduct.image ? <img src={selectedProduct.image} alt="" /> : <div className="inventory-product-placeholder"><Boxes size={25} /></div>}<div><span>{selectedProduct.sku}</span>{selectedProduct.gtins?.length ? <em>GTIN {selectedProduct.gtins.join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<h3>{selectedProduct.name}</h3><small>{selectedProduct.brand || "—"} · {selectedProduct.application || "Aplicación general"}</small><p className="inventory-product-description">{selectedProduct.description || "Descripción no disponible."}</p></div></div>{lastScanAutoRecorded && lastScanTotal !== null && <div className="inventory-alert inventory-alert--success"><CheckCircle2 size={16} />Lectura registrada: <strong>+1 unidad</strong>. Total acumulado: <strong>{lastScanTotal}</strong>. Puedes escanear la siguiente referencia.</div>}{!lastScanAutoRecorded && countedByProduct.has(selectedProduct.id) && <div className="inventory-alert inventory-alert--warning"><AlertTriangle size={16} />Este artículo ya fue contado. El nuevo registro se sumará al total de {countedByProduct.get(selectedProduct.id)?.totalQuantity} unidades.</div>}{!lastScanAutoRecorded && <><div className="inventory-count-fields"><label>Cantidad<input type="number" min="1" max="9999" required value={quantity} onChange={event => setQuantity(event.target.value)} /></label><label>Tramo<input required value={tramo} onChange={event => setTramo(event.target.value)} placeholder="Ej. T-03" /></label><label>Góndola<input required value={gondola} onChange={event => setGondola(event.target.value)} placeholder="Ej. G-12" /></label></div><button className="orders-button inventory-save-button" disabled={recordCount.isPending} type="submit"><Plus size={16} />{recordCount.isPending ? "Guardando…" : "Guardar conteo"}</button></>}</form>}
+        {selectedProduct && <form className="inventory-product-card" onSubmit={submitCount}><div className="inventory-product-main">{selectedProduct.image ? <img src={selectedProduct.image} alt="" /> : <div className="inventory-product-placeholder"><Boxes size={25} /></div>}<div><span>{selectedProduct.sku}</span>{selectedProduct.gtins?.length ? <em>GTIN {selectedProduct.gtins.join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<h3>{selectedProduct.name}</h3><small>{selectedProduct.brand || "—"} · {selectedProduct.application || "Aplicación general"}</small><p className="inventory-product-description">{selectedProduct.description || "Descripción no disponible."}</p></div></div>{lastScanAutoRecorded && lastScanTotal !== null && <div className="inventory-alert inventory-alert--success"><CheckCircle2 size={16} />Lectura registrada: <strong>+1 unidad</strong>. Total acumulado: <strong>{lastScanTotal}</strong>. Puedes escanear la siguiente referencia.</div>}{!lastScanAutoRecorded && countedByProduct.has(selectedProduct.id) && <div className="inventory-alert inventory-alert--warning"><AlertTriangle size={16} />Este artículo ya fue contado. El nuevo registro se sumará al total de {countedByProduct.get(selectedProduct.id)?.totalQuantity} unidades.</div>}{!lastScanAutoRecorded && <><div className="inventory-count-fields"><label>Cantidad<input type="number" min="1" max="9999" required value={quantity} onChange={event => setQuantity(event.target.value)} /></label><label>Tramo<input required value={tramo} readOnly aria-readonly="true" /></label><label>Góndola<input required value={gondola} readOnly aria-readonly="true" /></label></div><button className="orders-button inventory-save-button" disabled={recordCount.isPending} type="submit"><Plus size={16} />{recordCount.isPending ? "Guardando…" : "Guardar conteo"}</button></>}</form>}
         {showNewArticle && <div className="inventory-new-article" role="dialog" aria-modal="true" aria-labelledby="new-article-title"><div className="inventory-new-article-header"><div><span className="orders-eyebrow">ALTA MANUAL</span><h2 id="new-article-title">Agregar artículo nuevo</h2></div><button type="button" className="inventory-close-button" onClick={() => setShowNewArticle(false)} aria-label="Cerrar"><X size={18} /></button></div><p>Este artículo quedará disponible en el catálogo de inventario para que puedas contarlo y ubicarlo.</p><form onSubmit={submitNewArticle} className="inventory-new-article-form"><label>Referencia<input required maxLength={100} value={newArticle.sku} onChange={event => updateNewArticle("sku", event.target.value)} placeholder="Ej. NUEVO-001" /></label><label>Nombre<input required maxLength={500} value={newArticle.name} onChange={event => updateNewArticle("name", event.target.value)} placeholder="Nombre del artículo" /></label><label>Descripción<textarea maxLength={2000} value={newArticle.description} onChange={event => updateNewArticle("description", event.target.value)} placeholder="Descripción del artículo" /></label><div className="inventory-new-article-grid"><label>Marca<input maxLength={120} value={newArticle.brand} onChange={event => updateNewArticle("brand", event.target.value)} placeholder="Marca" /></label><label>Aplicación<input maxLength={120} value={newArticle.application} onChange={event => updateNewArticle("application", event.target.value)} placeholder="Iveco, Scania…" /></label></div><label>URL de imagen <span className="inventory-optional">opcional</span><input maxLength={2000} value={newArticle.image} onChange={event => updateNewArticle("image", event.target.value)} placeholder="https://…" /></label>{newArticleError && <div className="form-error" role="alert">{newArticleError}</div>}<div className="inventory-new-article-actions"><button type="button" className="orders-button orders-button--ghost" onClick={() => setShowNewArticle(false)}>Cancelar</button><button type="submit" className="orders-button orders-button--inventory" disabled={createArticle.isPending}><Plus size={15} />{createArticle.isPending ? "Guardando…" : "Agregar artículo"}</button></div></form></div>}
       </div>
-      <aside className="inventory-summary"><div className="inventory-panel-heading"><div><span className="orders-eyebrow">02 / RESUMEN</span><h2>Artículos contados</h2></div><Boxes size={26} /></div>{inventoryQuery.isLoading ? <div className="inventory-empty"><LoaderCircle className="orders-spin" />Cargando conteos…</div> : countedItems.length === 0 ? <div className="inventory-empty"><PackageSearch size={28} /><p>Aún no hay artículos contados.</p></div> : <div className="inventory-list">{(countedItems as InventoryRow[]).map(item => <article className="inventory-row is-counted" key={item.id}><div><strong>{item.sku}</strong>{getGtinsForSku(item.sku, gtinMap).length ? <em>GTIN {getGtinsForSku(item.sku, gtinMap).join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<h3>{item.name}</h3><small>{item.lastTramo || "—"} · {item.lastGondola || "—"}</small></div><b>{item.totalQuantity}</b></article>)}</div>}</aside>
+      <aside className="inventory-summary"><div className="inventory-panel-heading"><div><span className="orders-eyebrow">03 / RESUMEN</span><h2>Artículos contados</h2></div><Boxes size={26} /></div>{inventoryQuery.isLoading ? <div className="inventory-empty"><LoaderCircle className="orders-spin" />Cargando conteos…</div> : countedItems.length === 0 ? <div className="inventory-empty"><PackageSearch size={28} /><p>Aún no hay artículos contados.</p></div> : <div className="inventory-list">{(countedItems as InventoryRow[]).map(item => { const expanded = expandedInventoryId === item.id; const history = (historyQuery.data as InventoryScanRow[] | undefined) || []; return <article className="inventory-row is-counted" key={item.id}><div className="inventory-row-copy"><strong>{item.sku}</strong>{getGtinsForSku(item.sku, gtinMap).length ? <em>GTIN {getGtinsForSku(item.sku, gtinMap).join(" · ")}</em> : <em className="inventory-gtin-missing">GTIN no registrado</em>}<h3>{item.name}</h3><small>{item.lastTramo || "—"} · {item.lastGondola || "—"} · {item.scanCount || 0} lecturas</small></div><div className="inventory-row-actions"><b>{item.totalQuantity}</b><button type="button" className="inventory-history-toggle" aria-expanded={expanded} onClick={() => setExpandedInventoryId(expanded ? null : item.id)}>{expanded ? "Ocultar historial" : `Ver historial (${item.scanCount || 0})`}</button></div>{expanded && <div className="inventory-history" aria-live="polite">{historyQuery.isLoading ? <small><LoaderCircle className="orders-spin" /> Cargando historial…</small> : history.length === 0 ? <small>No hay lecturas guardadas.</small> : history.map(scan => <div className="inventory-history-item" key={scan.id}><div><strong>{scan.tramo} / {scan.gondola}</strong><small>{formatInventoryScanDate(scan.createdAt)} · {scan.countedBy}</small></div><div className="inventory-history-actions"><b>+{scan.quantity}</b><button type="button" className="inventory-delete-scan" title="Eliminar esta lectura" aria-label={`Eliminar lectura del ${formatInventoryScanDate(scan.createdAt)}`} disabled={deleteScan.isPending} onClick={() => { if (window.confirm(`¿Eliminar esta lectura de ${item.sku} (${scan.tramo} / ${scan.gondola})? Se restará ${scan.quantity} unidad${scan.quantity === 1 ? "" : "es"}.`)) deleteScan.mutate({ scanId: scan.id }); }}><Trash2 size={15} /></button></div></div>)}</div>}</article>; })}</div>}</aside>
     </section>
   </main>;
 }

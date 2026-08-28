@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { claimOrder, createInventoryItem, createOrder, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listOrders, recordInventoryCount } from "./db";
+import { claimOrder, createInventoryItem, createOrder, deleteInventoryScan, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listInventoryScans, listOrders, recordInventoryCount } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -70,6 +70,16 @@ export const appRouter = router({
     create: adminProcedure.input(z.object({ sku: z.string().trim().min(1).max(100), name: z.string().trim().min(1).max(500), description: z.string().max(2000).optional(), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional() })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede agregar artículos" });
       return createInventoryItem(input, "admin1");
+    }),
+    history: adminProcedure.input(z.object({ inventoryItemId: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar el historial" });
+      return listInventoryScans(input.inventoryItemId);
+    }),
+    deleteScan: adminProcedure.input(z.object({ scanId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede eliminar conteos" });
+      const result = await deleteInventoryScan(input.scanId);
+      if (!result.found) throw new TRPCError({ code: "NOT_FOUND", message: "La lectura ya no existe" });
+      return result;
     }),
   }),
 });

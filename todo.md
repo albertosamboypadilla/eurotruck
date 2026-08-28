@@ -217,3 +217,19 @@
 - [x] Confirmar búsqueda/escaneo, conteo automático +1, acumulación por ubicación, historial y estado verde.
 - [x] Confirmar alta de artículos nuevos y persistencia de tramo y góndola.
 - [x] Validar permisos, responsive y pruebas; publicar la restauración si se requiere algún ajuste.
+
+# Ajuste solicitado: eliminar escaneos y cambiar de área
+
+- [x] Añadir eliminación protegida de una lectura escaneada individual.
+- [x] Recalcular el total del artículo y su última ubicación después de eliminar una lectura.
+- [x] Mantener tramo y góndola activos para todas las lecturas hasta que el operador seleccione o agregue otra área.
+- [x] Añadir selector de áreas guardadas y opción para agregar un tramo/góndola manualmente.
+- [x] Añadir pruebas de permisos, doble escaneo, eliminación y persistencia de ubicación.
+- [x] Validar el flujo en móvil y publicar la actualización.
+- [x] Mostrar el historial de lecturas por artículo y permitir eliminar una lectura específica, no solo la última.
+- [x] Hacer que el conteo manual use únicamente la ubicación activa y bloquear la edición directa de tramo/góndola.
+- [x] Añadir una prueba de persistencia de áreas guardadas y ubicación activa entre recargas.
+- [x] Guardar y publicar un checkpoint después de validar la nueva UX de áreas y eliminación.
+- [x] Revisar la paleta neutra clara del módulo Inventario; a solicitud del usuario se actualizó a un tema oscuro neutro con estados funcionales contrastados.
+- [x] Aplicar paleta oscura neutra al módulo Inventario, con texto claro y estados verde/rojo reservados para feedback funcional.
+- [x] Mostrar la ubicación del producto —tramo y góndola— directamente en cada artículo del catálogo de Inventario.
