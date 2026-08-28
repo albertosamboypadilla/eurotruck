@@ -209,3 +209,11 @@
 - [x] Mantener cantidades, eliminación y total de piezas en el carrito antes del envío.
 - [x] Generar el PDF únicamente al enviar el formulario completo del cliente.
 - [x] Probar el flujo completo sin dejar órdenes temporales y publicar la corrección.
+
+# Restauración solicitada: inventario completo
+
+- [x] Verificar que la ruta /inventory y el acceso de admin1 sigan disponibles.
+- [x] Confirmar que Inventario carga todos los datos del catálogo principal y el mapa GTIN disponible.
+- [x] Confirmar búsqueda/escaneo, conteo automático +1, acumulación por ubicación, historial y estado verde.
+- [x] Confirmar alta de artículos nuevos y persistencia de tramo y góndola.
+- [x] Validar permisos, responsive y pruebas; publicar la restauración si se requiere algún ajuste.
