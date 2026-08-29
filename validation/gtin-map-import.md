@@ -1,22 +1,22 @@
 # Importación GTIN
 
 - Fuente: `catalogo_gtin_dt_spare_parts_final.csv`
-- Filas procesadas: **70**
-- Referencias únicas: **70**
-- GTIN únicos: **167**
-- Referencias con múltiples GTIN: **63**
+- Filas procesadas: **73**
+- Referencias únicas: **73**
+- GTIN únicos: **171**
+- Referencias con múltiples GTIN: **64**
 - Referencias sin GTIN: **0**
-- Coincidencias exactas con catálogo: **70/70**
+- Coincidencias exactas con catálogo: **73/73**
 
 ## Aplicaciones en el catálogo
 
 | Aplicación | Registros que comparten las referencias importadas |
 |---|---:|
-| Iveco | 70 |
-| Scania | 70 |
-| Volvo | 70 |
-| Mercedes-Benz | 70 |
-| MAN | 70 |
+| Iveco | 73 |
+| Scania | 73 |
+| Volvo | 73 |
+| Mercedes-Benz | 73 |
+| MAN | 73 |
 
 ## Muestra
 
@@ -33,4 +33,7 @@
 | `1.19013` | 4047755036898 · 4047755392390 · 4057795864474 | DT Spare Parts 1.19013 Casquillo de ajuste, M30 x 1,5R, M38 x 1,5L, Lu: 90 mm, SW: 34, L: 100 mm Casquillo de ajuste |
 | `1.19150` | 4057795603011 · 4057795619852 · 4057795702264 · 4057795785670 | DT Spare Parts 1.19150 Elemento de filtro de aceite, d: 18 mm, D: 60 mm, H: 100 mm Elemento de filtro de aceite |
 | `1.19152` | 4047755037567 · 4047755984472 | DT Spare Parts 1.19152 Tapa, depósito de aceite Tapa, depósito de aceite |
-| `1.19153` | 4047755310516 · 4047755696009 | DT Spare Parts 1.19153 Tórica, depósito de aceite, d: 63 mm, D: 75 mm, S: 2,9 mm Tórica, depósito de aceite |
+| `1.19153` | 4047755310516 · 4047755696009 | Tórica, depósito de aceite, d: 63 mm, D: 75 mm, S: 2,9 mm Tórica, depósito de aceite |
+| `1.19067` | 4057795159525 | DT Spare Parts 1.19067 Drag link | Scania |
+| `1.21157` | 4047755040543 · 4057795949751 | DT Spare Parts 1.21157 Switch | Scania |
+| `1.61100` | 4057795238183 | DT Spare Parts 1.61100 Repair kit, oil separator, without cap | Scania |

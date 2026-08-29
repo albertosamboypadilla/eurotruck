@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { claimOrder, createInventoryItem, createOrder, deleteInventoryScan, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listInventoryScans, listOrders, recordInventoryCount } from "./db";
+import { claimOrder, createInventoryItem, createOrder, deleteInventoryScan, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, recordInventoryCount } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -42,7 +42,7 @@ export const appRouter = router({
       const afterHours = isEurotruckAfterHours(new Date());
       const created = await createOrder({ company: input.company, email: input.email, phone: input.phone, rnc: input.rnc, truckBrand: input.truckBrand, partsNote: input.partsNote, notificationRecipients: "", afterHours: afterHours ? 1 : 0, status: "new" }, input.items);
       const pdf = await buildOrderPdf(created);
-      return { orderNumber: created.order.orderNumber, pdfBase64: pdf.toString("base64"), afterHours, afterHoursMessage: afterHours ? "Buenas tardes. Recibimos tu solicitud; mañana será atendida por nuestro equipo Eurotruck." : null };
+      return { orderNumber: created.order.orderNumber, pdfBase64: pdf.toString("base64"), afterHours, afterHoursMessage: afterHours ? "Buenas tardes. Recibimos tu solicitud; mañana será atendida por nuestro equipo Eurotruck." : null, afterHoursMessageEn: afterHours ? "Good afternoon. We received your request; our Eurotruck team will attend to it tomorrow." : null };
     }),
     list: adminProcedure.query(async () => listOrders()),
     pdf: adminProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
@@ -59,6 +59,7 @@ export const appRouter = router({
     remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => ({ success: await deleteOrder(input.id) })),
   }),
   inventory: router({
+    publicLocations: publicProcedure.query(() => listPublicInventoryLocations()),
     list: adminProcedure.query(async ({ ctx }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede acceder al inventario" });
       return listInventory();

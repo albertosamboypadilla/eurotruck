@@ -163,6 +163,7 @@
 
 - [x] Inspeccionar el portal Diesel Technic y confirmar dónde expone el GTIN para las aplicaciones ya integradas.
 - [ ] Obtener de forma completa los GTIN disponibles para Scania, Volvo, Mercedes-Benz y MAN, sin inventar valores faltantes.
+- [x] Continuar la captura de DT Spare Parts, GTIN y N.º de referencia desde el último registro confirmado, con reintento normal y reanudación segura ante errores; se añadieron 1.19067, 1.21157 y 1.61100 con fuente oficial verificable.
 - [x] Asociar cada GTIN a la referencia correcta y conservar los artículos sin GTIN con estado explícito.
 - [x] Extender el catálogo compartido, el inventario y la búsqueda para mostrar y localizar por GTIN.
 - [x] Validar cobertura, deduplicación, rendimiento, permisos y ausencia de errores en la carga por fragmentos.
@@ -233,3 +234,11 @@
 - [x] Revisar la paleta neutra clara del módulo Inventario; a solicitud del usuario se actualizó a un tema oscuro neutro con estados funcionales contrastados.
 - [x] Aplicar paleta oscura neutra al módulo Inventario, con texto claro y estados verde/rojo reservados para feedback funcional.
 - [x] Mostrar la ubicación del producto —tramo y góndola— directamente en cada artículo del catálogo de Inventario.
+- [ ] Mostrar tramo y góndola en las tarjetas del catálogo de la página principal, con “Ubicación pendiente” si el producto aún no tiene conteo.
+- [ ] Sincronizar automáticamente la ubicación pública después de registrar, cambiar o eliminar conteos en Inventario.
+- [ ] Aumentar las imágenes de las tarjetas y añadir zoom con mouse al abrir el detalle del producto, sin cubrir la información.
+- [ ] Añadir un botón visible “Ir a la página principal” en Acceso de empresa e Inventario.
+- [ ] Hacer más grande y fácil de seleccionar la acción “Tomar orden” dentro de cada orden abierta.
+- [x] Eliminar las acciones “Contactar por WhatsApp” y “Llamar al cliente” de la bandeja de órdenes.
+- [ ] Crear historial administrativo de órdenes eliminadas, con revisión y eliminación definitiva separadas de la bandeja activa.
+- [ ] Hacer funcional el selector ES/EN y traducir los textos visibles de Home, catálogo, carrito y formulario.

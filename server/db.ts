@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -191,4 +191,12 @@ export async function listInventory() {
     scansByItem.set(scan.inventoryItemId, history);
   });
   return items.map(item => ({ ...item, scanCount: scansByItem.get(item.id)?.length || 0, lastScanId: scansByItem.get(item.id)?.[0]?.id || null }));
+}
+
+export async function listPublicInventoryLocations() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ productId: inventoryItems.productId, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola })
+    .from(inventoryItems)
+    .where(gt(inventoryItems.totalQuantity, 0));
 }
