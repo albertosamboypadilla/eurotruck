@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInventoryLocations, recordInventoryCount } = vi.hoisted(() => ({
+const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale } = vi.hoisted(() => ({
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
   listInventory: vi.fn(async () => []),
   listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", lastTramo: "T-01", lastGondola: "G-02" }]),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
+  recordInventorySale: vi.fn(async (input: any) => ({ sku: input.sku, totalQuantity: 4, soldQuantity: input.quantity })),
+  listTopSoldInventory: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", name: "Filtro", soldQuantity: 5 }]),
 }));
 
 vi.mock("./db", () => ({
@@ -13,10 +15,14 @@ vi.mock("./db", () => ({
   deleteInventoryScan,
   listInventory,
   listPublicInventoryLocations,
+  listTopSoldInventory,
   recordInventoryCount,
+  recordInventorySale,
   claimOrder: vi.fn(),
   createOrder: vi.fn(),
-  deleteOrder: vi.fn(),
+  archiveOrder: vi.fn(),
+  purgeDeletedOrder: vi.fn(),
+  listDeletedOrders: vi.fn(),
   getLocalAdminByUsername: vi.fn(),
   getOrderWithItems: vi.fn(),
   listOrders: vi.fn(),
@@ -54,6 +60,17 @@ describe("inventory procedures", () => {
     expect(recordInventoryCount).toHaveBeenCalledWith({ ...input, countedBy: "admin1" });
     await expect(appRouter.createCaller(context(admin2)).inventory.record(input)).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(recordInventoryCount).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite registrar una salida a admin1 y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.recordSale({ sku: "SKU-1", quantity: 1, source: "scan" })).resolves.toMatchObject({ sku: "SKU-1", totalQuantity: 4 });
+    expect(recordInventorySale).toHaveBeenCalledWith({ sku: "SKU-1", quantity: 1, source: "scan", movedBy: "admin1" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.recordSale({ sku: "SKU-1", quantity: 1, source: "scan" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("permite consultar más vendidos a admin1 y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.topSold({ month: 8, year: 2026 })).resolves.toEqual([{ productId: "p-1", sku: "SKU-1", name: "Filtro", soldQuantity: 5 }]);
+    await expect(appRouter.createCaller(context(admin2)).inventory.topSold({ month: 8, year: 2026 })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite eliminar una lectura a admin1 y rechaza admin2", async () => {

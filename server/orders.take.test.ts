@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 const { claimOrder } = vi.hoisted(() => ({ claimOrder: vi.fn() }));
-vi.mock("./db", () => ({ claimOrder, createOrder: vi.fn(), deleteOrder: vi.fn(), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn() }));
+vi.mock("./db", () => ({ claimOrder, createOrder: vi.fn(), archiveOrder: vi.fn(), purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn() }));
 
 import { appRouter } from "./routers";
 

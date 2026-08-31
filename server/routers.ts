@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { claimOrder, createInventoryItem, createOrder, deleteInventoryScan, deleteOrder, getLocalAdminByUsername, getOrderWithItems, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, recordInventoryCount } from "./db";
+import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -45,6 +45,7 @@ export const appRouter = router({
       return { orderNumber: created.order.orderNumber, pdfBase64: pdf.toString("base64"), afterHours, afterHoursMessage: afterHours ? "Buenas tardes. Recibimos tu solicitud; mañana será atendida por nuestro equipo Eurotruck." : null, afterHoursMessageEn: afterHours ? "Good afternoon. We received your request; our Eurotruck team will attend to it tomorrow." : null };
     }),
     list: adminProcedure.query(async () => listOrders()),
+    deleted: adminProcedure.query(async () => listDeletedOrders()),
     pdf: adminProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
       const order = await getOrderWithItems(input.id);
       if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Orden no encontrada" });
@@ -56,7 +57,8 @@ export const appRouter = router({
       if (!claimed) throw new TRPCError({ code: "CONFLICT", message: "Esta orden ya fue tomada por otro usuario" });
       return { success: true } as const;
     }),
-    remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => ({ success: await deleteOrder(input.id) })),
+    remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ ctx, input }) => ({ success: await archiveOrder(input.id, ctx.user.name || ctx.user.email || "admin") })),
+    purge: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => ({ success: await purgeDeletedOrder(input.id) })),
   }),
   inventory: router({
     publicLocations: publicProcedure.query(() => listPublicInventoryLocations()),
@@ -81,6 +83,19 @@ export const appRouter = router({
       const result = await deleteInventoryScan(input.scanId);
       if (!result.found) throw new TRPCError({ code: "NOT_FOUND", message: "La lectura ya no existe" });
       return result;
+    }),
+    recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional() })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede descontar inventario" });
+      try {
+        return await recordInventorySale({ ...input, movedBy: "admin1" });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "No se pudo descontar el inventario";
+        throw new TRPCError({ code: message.includes("not found") ? "NOT_FOUND" : "BAD_REQUEST", message });
+      }
+    }),
+    topSold: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar reportes de inventario" });
+      return listTopSoldInventory(input.month, input.year);
     }),
   }),
 });

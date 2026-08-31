@@ -234,11 +234,18 @@
 - [x] Revisar la paleta neutra clara del módulo Inventario; a solicitud del usuario se actualizó a un tema oscuro neutro con estados funcionales contrastados.
 - [x] Aplicar paleta oscura neutra al módulo Inventario, con texto claro y estados verde/rojo reservados para feedback funcional.
 - [x] Mostrar la ubicación del producto —tramo y góndola— directamente en cada artículo del catálogo de Inventario.
-- [ ] Mostrar tramo y góndola en las tarjetas del catálogo de la página principal, con “Ubicación pendiente” si el producto aún no tiene conteo.
-- [ ] Sincronizar automáticamente la ubicación pública después de registrar, cambiar o eliminar conteos en Inventario.
-- [ ] Aumentar las imágenes de las tarjetas y añadir zoom con mouse al abrir el detalle del producto, sin cubrir la información.
-- [ ] Añadir un botón visible “Ir a la página principal” en Acceso de empresa e Inventario.
-- [ ] Hacer más grande y fácil de seleccionar la acción “Tomar orden” dentro de cada orden abierta.
+- [x] Mostrar tramo y góndola en las tarjetas del catálogo de la página principal, con “Ubicación pendiente” si el producto aún no tiene conteo.
+- [x] Sincronizar automáticamente la ubicación pública después de registrar, cambiar o eliminar conteos en Inventario.
+- [x] Aumentar las imágenes de las tarjetas y añadir zoom con mouse al abrir el detalle del producto, sin cubrir la información.
+- [x] Añadir un botón visible “Ir a la página principal” en Acceso de empresa e Inventario.
+- [x] Hacer más grande y fácil de seleccionar la acción “Tomar orden” dentro de cada orden abierta.
 - [x] Eliminar las acciones “Contactar por WhatsApp” y “Llamar al cliente” de la bandeja de órdenes.
-- [ ] Crear historial administrativo de órdenes eliminadas, con revisión y eliminación definitiva separadas de la bandeja activa.
-- [ ] Hacer funcional el selector ES/EN y traducir los textos visibles de Home, catálogo, carrito y formulario.
+- [x] Crear historial administrativo de órdenes eliminadas, con revisión y eliminación definitiva separadas de la bandeja activa.
+- [x] Hacer funcional el selector ES/EN y traducir los textos visibles de Home, catálogo, carrito y formulario.
+- [x] Permitir eliminar tramos y góndolas guardados únicamente desde Inventario y conservar la ubicación histórica de los conteos.
+- [x] Aumentar la legibilidad de los datos de artículos en Inventario y aplicar estados de color contrastados para contado, pendiente y bajo stock, respetando el tema oscuro solicitado.
+- [x] Crear código ZPL compatible con Zebra LP2824 Plus para imprimir una secuencia de códigos internos de al menos cinco dígitos usando solo SKU y nombre del artículo.
+- [x] Registrar salidas de inventario por venta mediante escaneo o captura de SKU desde el panel protegido de Inventario, con autorización exclusiva de admin1.
+- [x] Crear alertas de bajo stock con umbral operativo y un historial de artículos más vendidos filtrable por mes y año, con impresión del reporte.
+- [x] Asegurar que admin1 sea el único usuario con acceso a Inventario y que los demás administradores conserven solo la bandeja de órdenes.
+- [x] Aumentar las letras pequeñas y mejorar espacios de filtros, tarjetas y datos de artículos tomando como referencia la imagen adjunta.

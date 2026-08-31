@@ -49,6 +49,20 @@ export const inventoryScans = mysqlTable("inventory_scans", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const inventoryMovements = mysqlTable("inventory_movements", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull(),
+  productId: varchar("productId", { length: 180 }).notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  name: text("name").notNull(),
+  movementType: mysqlEnum("movementType", ["sale"]).default("sale").notNull(),
+  quantity: int("quantity").notNull(),
+  source: varchar("source", { length: 40 }).notNull().default("manual"),
+  orderId: int("orderId"),
+  movedBy: varchar("movedBy", { length: 40 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   orderNumber: varchar("orderNumber", { length: 32 }).notNull().unique(),
@@ -63,6 +77,8 @@ export const orders = mysqlTable("orders", {
   status: mysqlEnum("status", ["new", "taken", "closed"]).default("new").notNull(),
   assignedAdmin: varchar("assignedAdmin", { length: 40 }),
   assignedAt: timestamp("assignedAt"),
+  deletedAt: timestamp("deletedAt"),
+  deletedBy: varchar("deletedBy", { length: 40 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -25,3 +25,11 @@ El detalle también mostró los números de comparación Scania `353628` y ZG `Z
 | https://partnerportal.dieseltechnic.com/en/products/dt-1-19067-drag-link | DT Spare Parts 1.19067 Drag link | 4057795159525 | Scania |
 
 Los detalles muestran además números de comparación Scania, que se mantienen separados del número DT y del GTIN. La recopilación continúa solo con páginas públicas que cargan correctamente.
+
+### Registro adicional confirmado — 2026-08-31
+
+| Fuente | DT Spare Parts / referencia | GTIN | Aplicación |
+|---|---|---|---|
+| https://partnerportal.dieseltechnic.com/en/products/dt-1-01027-sun-gear | DT Spare Parts 1.01027 Sun gear | 4070174032295 | Scania |
+
+La ficha individual mostró el GTIN y la referencia de comparación Scania `2458253`, que no se incorporó como GTIN. Otras fichas consultadas devolvieron la pantalla de Azure WAF o requirieron JavaScript; no se intentó evadir ese control. El mapa local se actualizó de forma reproducible de 73 a 74 referencias y de 167 a 172 GTIN únicos, y se publicó en `/manus-storage/diesel-gtin-map_8fd5d8db.json`.

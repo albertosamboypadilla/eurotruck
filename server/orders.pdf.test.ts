@@ -5,7 +5,7 @@ const { sample, getOrderWithItems } = vi.hoisted(() => {
   return { sample, getOrderWithItems: vi.fn(async () => sample) };
 });
 
-vi.mock("./db", () => ({ getOrderWithItems, getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
+vi.mock("./db", () => ({ getOrderWithItems, archiveOrder: vi.fn(), purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(async () => []), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
 
 import { appRouter } from "./routers";
 

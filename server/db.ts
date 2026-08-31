@@ -1,6 +1,6 @@
-import { and, desc, eq, gt } from "drizzle-orm";
+import { eq, desc, and, gt, isNull, isNotNull, gte, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
+import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryMovements, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
 import { rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
@@ -80,7 +80,14 @@ export async function getOrderWithItems(orderId: number): Promise<OrderWithItems
 export async function listOrders(): Promise<OrderWithItems[]> {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select().from(orders).orderBy(desc(orders.createdAt));
+  const rows = await db.select().from(orders).where(isNull(orders.deletedAt)).orderBy(desc(orders.createdAt));
+  return Promise.all(rows.map(async order => ({ order, items: await db.select().from(orderItems).where(eq(orderItems.orderId, order.id)) })));
+}
+
+export async function listDeletedOrders(): Promise<OrderWithItems[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select().from(orders).where(isNotNull(orders.deletedAt)).orderBy(desc(orders.deletedAt), desc(orders.createdAt));
   return Promise.all(rows.map(async order => ({ order, items: await db.select().from(orderItems).where(eq(orderItems.orderId, order.id)) })));
 }
 
@@ -92,12 +99,22 @@ export async function claimOrder(orderId: number, adminUsername: string) {
   return affectedRows > 0;
 }
 
-export async function deleteOrder(orderId: number) {
+export async function archiveOrder(orderId: number, adminUsername: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.update(orders).set({ deletedAt: new Date(), deletedBy: adminUsername }).where(and(eq(orders.id, orderId), isNull(orders.deletedAt))).execute();
+  const affectedRows = Number((result as unknown as { affectedRows?: number })?.affectedRows ?? (result as unknown as Array<{ affectedRows?: number }>)[0]?.affectedRows ?? 0);
+  return affectedRows > 0;
+}
+
+export async function purgeDeletedOrder(orderId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   return db.transaction(async tx => {
+    const found = await tx.select({ id: orders.id }).from(orders).where(and(eq(orders.id, orderId), isNotNull(orders.deletedAt))).limit(1);
+    if (!found[0]) return false;
     await tx.delete(orderItems).where(eq(orderItems.orderId, orderId));
-    await tx.delete(orders).where(eq(orders.id, orderId));
+    await tx.delete(orders).where(and(eq(orders.id, orderId), isNotNull(orders.deletedAt)));
     return true;
   });
 }
@@ -176,6 +193,42 @@ export async function createInventoryItem(input: NewInventoryItemInput, countedB
   const created = await db.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
   if (!created[0]) throw new Error("Unable to create inventory item");
   return created[0];
+}
+
+export type InventorySaleInput = {
+  productId?: string;
+  sku: string;
+  quantity: number;
+  movedBy: string;
+  source?: string;
+  orderId?: number;
+};
+
+export async function recordInventorySale(input: InventorySaleInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  if (!Number.isInteger(input.quantity) || input.quantity < 1) throw new Error("Sale quantity must be a positive integer");
+  return db.transaction(async tx => {
+    const candidates = await tx.select().from(inventoryItems).where(input.productId ? eq(inventoryItems.productId, input.productId) : eq(inventoryItems.sku, input.sku)).limit(2);
+    if (!candidates[0]) throw new Error("Inventory article not found");
+    if (!input.productId && candidates.length > 1) throw new Error("SKU matches multiple inventory articles; productId is required");
+    const item = candidates[0];
+    if (item.totalQuantity < input.quantity) throw new Error(`Insufficient stock for ${item.sku}`);
+    const nextQuantity = item.totalQuantity - input.quantity;
+    await tx.update(inventoryItems).set({ totalQuantity: nextQuantity }).where(and(eq(inventoryItems.id, item.id), gte(inventoryItems.totalQuantity, input.quantity)));
+    await tx.insert(inventoryMovements).values({ inventoryItemId: item.id, productId: item.productId, sku: item.sku, name: item.name, movementType: "sale", quantity: input.quantity, source: input.source ?? "manual", orderId: input.orderId, movedBy: input.movedBy });
+    return { ...item, totalQuantity: nextQuantity, soldQuantity: input.quantity };
+  });
+}
+
+export async function listTopSoldInventory(month: number, year: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 2200) throw new Error("Invalid report period");
+  const start = new Date(Date.UTC(year, month - 1, 1));
+  const end = new Date(Date.UTC(year, month, 1));
+  const soldTotal = sql<number>`SUM(${inventoryMovements.quantity})`;
+  return db.select({ sku: inventoryMovements.sku, productId: inventoryMovements.productId, name: inventoryMovements.name, soldQuantity: soldTotal }).from(inventoryMovements).where(and(eq(inventoryMovements.movementType, "sale"), gte(inventoryMovements.createdAt, start), lt(inventoryMovements.createdAt, end))).groupBy(inventoryMovements.sku, inventoryMovements.productId, inventoryMovements.name).orderBy(desc(soldTotal)).limit(100);
 }
 
 export async function listInventory() {
