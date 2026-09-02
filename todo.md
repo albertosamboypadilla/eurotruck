@@ -194,6 +194,7 @@
 - [x] Mostrar “GTIN no registrado” de forma explícita en tarjetas y listados relevantes cuando no exista código importado.
 - [x] Añadir una prueba de referencia válida sin GTIN, conservando su SKU y rechazando códigos ajenos.
 - [ ] Ampliar el mapa GTIN con los 39.369 artículos restantes cuando exista una fuente oficial verificable para sus códigos.
+- [x] Auditar e importar `todas_las_marcas_dt_gtin_5.csv`, asociando GTIN al número de parte/SKU coincidente y documentando duplicados o no coincidencias.
 
 # Corrección solicitada: registro de cliente y orden de compra
 

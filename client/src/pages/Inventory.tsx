@@ -8,7 +8,7 @@ import { attachGtins, getGtinsForSku, productMatchesCatalogQuery, type GtinMap }
 import { buildZebraLabelSequence } from "@shared/zebraLabel";
 
 const catalogIndexUrl = "/manus-storage/diesel-catalog-inventory-index_a42543ed.json";
-const gtinMapFileUrl = "/manus-storage/diesel-gtin-map_8fd5d8db.json";
+const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-complete_604000de.json";
 const catalogShardUrls: Record<string, string> = {
   "0": "/manus-storage/diesel-catalog-inventory-shard-0_98d51a34.json",
   "1": "/manus-storage/diesel-catalog-inventory-shard-1_9aefba15.json",

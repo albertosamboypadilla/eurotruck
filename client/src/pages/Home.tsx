@@ -101,7 +101,7 @@ type CatalogProduct = {
 type PublicInventoryLocation = { productId: string; lastTramo: string | null; lastGondola: string | null };
 
 const catalogFileUrl = "/manus-storage/diesel-catalog-all_60b23acb.json";
-const gtinMapFileUrl = "/manus-storage/diesel-gtin-map_8fd5d8db.json";
+const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-complete_604000de.json";
 const catalogPageSize = 24;
 const catalogSourceCounts: Record<string, number> = { Iveco: 5897, Scania: 7005, Volvo: 8511, "Mercedes-Benz": 11299, MAN: 6958 };
 const catalogApplications = ["Todas las aplicaciones", "Iveco", "Scania", "Volvo", "Mercedes-Benz", "MAN"];
