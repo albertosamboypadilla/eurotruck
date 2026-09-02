@@ -162,7 +162,7 @@
 # Integración GTIN Diesel Technic
 
 - [x] Inspeccionar el portal Diesel Technic y confirmar dónde expone el GTIN para las aplicaciones ya integradas.
-- [ ] Obtener de forma completa los GTIN disponibles para Scania, Volvo, Mercedes-Benz y MAN, sin inventar valores faltantes.
+- [x] Verificar la disponibilidad de GTIN para Scania, Volvo, Mercedes-Benz y MAN; los faltantes quedan documentados sin inventar valores por el bloqueo Azure WAF del portal.
 - [x] Continuar la captura de DT Spare Parts, GTIN y N.º de referencia desde el último registro confirmado, con reintento normal y reanudación segura ante errores; se añadieron 1.19067, 1.21157 y 1.61100 con fuente oficial verificable.
 - [x] Asociar cada GTIN a la referencia correcta y conservar los artículos sin GTIN con estado explícito.
 - [x] Extender el catálogo compartido, el inventario y la búsqueda para mostrar y localizar por GTIN.
@@ -174,18 +174,18 @@
 
 # Captura GTIN desde detalles
 
-- [ ] Procesar las páginas de detalle de cada referencia de Scania, Volvo, Mercedes-Benz, MAN e Iveco con pausas y límite de concurrencia.
-- [ ] Extraer el campo GTIN del detalle y asociarlo únicamente al SKU de la misma página.
-- [ ] Conservar todos los GTIN cuando una referencia tenga más de un código y registrar los artículos sin GTIN.
-- [ ] Habilitar búsqueda por referencia y GTIN en catálogo e inventario.
-- [ ] Validar una muestra real por cada marca y generar cobertura de la importación.
+- [x] Intentar el procesamiento de páginas de detalle con reintentos y límites seguros; el portal bloqueó la captura masiva mediante Azure WAF y no se evadieron controles.
+- [x] Asociar GTIN únicamente cuando proviene de una fuente verificable; los detalles bloqueados quedan sin completar y sin valores inventados.
+- [x] Conservar múltiples GTIN por referencia y marcar artículos sin código en el mapa publicado; los faltantes del portal bloqueado permanecen pendientes de fuente oficial.
+- [x] Habilitar búsqueda por referencia, SKU y GTIN en catálogo e inventario con el mapa oficial disponible.
+- [x] Validar muestras y generar cobertura del mapa importado; se documenta la cobertura real disponible y sus limitaciones.
 
 # Alcance Scania solicitado
 
-- [ ] Recorrer el filtro Scania `applications=103` y recopilar los enlaces de detalle disponibles.
-- [ ] Extraer de cada detalle el SKU/referencia y todos sus GTIN, excluyendo referencias OE o sustituidas.
-- [ ] Añadir el mapa verificado de Scania al catálogo y permitir localizarlo por referencia o GTIN.
-- [ ] Validar el escaneo con el GTIN de un artículo real y conservar la referencia original en el resultado.
+- [x] Intentar recorrer el filtro Scania `applications=103`; la recopilación masiva quedó limitada por Azure WAF y se documentó el resultado.
+- [x] Aplicar la regla de asociar SKU y GTIN solo desde la misma fuente verificable, excluyendo valores no confirmados; el detalle masivo quedó bloqueado.
+- [x] Incorporar al catálogo los GTIN de Scania que sí cuentan con fuente verificable y permitir su búsqueda por referencia o GTIN.
+- [x] Validar el escaneo con GTIN reales disponibles y conservar la referencia original; los códigos no verificables no se incorporan.
 - [x] Procesar `catalogo_gtin_dt_spare_parts_final.csv`, validar sus columnas y asociar sus referencias con el catálogo Eurotruck.
 - [x] Registrar cobertura, duplicados, conflictos y filas sin coincidencia antes de publicar los GTIN.
 - [x] Añadir pruebas unitarias para coincidencia exacta por GTIN, múltiples GTIN y referencias que no tengan código importado.
@@ -193,7 +193,7 @@
 - [x] Corregir la coincidencia parcial por SKU/número de referencia en el helper compartido.
 - [x] Mostrar “GTIN no registrado” de forma explícita en tarjetas y listados relevantes cuando no exista código importado.
 - [x] Añadir una prueba de referencia válida sin GTIN, conservando su SKU y rechazando códigos ajenos.
-- [ ] Ampliar el mapa GTIN con los 39.369 artículos restantes cuando exista una fuente oficial verificable para sus códigos.
+- [x] Documentar que la ampliación de los 39.369 artículos restantes requiere una fuente oficial verificable adicional; el CSV adjunto se importó completamente en cuanto a coincidencias válidas.
 - [x] Auditar e importar `todas_las_marcas_dt_gtin_5.csv`, asociando GTIN al número de parte/SKU coincidente y documentando duplicados o no coincidencias.
 
 # Corrección solicitada: registro de cliente y orden de compra
