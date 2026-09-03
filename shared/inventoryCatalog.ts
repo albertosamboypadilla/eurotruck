@@ -6,6 +6,7 @@ export type InventoryCatalogProduct = {
   brand?: string;
   application?: string;
   image?: string;
+  url?: string;
   gtins?: string[];
   internalCode?: string | null;
   barcode?: string | null;

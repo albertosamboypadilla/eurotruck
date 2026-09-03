@@ -309,3 +309,11 @@
 - [x] Permitir activar o quitar código interno, código de barras, SKU y nombre antes de imprimir.
 - [x] Hacer que la descarga ZPL respete exactamente los campos seleccionados en la vista previa.
 - [x] Validar configuración, vista previa, ZPL, impresión y responsive.
+
+# Ajuste solicitado: salida en catálogo y exportación Excel
+
+- [x] Mover el botón rojo de salida del listado Artículos contados al catálogo principal, a la izquierda de Agregar.
+- [x] Mantener la confirmación con clave 0000 y descontar la existencia usando SKU, código Zebra o barcode.
+- [x] Verificar que el código interno Zebra use formato normal de cinco dígitos y no se duplique.
+- [x] Añadir descarga Excel con todos los artículos, identificadores, GTIN, barcode, existencia, ubicación, costo, precio y movimientos disponibles.
+- [x] Validar permisos de admin1, descarga Excel, salida, códigos y responsive; ejecutar pruebas y publicar.
