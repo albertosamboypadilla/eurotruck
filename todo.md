@@ -286,3 +286,11 @@
 - [x] Rediseñar Artículos contados como listado inferior clicable con estados de color diferenciados.
 - [x] Abrir el detalle del artículo contado con imagen, ubicación, costo y precio final editables por admin1.
 - [x] Validar clave incorrecta, permisos admin1, descuento, actualización de existencias, pruebas y vista responsive.
+
+# Ajuste solicitado: alerta y listados por ubicación
+
+- [x] Convertir la alerta de artículo en otra ubicación en una ventana emergente grande con ubicación anterior y activa.
+- [x] Añadir botón Aceptar y continuar para cerrar la alerta y continuar el conteo después de mover o confirmar el artículo.
+- [x] Reorganizar el catálogo en filas largas con tipografía grande y datos completos sin recortes.
+- [x] Agrupar Artículos contados por tramo y góndola en cuadros verticales separados con colores diferenciados.
+- [x] Validar escaneo, alerta, aceptación, agrupación, colores, responsive, pruebas y publicación.

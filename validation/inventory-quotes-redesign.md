@@ -23,3 +23,9 @@ Las tarjetas del catálogo muestran existencia real de almacén, ubicación y pr
 ## Salida protegida
 
 Se abrió el botón rojo **Eliminar del inventario** de una fila contada. El diálogo mostró la referencia, cantidad, clave de confirmación y botones separados. Al enviar una clave incorrecta (`1111`), el modal permaneció abierto, mostró “Clave incorrecta” y no ejecutó el descuento; la existencia visible se mantuvo sin cambios.
+
+## Alerta y listados por ubicación
+
+La alerta de artículo repetido ahora detiene el escaneo automático y presenta una ventana emergente grande con la ubicación anterior, la ubicación activa y las acciones **Cancelar** y **Aceptar y continuar**. La confirmación registra la lectura en la nueva ubicación; cancelar no registra cambios.
+
+El catálogo administrativo usa filas horizontales más amplias, tipografía mayor y datos completos. Los artículos contados se agrupan en cuadros verticales por tramo y góndola, con cuatro tonos operativos alternos y filas clicables para abrir el detalle del artículo. TypeScript, 46 pruebas Vitest y el build de producción finalizaron correctamente.
