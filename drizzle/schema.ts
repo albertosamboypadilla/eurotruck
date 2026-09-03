@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -30,6 +30,8 @@ export const inventoryItems = mysqlTable("inventory_items", {
   brand: varchar("brand", { length: 120 }),
   application: varchar("application", { length: 120 }),
   image: text("image"),
+  costPrice: decimal("costPrice", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  salePrice: decimal("salePrice", { precision: 12, scale: 2 }).notNull().default("0.00"),
   totalQuantity: int("totalQuantity").notNull().default(0),
   lastTramo: varchar("lastTramo", { length: 80 }),
   lastGondola: varchar("lastGondola", { length: 80 }),
@@ -95,6 +97,7 @@ export const orderItems = mysqlTable("order_items", {
   category: varchar("category", { length: 160 }),
   image: text("image"),
   sourceUrl: text("sourceUrl"),
+  unitPrice: decimal("unitPrice", { precision: 12, scale: 2 }).notNull().default("0.00"),
 });
 
 export type User = typeof users.$inferSelect;

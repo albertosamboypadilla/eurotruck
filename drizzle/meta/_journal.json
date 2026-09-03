@@ -71,6 +71,13 @@
       "when": 1788183089061,
       "tag": "0009_awesome_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1788392294920,
+      "tag": "0010_far_marvel_boy",
+      "breakpoints": true
     }
   ]
 }

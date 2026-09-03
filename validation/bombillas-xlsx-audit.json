@@ -1,0 +1,50 @@
+{
+  "file": "Bombillas_DieselTechnic.xlsx",
+  "sheets": [
+    {
+      "title": "Bombillas",
+      "max_row": 77,
+      "max_column": 4,
+      "headers": [
+        "Descripción",
+        "Marca",
+        "N° de artículo (Part)",
+        "GTIN"
+      ],
+      "non_empty_rows": 76,
+      "sample_rows": [
+        [
+          "Bombilla, faro antiniebla",
+          "DT Spare Parts",
+          "11.84140",
+          "4057795275997 | 4047755028800"
+        ],
+        [
+          "Bombilla",
+          "DT Spare Parts",
+          "9.78110",
+          "4057795511576 | 4047755613280"
+        ],
+        [
+          "Bombilla",
+          "DT Spare Parts",
+          "9.78114",
+          "4070174136580 | 4070174136573 | 4047755613273"
+        ],
+        [
+          "Bombilla",
+          "DT Spare Parts",
+          "9.78119",
+          "4047755756796 | 4057795947818 | 4057795947801 | 4047755756727"
+        ],
+        [
+          "Bombilla",
+          "DT Spare Parts",
+          "9.78112",
+          "4047755613655 | 4047755613648"
+        ]
+      ]
+    }
+  ],
+  "defined_names": []
+}

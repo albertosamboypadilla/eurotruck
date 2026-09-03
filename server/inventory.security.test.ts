@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale } = vi.hoisted(() => ({
+const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
   listInventory: vi.fn(async () => []),
-  listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", lastTramo: "T-01", lastGondola: "G-02" }]),
+  listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
   recordInventorySale: vi.fn(async (input: any) => ({ sku: input.sku, totalQuantity: 4, soldQuantity: input.quantity })),
   listTopSoldInventory: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", name: "Filtro", soldQuantity: 5 }]),
+  updateInventoryPricing: vi.fn(async (input: any) => ({ id: 1, ...input, totalQuantity: 0 })),
 }));
 
 vi.mock("./db", () => ({
@@ -18,6 +19,8 @@ vi.mock("./db", () => ({
   listTopSoldInventory,
   recordInventoryCount,
   recordInventorySale,
+  updateInventoryPricing,
+  updateQuoteItems: vi.fn(),
   claimOrder: vi.fn(),
   createOrder: vi.fn(),
   archiveOrder: vi.fn(),
@@ -37,8 +40,8 @@ const admin2 = { ...admin1, id: -2, openId: "local:admin2", name: "admin2" };
 const input = { productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 2, tramo: "A", gondola: "G1" };
 
 describe("inventory procedures", () => {
-  it("expone al catálogo público únicamente las ubicaciones públicas", async () => {
-    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-public", lastTramo: "T-01", lastGondola: "G-02" }]);
+  it("expone al catálogo público existencia, ubicación y venta final", async () => {
+    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]);
     expect(listPublicInventoryLocations).toHaveBeenCalledTimes(1);
   });
 
@@ -51,7 +54,7 @@ describe("inventory procedures", () => {
   it("permite agregar un artículo a admin1 e inyecta su identidad", async () => {
     const newArticle = { sku: "NUEVO-1", name: "Artículo nuevo", description: "Descripción nueva", brand: "Eurotruck", application: "Iveco" };
     await expect(appRouter.createCaller(context(admin1)).inventory.create(newArticle)).resolves.toMatchObject({ productId: "custom-1", countedBy: "admin1" });
-    expect(createInventoryItem).toHaveBeenCalledWith(newArticle, "admin1");
+    expect(createInventoryItem).toHaveBeenCalledWith({ ...newArticle, costPrice: "0", salePrice: "0" }, "admin1");
     await expect(appRouter.createCaller(context(admin2)).inventory.create(newArticle)).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
@@ -60,6 +63,13 @@ describe("inventory procedures", () => {
     expect(recordInventoryCount).toHaveBeenCalledWith({ ...input, countedBy: "admin1" });
     await expect(appRouter.createCaller(context(admin2)).inventory.record(input)).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(recordInventoryCount).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite guardar costo y venta a admin1 y rechaza admin2", async () => {
+    const pricing = { productId: "p-1", sku: "SKU-1", name: "Filtro", costPrice: 900, salePrice: 1450 };
+    await expect(appRouter.createCaller(context(admin1)).inventory.updatePricing(pricing)).resolves.toMatchObject({ costPrice: "900.00", salePrice: "1450.00" });
+    expect(updateInventoryPricing).toHaveBeenCalledWith({ ...pricing, costPrice: "900.00", salePrice: "1450.00" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.updatePricing(pricing)).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite registrar una salida a admin1 y rechaza admin2", async () => {

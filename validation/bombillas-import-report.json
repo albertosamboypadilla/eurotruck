@@ -1,0 +1,18 @@
+{
+  "source": "Bombillas_DieselTechnic.xlsx",
+  "sheet": "Bombillas",
+  "sourceRows": 76,
+  "newProducts": 1,
+  "updatedExisting": 75,
+  "duplicateRows": 0,
+  "invalidRows": [],
+  "catalogBefore": 39439,
+  "catalogAfter": 39440,
+  "gtinMapBefore": 35516,
+  "gtinMapAfter": 35517,
+  "newGtinsRows": 1,
+  "outputs": [
+    "/home/ubuntu/webdev-static-assets/diesel-catalog-bombillas-merged.json",
+    "/home/ubuntu/webdev-static-assets/diesel-gtin-map-bombillas-merged.json"
+  ]
+}

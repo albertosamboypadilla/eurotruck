@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
+import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
 
 describe("inventory helpers", () => {
   it("allows only admin1 regardless of case and whitespace", () => {
     expect(isInventoryAdmin(" admin1 ")).toBe(true);
     expect(isInventoryAdmin("admin2")).toBe(false);
     expect(isInventoryAdmin(null)).toBe(false);
+  });
+
+  it("accepts only the configured sale confirmation key", () => {
+    expect(isInventorySaleConfirmationKey("0000")).toBe(true);
+    expect(isInventorySaleConfirmationKey("1111")).toBe(false);
+    expect(isInventorySaleConfirmationKey("00000")).toBe(false);
   });
 
   it("marks only positive accumulated quantities as counted", () => {

@@ -250,3 +250,39 @@
 - [x] Crear alertas de bajo stock con umbral operativo y un historial de artículos más vendidos filtrable por mes y año, con impresión del reporte.
 - [x] Asegurar que admin1 sea el único usuario con acceso a Inventario y que los demás administradores conserven solo la bandeja de órdenes.
 - [x] Aumentar las letras pequeñas y mejorar espacios de filtros, tarjetas y datos de artículos tomando como referencia la imagen adjunta.
+
+# Nueva ampliación: catálogo de bombillas
+
+- [x] Recopilar las referencias de bombillas disponibles mediante el archivo Excel exportado de Diesel Technic, ya que el portal dinámico bloqueó la captura completa.
+- [x] Asociar nombre, imagen, referencia y GTIN de las bombillas únicamente cuando están confirmados en el Excel y el mapa oficial.
+- [x] Integrar las bombillas al catálogo compartido y validar búsqueda, detalle e inventario.
+- [x] Ejecutar pruebas, build y validación visual de la ampliación de bombillas; la publicación quedó incluida en checkpoints posteriores.
+
+# Nueva fuente entregada: Bombillas_DieselTechnic.xlsx
+
+- [x] Auditar `Bombillas_DieselTechnic.xlsx`, sus hojas, columnas, filas y duplicados.
+- [x] Normalizar referencias, GTIN, nombres, enlaces e imágenes de las bombillas.
+- [x] Integrar las bombillas válidas en los fragmentos del catálogo compartido para Home e Inventario.
+- [x] Validar búsqueda, detalle, carrito, GTIN, permisos, pruebas y build; publicar el checkpoint.
+
+# Rediseño integral de Inventario y Cotizaciones
+
+- [x] Mostrar en las tarjetas y en el detalle público la existencia actual disponible en almacén.
+- [x] Añadir costo y precio final por artículo, editables únicamente por admin1 desde Inventario.
+- [x] Rediseñar Inventario con jerarquía visual más clara, acciones simples y vista ampliada de imagen/datos al pulsar un artículo.
+- [x] Mantener escaneo automático de +1 y añadir una opción manual explícita para registrar cantidades.
+- [x] Alertar al escanear una referencia ya contada en una ubicación diferente, mostrando ubicación anterior y ubicación activa.
+- [x] Confirmar y reforzar que solo admin1 pueda entrar a Inventario, agregar artículos y modificar costo/precio.
+- [x] Renombrar la bandeja de Órdenes a Cotizaciones y separar visualmente Cotizaciones activas e Historial.
+- [x] Permitir preparar la cotización en la bandeja, ajustar líneas, eliminar artículos sin disponibilidad y guardar los cambios.
+- [x] Rediseñar el PDF de cotización con logo, colores corporativos, datos del cliente, líneas, totales y condiciones.
+- [x] Validar migración de datos, permisos, escaneo, entrada manual, existencias públicas, cotizaciones, PDF y responsive.
+- [x] Reiniciar el servidor de desarrollo y confirmar que Home, Inventario y Cotizaciones vuelvan a responder sin errores.
+
+# Ajuste solicitado: salida protegida y artículos contados
+
+- [x] Añadir botón rojo pequeño debajo de la marca de cada artículo para iniciar una salida por venta.
+- [x] Mostrar ventana de confirmación con clave 0000 y descontar la existencia solo si la clave es correcta.
+- [x] Rediseñar Artículos contados como listado inferior clicable con estados de color diferenciados.
+- [x] Abrir el detalle del artículo contado con imagen, ubicación, costo y precio final editables por admin1.
+- [x] Validar clave incorrecta, permisos admin1, descuento, actualización de existencias, pruebas y vista responsive.

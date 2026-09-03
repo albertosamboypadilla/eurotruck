@@ -119,6 +119,22 @@ export async function purgeDeletedOrder(orderId: number) {
   });
 }
 
+export type QuoteItemUpdateInput = Omit<InsertOrderItem, "orderId">;
+
+export async function updateQuoteItems(orderId: number, items: QuoteItemUpdateInput[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const found = await tx.select().from(orders).where(and(eq(orders.id, orderId), isNull(orders.deletedAt))).limit(1);
+    if (!found[0]) throw new Error("Quote not found");
+    await tx.delete(orderItems).where(eq(orderItems.orderId, orderId));
+    if (items.length) await tx.insert(orderItems).values(items.map(item => ({ ...item, orderId })));
+    await tx.update(orders).set({ updatedAt: new Date() }).where(eq(orders.id, orderId));
+    const updatedOrder = await tx.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    return { order: updatedOrder[0], items: await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId)) } satisfies OrderWithItems;
+  });
+}
+
 export type InventoryCountInput = {
   productId: string;
   sku: string;
@@ -182,17 +198,47 @@ export type NewInventoryItemInput = {
   brand?: string;
   application?: string;
   image?: string;
+  costPrice?: string;
+  salePrice?: string;
 };
 
 export async function createInventoryItem(input: NewInventoryItemInput, countedBy: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   const productId = `custom-${crypto.randomUUID()}`;
-  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, totalQuantity: 0, countedBy }).execute();
+  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, costPrice: input.costPrice ?? "0.00", salePrice: input.salePrice ?? "0.00", totalQuantity: 0, countedBy }).execute();
   const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
   const created = await db.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
   if (!created[0]) throw new Error("Unable to create inventory item");
   return created[0];
+}
+
+export type InventoryPricingInput = {
+  productId: string;
+  sku: string;
+  name: string;
+  description?: string;
+  brand?: string;
+  application?: string;
+  image?: string;
+  costPrice: string;
+  salePrice: string;
+};
+
+export async function updateInventoryPricing(input: InventoryPricingInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const existing = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, input.productId)).limit(1);
+    if (existing[0]) {
+      await tx.update(inventoryItems).set({ costPrice: input.costPrice, salePrice: input.salePrice }).where(eq(inventoryItems.productId, input.productId));
+    } else {
+      await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, costPrice: input.costPrice, salePrice: input.salePrice, totalQuantity: 0, countedBy: "admin1" });
+    }
+    const updated = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, input.productId)).limit(1);
+    if (!updated[0]) throw new Error("Inventory article not found");
+    return updated[0];
+  });
 }
 
 export type InventorySaleInput = {
@@ -249,7 +295,7 @@ export async function listInventory() {
 export async function listPublicInventoryLocations() {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ productId: inventoryItems.productId, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola })
+  return db.select({ productId: inventoryItems.productId, totalQuantity: inventoryItems.totalQuantity, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola, salePrice: inventoryItems.salePrice })
     .from(inventoryItems)
     .where(gt(inventoryItems.totalQuantity, 0));
 }
