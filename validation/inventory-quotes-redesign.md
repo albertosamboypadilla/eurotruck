@@ -29,3 +29,7 @@ Se abrió el botón rojo **Eliminar del inventario** de una fila contada. El di�
 La alerta de artículo repetido ahora detiene el escaneo automático y presenta una ventana emergente grande con la ubicación anterior, la ubicación activa y las acciones **Cancelar** y **Aceptar y continuar**. La confirmación registra la lectura en la nueva ubicación; cancelar no registra cambios.
 
 El catálogo administrativo usa filas horizontales más amplias, tipografía mayor y datos completos. Los artículos contados se agrupan en cuadros verticales por tramo y góndola, con cuatro tonos operativos alternos y filas clicables para abrir el detalle del artículo. TypeScript, 46 pruebas Vitest y el build de producción finalizaron correctamente.
+
+## Vista previa Zebra configurable
+
+Se verificó en Inventario el detalle de un artículo con el panel **Etiqueta Zebra LP2824 Plus**. El panel muestra Inicio y Cantidad, interruptores separados para Código interno, Código de barras, SKU y Nombre, una etiqueta blanca de vista previa y el botón **Descargar ZPL seleccionado**. La vista previa usa el mismo código normalizado que el generador y la descarga recibe la configuración actual de campos. La suite de 46 pruebas, TypeScript y build de producción finalizaron correctamente.

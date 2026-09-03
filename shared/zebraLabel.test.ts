@@ -21,3 +21,11 @@ describe("zebra labels", () => {
     expect(batch.match(/\^FD\d{5}\^FS/g)).toEqual(["^FD00099^FS", "^FD00100^FS", "^FD00101^FS"]);
   });
 });
+
+  it("honors selected fields when generating ZPL", () => {
+    const zpl = buildZebraLabelZpl({ internalCode: "42", sku: "1.00739", name: "Junta tórica" }, { internalCode: false, barcode: false, sku: true, name: false });
+    expect(zpl).not.toContain("00042");
+    expect(zpl).not.toContain("^BC");
+    expect(zpl).toContain("SKU: 1.00739");
+    expect(zpl).not.toContain("Junta tórica");
+  });

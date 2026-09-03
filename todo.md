@@ -294,3 +294,18 @@
 - [x] Reorganizar el catálogo en filas largas con tipografía grande y datos completos sin recortes.
 - [x] Agrupar Artículos contados por tramo y góndola en cuadros verticales separados con colores diferenciados.
 - [x] Validar escaneo, alerta, aceptación, agrupación, colores, responsive, pruebas y publicación.
+
+# Códigos internos Zebra y alta por escaneo
+
+- [ ] Asignar un código interno Zebra único a todos los artículos existentes y mostrarlo en el inventario.
+- [ ] Generar automáticamente el código interno al crear un artículo nuevo, evitando duplicados.
+- [ ] Añadir búsqueda y escaneo por código interno además de SKU, referencia y GTIN.
+- [ ] Crear alta de artículo por escaneo de código externo con nombre manual y cantidad inicial o incremento automático.
+- [ ] Conectar el código interno a la etiqueta Zebra y validar permisos, unicidad, escaneo, cantidades y pruebas.
+
+# Vista previa configurable de etiqueta Zebra
+
+- [x] Añadir vista previa visual de la etiqueta Zebra dentro de Inventario.
+- [x] Permitir activar o quitar código interno, código de barras, SKU y nombre antes de imprimir.
+- [x] Hacer que la descarga ZPL respete exactamente los campos seleccionados en la vista previa.
+- [x] Validar configuración, vista previa, ZPL, impresión y responsive.
