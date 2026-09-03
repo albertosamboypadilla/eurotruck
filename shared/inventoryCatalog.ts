@@ -7,6 +7,8 @@ export type InventoryCatalogProduct = {
   application?: string;
   image?: string;
   gtins?: string[];
+  internalCode?: string | null;
+  barcode?: string | null;
   [key: string]: unknown;
 };
 
@@ -25,7 +27,7 @@ export function findInventoryCatalogProduct(items: InventoryCatalogProduct[], qu
   const normalized = query.trim().toLowerCase();
   if (!normalized) return undefined;
   return items.find(item => {
-    const identifiers = [item.sku, item.id, ...(Array.isArray(item.gtins) ? item.gtins : [])].map(value => String(value ?? "").trim().toLowerCase());
+    const identifiers = [item.sku, item.id, item.internalCode, item.barcode, ...(Array.isArray(item.gtins) ? item.gtins : [])].map(value => String(value ?? "").trim().toLowerCase());
     return identifiers.includes(normalized) || [item.name, item.description, item.brand, item.application].some(value => String(value ?? "").toLowerCase().includes(normalized));
   });
 }

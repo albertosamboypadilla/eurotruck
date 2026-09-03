@@ -31,11 +31,13 @@ export function productMatchesCatalogQuery(product: {
   brand?: string;
   application?: string;
   gtins?: string[];
+  internalCode?: string | null;
+  barcode?: string | null;
 }, query: string): boolean {
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) return true;
-  const exactIdentifiers = [product.sku, product.id, ...(product.gtins ?? [])].map(normalizeCatalogIdentifier);
+  const exactIdentifiers = [product.sku, product.id, product.internalCode, product.barcode, ...(product.gtins ?? [])].map(normalizeCatalogIdentifier);
   if (exactIdentifiers.includes(normalizeCatalogIdentifier(query))) return true;
-  return [product.sku, product.id, product.name, product.description, product.brand, product.application, ...(product.gtins ?? [])]
+  return [product.sku, product.id, product.internalCode, product.barcode, product.name, product.description, product.brand, product.application, ...(product.gtins ?? [])]
     .some(value => String(value ?? "").toLowerCase().includes(normalizedQuery));
 }

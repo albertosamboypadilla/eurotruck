@@ -25,6 +25,8 @@ export const inventoryItems = mysqlTable("inventory_items", {
   id: int("id").autoincrement().primaryKey(),
   productId: varchar("productId", { length: 180 }).notNull().unique(),
   sku: varchar("sku", { length: 100 }).notNull(),
+  internalCode: varchar("internalCode", { length: 20 }),
+  barcode: varchar("barcode", { length: 40 }),
   name: text("name").notNull(),
   description: text("description"),
   brand: varchar("brand", { length: 120 }),

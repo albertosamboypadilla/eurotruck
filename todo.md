@@ -297,11 +297,11 @@
 
 # Códigos internos Zebra y alta por escaneo
 
-- [ ] Asignar un código interno Zebra único a todos los artículos existentes y mostrarlo en el inventario.
-- [ ] Generar automáticamente el código interno al crear un artículo nuevo, evitando duplicados.
-- [ ] Añadir búsqueda y escaneo por código interno además de SKU, referencia y GTIN.
-- [ ] Crear alta de artículo por escaneo de código externo con nombre manual y cantidad inicial o incremento automático.
-- [ ] Conectar el código interno a la etiqueta Zebra y validar permisos, unicidad, escaneo, cantidades y pruebas.
+- [x] Asignar un código interno Zebra único a todos los artículos existentes y mostrarlo en el inventario.
+- [x] Generar automáticamente el código interno al crear un artículo nuevo, evitando duplicados.
+- [x] Añadir búsqueda y escaneo por código interno además de SKU, referencia y GTIN.
+- [x] Crear alta de artículo por escaneo de código externo con nombre manual y cantidad inicial o incremento automático.
+- [x] Conectar el código interno a la etiqueta Zebra y validar permisos, unicidad, escaneo, cantidades y pruebas.
 
 # Vista previa configurable de etiqueta Zebra
 

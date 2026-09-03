@@ -19,3 +19,9 @@ describe("inventory catalog helpers", () => {
     expect(findInventoryCatalogProduct(items, "junta")?.description).toBe("Junta tórica para aplicación Iveco");
   });
 });
+
+  it("matches internal Zebra code and scanned barcode", () => {
+    const items: InventoryCatalogProduct[] = [{ id: "55-1.00739", sku: "1.00739", internalCode: "00042", barcode: "4070174006982", name: "Junta tórica", brand: "DT Spare Parts" }];
+    expect(findInventoryCatalogProduct(items, "00042")?.sku).toBe("1.00739");
+    expect(findInventoryCatalogProduct(items, "4070174006982")?.sku).toBe("1.00739");
+  });

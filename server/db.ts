@@ -143,6 +143,8 @@ export type InventoryCountInput = {
   brand?: string;
   application?: string;
   image?: string;
+  internalCode?: string;
+  barcode?: string;
   quantity: number;
   tramo: string;
   gondola: string;
@@ -156,9 +158,9 @@ export async function recordInventoryCount(input: InventoryCountInput) {
     const existing = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, input.productId)).limit(1);
     let inventoryItem = existing[0];
     if (inventoryItem) {
-      await tx.update(inventoryItems).set({ description: input.description ?? inventoryItem.description, totalQuantity: inventoryItem.totalQuantity + input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy, lastCountedAt: new Date() }).where(eq(inventoryItems.id, inventoryItem.id));
+      await tx.update(inventoryItems).set({ description: input.description ?? inventoryItem.description, internalCode: input.internalCode ?? inventoryItem.internalCode, barcode: input.barcode ?? inventoryItem.barcode, totalQuantity: inventoryItem.totalQuantity + input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy, lastCountedAt: new Date() }).where(eq(inventoryItems.id, inventoryItem.id));
     } else {
-      const inserted = await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, totalQuantity: input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy }).execute();
+      const inserted = await tx.insert(inventoryItems).values({ productId: input.productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, internalCode: input.internalCode, barcode: input.barcode, totalQuantity: input.quantity, lastTramo: input.tramo, lastGondola: input.gondola, countedBy: input.countedBy }).execute();
       const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
       const created = await tx.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
       inventoryItem = created[0];
@@ -198,16 +200,22 @@ export type NewInventoryItemInput = {
   brand?: string;
   application?: string;
   image?: string;
+  barcode?: string;
   costPrice?: string;
   salePrice?: string;
+  initialQuantity?: number;
+  tramo?: string;
+  gondola?: string;
 };
 
 export async function createInventoryItem(input: NewInventoryItemInput, countedBy: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   const productId = `custom-${crypto.randomUUID()}`;
-  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, costPrice: input.costPrice ?? "0.00", salePrice: input.salePrice ?? "0.00", totalQuantity: 0, countedBy }).execute();
+  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, barcode: input.barcode, costPrice: input.costPrice ?? "0.00", salePrice: input.salePrice ?? "0.00", totalQuantity: input.initialQuantity ?? 0, lastTramo: input.initialQuantity ? input.tramo : undefined, lastGondola: input.initialQuantity ? input.gondola : undefined, countedBy }).execute();
   const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
+  const internalCode = String(900000 + inventoryItemId).padStart(5, "0");
+  await db.update(inventoryItems).set({ internalCode }).where(eq(inventoryItems.id, inventoryItemId));
   const created = await db.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
   if (!created[0]) throw new Error("Unable to create inventory item");
   return created[0];

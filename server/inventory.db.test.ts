@@ -66,7 +66,7 @@ describe("inventory persistence", () => {
   });
 
   it("acumula un segundo conteo y conserva cada scan con su ubicación", async () => {
-    const first = await recordInventoryCount({ productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 4, tramo: "A", gondola: "G1", countedBy: "admin1" });
+    const first = await recordInventoryCount({ productId: "p-1", sku: "SKU-1", name: "Filtro", internalCode: "00042", barcode: "1234567890123", quantity: 4, tramo: "A", gondola: "G1", countedBy: "admin1" });
     const second = await recordInventoryCount({ productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 3, tramo: "B", gondola: "G2", countedBy: "admin1" });
 
     expect(first.totalQuantity).toBe(4);
@@ -74,6 +74,8 @@ describe("inventory persistence", () => {
     expect(second.totalQuantity).toBe(7);
     expect(second.wasAlreadyCounted).toBe(true);
     expect(state.item.totalQuantity).toBe(7);
+    expect(state.item.internalCode).toBe("00042");
+    expect(state.item.barcode).toBe("1234567890123");
     expect(state.item.lastTramo).toBe("B");
     expect(state.item.lastGondola).toBe("G2");
     expect(state.scans).toHaveLength(2);
