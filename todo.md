@@ -358,3 +358,10 @@
 - [x] Separar visualmente Agregar otra área y Eliminar área, con acciones fáciles de entender.
 - [x] Ocultar temporalmente los demás bloques de Inventario sin borrar su lógica para continuar por etapas.
 - [x] Validar la primera fase con pruebas, build y revisión responsive; publicar checkpoint.
+
+# Paleta neutra y profesional para Inventario
+
+- [x] Aplicar fondos y superficies neutras con contraste legible en todo Inventario.
+- [x] Usar verde para sumas/conteos confirmados y rojo solo para bajo stock y alertas.
+- [x] Suavizar bordes, sombras, botones y estados sin perder jerarquía visual.
+- [x] Validar legibilidad, contraste, responsive y consistencia con Cotizaciones.
