@@ -6,7 +6,7 @@ import { buildInventoryNotice, getInventoryScanLocation, INVENTORY_SALE_CONFIRMA
 import { findInventoryCatalogProduct, type InventoryCatalogProduct } from "@shared/inventoryCatalog";
 import { attachGtins, getGtinsForSku, normalizeCatalogIdentifier, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
-import { buildInventoryExportHtml, buildLowStockPurchaseRows } from "@shared/inventoryExport";
+import { buildInventoryExportHtml, buildLowStockPurchaseRows, buildPhysicalInventoryExportHtml } from "@shared/inventoryExport";
 
 const catalogIndexUrl = "/manus-storage/catalog-deduped-by-sku-20260904_299a38e2.json";
 const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-valvulas-xlsx_20260904_0d871d83.json";
@@ -422,6 +422,34 @@ export default function Inventory() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadCountedInventoryExcel = () => {
+    const rows = countedItems.map(item => {
+      const product = allProducts.find(candidate => candidate.id === item.productId);
+      return {
+        warehouse: "01",
+        productNumber: item.sku,
+        description: item.name,
+        counter: item.countedBy || "admin1",
+        unitQuantity: item.totalQuantity,
+        reference: product?.internalCode || item.internalCode || "",
+        shelf: item.lastGondola || "",
+        tramo: item.lastTramo || "",
+        cost: item.costPrice || "0.00",
+        price: item.salePrice || "0.00",
+      };
+    });
+    const table = buildPhysicalInventoryExportHtml(rows);
+    const blob = new Blob(["\\ufeff", table], { type: "application/vnd.ms-excel;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `EUROTRUCK_Reporte_Inventario_${new Date().toISOString().slice(0, 10)}.xls`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const downloadInventoryExcel = () => {
     const rows = allProducts.map(product => {
       const counted = countedByProduct.get(product.id);
@@ -468,7 +496,7 @@ export default function Inventory() {
 
   return <main className="inventory-page inventory-page--redesigned inventory-first-stage">
     <header className="inventory-header"><div><span className="orders-eyebrow">EUROTRUCK / ALMACÉN</span><h1>Inventario fácil</h1><p>Escanea para sumar una unidad automáticamente o cambia a entrada manual. La ubicación activa se aplica a cada registro.</p></div><div className="inventory-header-actions"><a className="orders-button orders-button--ghost" href="/"><House size={15} />Página principal</a><a className="orders-button orders-button--ghost" href="/orders">Cotizaciones</a><button className="orders-button orders-button--ghost" onClick={() => { setCatalogLoading(true); void fetch(catalogIndexUrl).then(response => response.json() as Promise<InventoryCatalogProduct[]>).then(items => setCatalogProducts(items.map(item => attachGtins(item, gtinMap)))).finally(() => setCatalogLoading(false)); void inventoryQuery.refetch(); }}><RefreshCw size={15} />Actualizar</button><button className="orders-button orders-button--ghost" onClick={() => localLogout.mutate()} disabled={localLogout.isPending}><LogOut size={15} />{localLogout.isPending ? "Saliendo…" : "Salir"}</button></div></header>
-    <section className="inventory-kpis" aria-label="Resumen de inventario"><article><Boxes size={22} /><span><small>Artículos contados</small><strong>{countedItems.length.toLocaleString("es-DO")}</strong></span></article><article><Barcode size={22} /><span><small>Unidades en almacén</small><strong>{totalUnits.toLocaleString("es-DO")}</strong></span></article><button type="button" className={`inventory-kpi-button${lowStockItems ? " is-warning" : ""}`} onClick={downloadLowStockExcel} disabled={!lowStockItems} aria-label="Descargar Excel de artículos bajo stock"><AlertTriangle size={22} /><span><small>Bajo stock</small><strong>{lowStockItems}</strong><em>Descargar compras</em></span><Download size={15} /></button><article><MapPin size={22} /><span><small>Área activa</small><strong>{tramo} / {gondola}</strong></span></article></section>
+    <section className="inventory-kpis" aria-label="Resumen de inventario"><button type="button" className={`inventory-kpi-button${countedItems.length === 0 ? " is-disabled" : ""}`} onClick={downloadCountedInventoryExcel} disabled={countedItems.length === 0} aria-label="Descargar reporte de artículos contados"><Boxes size={22} /><span><small>Artículos contados</small><strong>{countedItems.length.toLocaleString("es-DO")}</strong><em>Descargar inventario</em></span><Download size={15} /></button><article><Barcode size={22} /><span><small>Unidades en almacén</small><strong>{totalUnits.toLocaleString("es-DO")}</strong></span></article><button type="button" className={`inventory-kpi-button${lowStockItems ? " is-warning" : ""}`} onClick={downloadLowStockExcel} disabled={!lowStockItems} aria-label="Descargar Excel de artículos bajo stock"><AlertTriangle size={22} /><span><small>Bajo stock</small><strong>{lowStockItems}</strong><em>Descargar compras</em></span><Download size={15} /></button><article><MapPin size={22} /><span><small>Área activa</small><strong>{tramo} / {gondola}</strong></span></article></section>
     <section className="inventory-workspace">
       <div className="inventory-scan-panel">
         <div className="inventory-scan-location"><div><span className="orders-eyebrow">01 / ÁREA DE CONTEO</span><strong>Ubicación activa</strong><small>Selecciona o agrega el tramo y la góndola antes de escanear. Cada lectura se guardará automáticamente en esta área hasta que la cambies.</small><div className="inventory-location-picker"><select value={activeLocationId} onChange={event => selectLocation(event.target.value)} aria-label="Seleccionar ubicación activa">{savedLocations.map(location => <option key={location.id} value={location.id}>{location.tramo} / {location.gondola}</option>)}</select><button type="button" className="inventory-location-delete" disabled={activeLocationId === defaultInventoryLocation.id} onClick={() => { if (window.confirm("¿Eliminar esta área guardada? Las lecturas existentes conservarán su ubicación histórica.")) removeLocation(activeLocationId); }}><Trash2 size={14} />Eliminar área</button></div><button type="button" className="inventory-location-add" onClick={() => setShowLocationForm(current => !current)}><Plus size={13} />{showLocationForm ? "Cerrar alta de área" : "Agregar otra área"}</button></div><div className="inventory-scan-location-fields"><label>Tramo<input value={tramo} readOnly aria-readonly="true" /></label><label>Góndola<input value={gondola} readOnly aria-readonly="true" /></label></div>{showLocationForm && <form className="inventory-location-form" onSubmit={submitNewLocation}><label>Nuevo tramo<input required value={newLocationTramo} onChange={event => setNewLocationTramo(event.target.value)} placeholder="Ej. T-03" /></label><label>Nueva góndola<input required value={newLocationGondola} onChange={event => setNewLocationGondola(event.target.value)} placeholder="Ej. G-12" /></label><button type="submit" className="orders-button orders-button--inventory"><Plus size={14} />Guardar y activar</button></form>}</div>

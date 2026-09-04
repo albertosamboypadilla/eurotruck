@@ -452,3 +452,10 @@
 - [x] Conservar por SKU el registro con más GTIN y fusionar cualquier GTIN válido sin perder códigos; verificación sin violaciones.
 - [x] Eliminar del catálogo únicamente los duplicados exactos restantes, sin borrar historial ni movimientos de inventario; la base persistente no fue eliminada.
 - [x] Validar búsqueda, Home, Inventario, alias GTIN, 54 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Reporte descargable de artículos contados
+
+- [x] Inspeccionar la estructura visual, hojas, columnas, anchos y estilos del Excel de referencia.
+- [x] Convertir “Artículos contados” en un botón de descarga del inventario.
+- [x] Replicar el formato del archivo de referencia incluyendo encabezados, ubicación, cantidades, SKU y GTIN.
+- [x] Validar archivo descargado, contenido, pruebas, TypeScript y build; publicar checkpoint.

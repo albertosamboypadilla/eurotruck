@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInventoryExportHtml, buildLowStockPurchaseRows } from "../shared/inventoryExport";
+import { buildInventoryExportHtml, buildLowStockPurchaseRows, buildPhysicalInventoryExportHtml } from "../shared/inventoryExport";
 
 describe("inventory export", () => {
   it("builds an Excel-compatible table with escaped cells", () => {
@@ -8,6 +8,21 @@ describe("inventory export", () => {
     expect(html).toContain("<td>1.00001</td>");
     expect(html).toContain("Filtro &lt;nuevo&gt;");
     expect(html).not.toContain("<nuevo>");
+  });
+
+  it("builds the physical inventory template with the reference layout", () => {
+    const html = buildPhysicalInventoryExportHtml([
+      { productNumber: "1.00001", description: "Filtro de prueba", counter: "admin1", unitQuantity: 4, reference: "00001", shelf: "G-02", tramo: "T-01", cost: "10.00", price: "15.00" },
+    ], new Date("2026-09-03T21:10:10Z"));
+    expect(html).toContain("EUROTRUCK SRL");
+    expect(html).toContain("SISTEMA DE INVENTARIO");
+    expect(html).toContain("NO. PRODUCTO");
+    expect(html).toContain("CANTIDAD UNIDADES");
+    expect(html).toContain("Filtro de prueba");
+    expect(html).toContain("T-01");
+    expect(html).toContain("G-02");
+    expect(html).toContain("#1f497d");
+    expect(html).toContain("colspan=\"11\"");
   });
 
   it("includes zero-stock products and calculates purchase units", () => {
