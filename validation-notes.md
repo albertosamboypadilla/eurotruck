@@ -36,3 +36,7 @@ Inventario carga el catálogo completo con búsqueda por referencia, SKU o GTIN.
 ## Sincronización GTIN Inventario/Home — 2026-09-04
 
 Home incorpora la consulta pública `inventory.publicGtins` y fusiona sus alias con el mapa estático usando el SKU normalizado. La comprobación desde la página principal respondió correctamente con un registro de muestra que contiene únicamente `productId`, `sku` y `gtin`; el catálogo público conserva búsqueda y visualización por todos los códigos asociados.
+
+## Deduplicación por SKU — 2026-09-04
+
+La auditoría encontró 39.894 registros, 36.725 SKU únicos, 2.119 grupos duplicados y 3.169 filas repetidas. El catálogo deduplicado conserva 36.725 artículos, cero SKU duplicados y cero violaciones de unión/máximo de GTIN. La base de datos contiene 15 registros de inventario, 14 SKU y ninguna fila con existencia positiva; no se eliminaron movimientos ni datos persistentes. Home mostró 36.725 resultados y cargó tarjetas/GTIN correctamente.

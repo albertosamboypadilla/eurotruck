@@ -3,26 +3,13 @@ import { AlertTriangle, Barcode, Boxes, CheckCircle2, ChevronLeft, ChevronRight,
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { buildInventoryNotice, getInventoryScanLocation, INVENTORY_SALE_CONFIRMATION_KEY, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
-import { findInventoryCatalogProduct, getInventorySearchShardKeys, inventoryCatalogShardKeys, type InventoryCatalogProduct } from "@shared/inventoryCatalog";
+import { findInventoryCatalogProduct, type InventoryCatalogProduct } from "@shared/inventoryCatalog";
 import { attachGtins, getGtinsForSku, normalizeCatalogIdentifier, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
 import { buildInventoryExportHtml, buildLowStockPurchaseRows } from "@shared/inventoryExport";
 
-const catalogIndexUrl = "/manus-storage/catalog-with-valvulas-gtin-xlsx_20260904_c13f65bd.json";
+const catalogIndexUrl = "/manus-storage/catalog-deduped-by-sku-20260904_299a38e2.json";
 const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-valvulas-xlsx_20260904_0d871d83.json";
-const catalogShardUrls: Record<string, string> = {
-  "0": "/manus-storage/shard-0_6887b77f.json",
-  "1": "/manus-storage/shard-1_14e61729.json",
-  "2": "/manus-storage/shard-2_70e2b92a.json",
-  "3": "/manus-storage/shard-3_0006b48f.json",
-  "4": "/manus-storage/shard-4_c2dfecd1.json",
-  "5": "/manus-storage/shard-5_f38f3d0a.json",
-  "6": "/manus-storage/shard-6_af8c9514.json",
-  "7": "/manus-storage/shard-7_cf008605.json",
-  "8": "/manus-storage/shard-8_c56347d4.json",
-  "9": "/manus-storage/shard-9_ac33a40f.json",
-  s: "/manus-storage/shard-s_5c43f1bc.json",
-};
 const emptyArticle = { sku: "", barcode: "", name: "", description: "", brand: "", application: "", image: "", costPrice: "0", salePrice: "0", initialQuantity: "0" };
 const catalogPageSize = 60;
 
@@ -193,7 +180,6 @@ export default function Inventory() {
   const [salePrice, setSalePrice] = useState("0");
   const inputRef = useRef<HTMLInputElement>(null);
   const gtinInputRef = useRef<HTMLInputElement>(null);
-  const catalogCache = useRef<Record<string, InventoryCatalogProduct[]>>({});
   const inventoryQuery = trpc.inventory.list.useQuery(undefined, { enabled: isAdmin1, retry: false });
   const gtinAliasesQuery = trpc.inventory.gtins.useQuery(undefined, { enabled: isAdmin1, retry: false });
   const historyInput = useMemo(() => ({ inventoryItemId: expandedInventoryId ?? 1 }), [expandedInventoryId]);
@@ -282,19 +268,7 @@ export default function Inventory() {
     onError: mutationError => setError(mutationError.message || "No se pudieron guardar los precios."),
   });
 
-  const loadCatalogForSearch = async (keys: string[]) => {
-    const missingKeys = keys.filter(key => !catalogCache.current[key]);
-    if (missingKeys.length) {
-      const loaded = await Promise.all(missingKeys.map(async key => {
-        const response = await fetch(catalogShardUrls[key]);
-        if (!response.ok) throw new Error(`Catalog ${response.status}`);
-        const items = await response.json() as InventoryCatalogProduct[];
-        return [key, items.map(item => attachGtins(item, gtinMap))] as const;
-      }));
-      loaded.forEach(([key, items]) => { catalogCache.current[key] = items; });
-    }
-    return keys.flatMap(key => catalogCache.current[key] || []);
-  };
+  const loadCatalogForSearch = async () => catalogProducts;
 
   useEffect(() => {
     if (!isAdmin1) return;
@@ -356,8 +330,7 @@ export default function Inventory() {
     setCatalogLoading(true); setError(""); setNotice("");
     try {
       const localProduct = findInventoryCatalogProduct(allProducts, normalized);
-      const requestedKeys = getInventorySearchShardKeys(normalized);
-      const searchable = localProduct?.id.startsWith("custom-") ? [] : await loadCatalogForSearch(requestedKeys);
+      const searchable = localProduct?.id.startsWith("custom-") ? [] : await loadCatalogForSearch();
       const product = localProduct || findInventoryCatalogProduct(searchable, normalized);
       if (!product) { const unknownCode = code.trim(); playScanTone("alert"); const isBarcode = /^\d{6,14}$/.test(unknownCode); setSelectedProduct(null); setError(""); setNewArticle({ ...emptyArticle, sku: isBarcode ? "" : unknownCode, barcode: isBarcode ? unknownCode : "" }); setNewArticleImageFile(null); setNewArticleImagePreview(""); setNewArticleError(`Código no encontrado: ${unknownCode}. Completa los datos para agregarlo al catálogo.`); setShowNewArticle(true); return; }
       setSelectedProduct(product);
@@ -383,7 +356,7 @@ export default function Inventory() {
   const selectProduct = async (product: InventoryCatalogProduct) => {
     setSelectedProduct(null); setLastScanAutoRecorded(false); setLastScanTotal(null); setScanCode(product.sku); setError(""); setNotice(""); setCatalogLoading(true);
     try {
-      const fullProduct = product.image ? product : findInventoryCatalogProduct(await loadCatalogForSearch(getInventorySearchShardKeys(product.sku)), product.sku) || product;
+      const fullProduct = product.image ? product : findInventoryCatalogProduct(await loadCatalogForSearch(), product.sku) || product;
       setSelectedProduct(fullProduct);
     } catch { setSelectedProduct(product); setError("No fue posible cargar el detalle completo; puedes continuar con el conteo."); }
     finally { setCatalogLoading(false); }

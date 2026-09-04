@@ -445,3 +445,10 @@
 - [x] Combinar en Home los GTIN originales y adicionales por SKU sin duplicar artículos.
 - [x] Hacer que la búsqueda principal encuentre un artículo mediante cualquier GTIN agregado.
 - [x] Validar que Inventario y Home compartan los mismos GTIN, además de pruebas, TypeScript y build; publicar checkpoint.
+
+# Limpieza de duplicados por SKU
+
+- [x] Auditar cuántos artículos comparten el mismo SKU y clasificar duplicados exactos frente a variantes: 2.119 grupos y 3.169 filas repetidas.
+- [x] Conservar por SKU el registro con más GTIN y fusionar cualquier GTIN válido sin perder códigos; verificación sin violaciones.
+- [x] Eliminar del catálogo únicamente los duplicados exactos restantes, sin borrar historial ni movimientos de inventario; la base persistente no fue eliminada.
+- [x] Validar búsqueda, Home, Inventario, alias GTIN, 54 pruebas Vitest, TypeScript y build; publicar checkpoint.
