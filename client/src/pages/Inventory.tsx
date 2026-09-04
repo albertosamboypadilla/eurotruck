@@ -8,8 +8,8 @@ import { attachGtins, getGtinsForSku, productMatchesCatalogQuery, type GtinMap }
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
 import { buildInventoryExportHtml, buildLowStockPurchaseRows } from "@shared/inventoryExport";
 
-const catalogIndexUrl = "/manus-storage/catalog-with-valvulas_ba8546a7_b8cb10eb.json";
-const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-bombillas-merged_7d3b08a9.json";
+const catalogIndexUrl = "/manus-storage/catalog-with-valvulas-gtin-xlsx_20260904_d72a9442.json";
+const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-valvulas-xlsx_20260904_0d871d83.json";
 const catalogShardUrls: Record<string, string> = {
   "0": "/manus-storage/shard-0_6887b77f.json",
   "1": "/manus-storage/shard-1_14e61729.json",

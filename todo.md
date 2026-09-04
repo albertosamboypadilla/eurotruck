@@ -400,10 +400,10 @@
 
 # Importación Diesel Technic: válvulas
 
-- [ ] Inspeccionar la búsqueda pública de “válvulas” y delimitar las referencias verificables.
-- [ ] Comparar las referencias con el catálogo actual y evitar duplicados.
-- [ ] Incorporar las válvulas faltantes con nombre, imagen, ficha, aplicación y GTIN confirmado.
-- [ ] Validar búsqueda, Inventario, pruebas, TypeScript y build; guardar checkpoint publicado.
+- [x] Inspeccionar la búsqueda pública de “válvulas” y delimitar las referencias verificables; se cubrió en la revisión exhaustiva de todas las páginas.
+- [x] Comparar las referencias con el catálogo actual y evitar duplicados; se incorporaron solo 454 faltantes.
+- [x] Incorporar las válvulas faltantes con nombre, imagen, ficha pública e imagen; GTIN solo cuando estaba confirmado por el mapa oficial.
+- [x] Validar búsqueda, Inventario, pruebas, TypeScript y build; checkpoint publicado en c0ed891f.
 
 # Importación Diesel Technic: válvulas — todas las páginas
 
@@ -411,3 +411,10 @@
 - [x] Recopilar las referencias de todas las páginas disponibles y validar sus fichas (2.233 referencias únicas).
 - [x] Comparar contra Eurotruck e integrar solo las válvulas faltantes, sin duplicados (454 incorporadas; catálogo: 39.894).
 - [x] Validar imágenes, GTIN disponibles, búsqueda, Inventario, 52 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Importación GTIN desde Valvulas_DieselTechnic_1.xlsx
+
+- [x] Inspeccionar columnas, referencias y GTIN del archivo adjunto (hoja Valvulas, 1.519 filas, 1.490 válidas).
+- [x] Cruzar los GTIN con las referencias de válvulas sin coincidencias ambiguas ni duplicados; 1.490 referencias coincidentes y 0 conflictos.
+- [x] Actualizar el mapa GTIN persistente y asociar los códigos a Home e Inventario; se agregaron 1.292 asignaciones nuevas.
+- [x] Validar búsquedas, Inventario, 52 pruebas Vitest, TypeScript y build; publicar checkpoint.
