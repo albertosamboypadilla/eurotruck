@@ -431,3 +431,10 @@
 - [x] Persistir los GTIN sin borrar los códigos existentes y evitar duplicados o conflictos con otros SKU.
 - [x] Hacer que búsqueda, escaneo e inventario resuelvan todos los GTIN asociados al mismo artículo.
 - [x] Validar permisos admin1, pruebas, TypeScript, build y experiencia visual; publicar checkpoint.
+
+# Acceso visible para agregar GTIN a cualquier artículo
+
+- [x] Mostrar un botón claro “Agregar GTIN” al abrir cualquier artículo en Inventario.
+- [x] Mantener visible el campo de entrada aunque el artículo no tenga GTIN registrado.
+- [x] Confirmar que el código agregado queda asociado al SKU y funciona en búsqueda y escaneo.
+- [x] Validar responsive, permisos admin1, pruebas, TypeScript y build; publicar checkpoint.

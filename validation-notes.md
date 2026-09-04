@@ -28,3 +28,7 @@ El historial ya no ocupa el flujo principal como tabla fija. Ahora se presenta c
 La ruta `/inventory` carga correctamente con sesión de admin1. El catálogo muestra la referencia, código Zebra, barcode y GTIN; el campo de búsqueda acepta referencia, SKU o GTIN. El detalle de cada artículo incluye un panel para conservar el GTIN principal y registrar GTIN adicionales vinculados al mismo SKU para resolver escaneos sin duplicar artículos.
 
 La validación técnica pasó TypeScript, 53 pruebas Vitest y el build de producción; la revisión visual no mostró errores de consola ni fallos de carga.
+
+## Acceso visible para agregar GTIN — 2026-09-04
+
+Inventario carga el catálogo completo con búsqueda por referencia, SKU o GTIN. Al abrir cualquier artículo, el detalle mantiene el panel de GTIN aunque no exista ningún código y muestra el botón visible “Agregar otro GTIN”, que lleva el foco y desplaza la pantalla al campo de captura. La validación técnica pasó TypeScript, 53 pruebas Vitest y build de producción.
