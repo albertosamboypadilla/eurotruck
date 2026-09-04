@@ -360,3 +360,11 @@
 - [x] Reemplazar la tarjeta de ubicación de Home por un mapa interactivo incrustado que abra la ubicación sin salir de la página.
 - [x] Crear una habilidad reutilizable con el flujo de mantenimiento de Inventario, Cotizaciones, salidas, reportes, mapas y validación.
 - [x] Validar exportación, auditoría temporal, mapa, permisos, pruebas, build, publicar y entregar la habilidad.
+
+# Privacidad pública y acceso visible a Inventario
+
+- [x] Dejar en la vista pública únicamente imagen, nombre y búsqueda por SKU/DT Spare Parts.
+- [x] Ocultar al cliente GTIN, código Zebra, barcode, existencia, ubicación, costo, precio, movimientos y datos administrativos.
+- [x] Activar un botón visible Inventario junto a Página principal/Cotizaciones.
+- [x] Mantener el acceso de Inventario protegido y limitado a admin1, sin exponer funciones internas al cliente.
+- [x] Validar privacidad visual, búsqueda pública, navegación, permisos, pruebas, build y responsive; publicar.
