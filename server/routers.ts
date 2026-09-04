@@ -3,8 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
+import { storagePut } from "./storage";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
 import { isEurotruckAfterHours } from "@shared/orderHelpers";
@@ -90,6 +91,17 @@ export const appRouter = router({
       } catch (error) {
         throw new TRPCError({ code: "NOT_FOUND", message: error instanceof Error ? error.message : "Artículo no encontrado" });
       }
+    }),
+    recentIngress: adminProcedure.input(z.object({ limit: z.number().int().min(1).max(200).default(50) }).optional()).query(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar los ingresos recientes" });
+      return listRecentInventoryIngress(input?.limit ?? 50);
+    }),
+    uploadImage: adminProcedure.input(z.object({ fileName: z.string().trim().min(1).max(160), contentType: z.string().regex(/^image\/(jpeg|png|webp|gif)$/), dataBase64: z.string().min(20).max(8_000_000) })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede cargar fotos" });
+      const bytes = Buffer.from(input.dataBase64.replace(/^data:[^;]+;base64,/, ""), "base64");
+      if (!bytes.length || bytes.length > 6_000_000) throw new TRPCError({ code: "BAD_REQUEST", message: "La foto debe pesar menos de 6 MB" });
+      const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+      return storagePut(`inventory-images/${Date.now()}-${safeName}`, bytes, input.contentType);
     }),
     history: adminProcedure.input(z.object({ inventoryItemId: z.number().int().positive() })).query(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar el historial" });

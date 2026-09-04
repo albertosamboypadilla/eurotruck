@@ -4,6 +4,7 @@ import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryIt
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
 import { rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
+import { buildRecentIngressRow, normalizeIngressLimit } from "@shared/inventoryIngress";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -298,6 +299,16 @@ export async function listInventory() {
     scansByItem.set(scan.inventoryItemId, history);
   });
   return items.map(item => ({ ...item, scanCount: scansByItem.get(item.id)?.length || 0, lastScanId: scansByItem.get(item.id)?.[0]?.id || null }));
+}
+
+export async function listRecentInventoryIngress(limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  const scans = await db.select().from(inventoryScans).orderBy(desc(inventoryScans.createdAt), desc(inventoryScans.id)).limit(normalizeIngressLimit(limit));
+  if (!scans.length) return [];
+  const items = await db.select().from(inventoryItems);
+  const itemsById = new Map(items.map(item => [item.id, item]));
+  return scans.map(scan => buildRecentIngressRow(scan, itemsById.get(scan.inventoryItemId)));
 }
 
 export async function listPublicInventoryLocations() {

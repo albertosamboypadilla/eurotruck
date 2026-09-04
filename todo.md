@@ -374,3 +374,12 @@
 - [x] Mostrar una ventana grande de alta cuando el código no exista en el catálogo.
 - [x] Incluir en el alta desconocida SKU, barcode, nombre, descripción, marca, aplicación, imagen, ubicación, cantidad, costo, precio y código Zebra automático.
 - [x] Validar escaneo reconocido, código desconocido, alta completa, permisos, pruebas, build y responsive; publicar.
+
+# Sonidos, fotos, historial reciente y nueva paleta de Inventario
+
+- [x] Reproducir sonido de confirmación al escanear correctamente.
+- [x] Reproducir sonido de alerta cuando el código no exista y se abra el alta.
+- [x] Permitir seleccionar una foto del dispositivo en el alta y mostrar su previsualización.
+- [x] Añadir tabla debajo del registro con los últimos artículos ingresados, fecha/hora, código, nombre, cantidad y ubicación.
+- [x] Cambiar completamente la paleta de Inventario con contraste, jerarquía y estados profesionales.
+- [x] Validar audio, foto, historial, alta, permisos, pruebas, build y responsive; publicar.
