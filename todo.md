@@ -325,3 +325,11 @@
 - [x] Restaurar el botón de descarga Excel del inventario con historial detallado de artículos más vendidos.
 - [x] Confirmar que descontar cantidades nunca borra artículos ni modifica el catálogo base y conserva movimientos/historial.
 - [x] Validar roles, exportación, descuento de cantidades, pruebas, build y responsive; publicar.
+
+# Restauración pública y salida desde Home
+
+- [x] Restaurar todos los datos del artículo para usuarios y clientes en tarjetas y detalle.
+- [x] Mover el botón de eliminar cantidad al detalle de cada artículo en la página principal.
+- [x] Retirar la acción de salida del listado y detalle de Inventario.
+- [x] Mantener la salida como descuento de cantidad, sin borrar ni modificar el artículo base ni su historial.
+- [x] Validar datos, permisos, cantidad, historial, pruebas, build y responsive; publicar.

@@ -3,13 +3,13 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { canViewInternalCatalogData } from "@shared/viewPermissions";
 import { attachGtins, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { getOrderFormValidationError } from "@shared/orderFormHelpers";
 import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  AlertTriangle,
   BadgeCheck,
   Barcode,
   BatteryCharging,
@@ -38,6 +38,7 @@ import {
   ShoppingCart,
   Sparkles,
   Truck,
+  TrendingDown,
   Wrench,
   X,
   Zap,
@@ -170,7 +171,8 @@ function submitCatalogSearch(event: FormEvent<HTMLFormElement>) {
 
 export default function Home() {
   const { user } = useAuth();
-  const isAuthorizedViewer = canViewInternalCatalogData(user?.role);
+  const isAuthorizedViewer = true;
+  const isInventoryOperator = user?.role === "admin";
   const [activeBrand, setActiveBrand] = useState<TruckBrand>("MERCEDES-BENZ");
   const [outgoingBrand, setOutgoingBrand] = useState<TruckBrand | null>(null);
   const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
@@ -212,6 +214,20 @@ export default function Home() {
   const [faqSearch, setFaqSearch] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const createOrderMutation = trpc.orders.create.useMutation();
+  const recordSaleMutation = trpc.inventory.recordSale.useMutation({
+    onSuccess: () => {
+      setSaleProduct(null);
+      setSaleKey("");
+      setSaleQuantity("1");
+      setSaleError("");
+      void publicInventoryLocationsQuery.refetch();
+    },
+    onError: (error) => setSaleError(error.message || "No se pudo descontar la cantidad"),
+  });
+  const [saleProduct, setSaleProduct] = useState<CatalogProduct | null>(null);
+  const [saleQuantity, setSaleQuantity] = useState("1");
+  const [saleKey, setSaleKey] = useState("");
+  const [saleError, setSaleError] = useState("");
   const publicInventoryLocationsQuery = trpc.inventory.publicLocations.useQuery(undefined, { staleTime: 5_000, refetchInterval: 5_000, refetchIntervalInBackground: false, refetchOnWindowFocus: true, retry: 1 });
   const inventoryLocations = useMemo(() => new Map((publicInventoryLocationsQuery.data || []).map((location: PublicInventoryLocation) => [location.productId, location] as const)), [publicInventoryLocationsQuery.data]);
 
@@ -222,6 +238,17 @@ export default function Home() {
       return [...items, { ...product, quantity: 1 }];
     });
     setCartOpen(true);
+  }
+
+  function submitHomeSale(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!saleProduct) return;
+    const quantity = Number.parseInt(saleQuantity, 10);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      setSaleError("Indica una cantidad válida.");
+      return;
+    }
+    recordSaleMutation.mutate({ productId: saleProduct.id, sku: saleProduct.sku, quantity, source: "manual" });
   }
 
   const activeIndex = brands.indexOf(activeBrand);
@@ -494,7 +521,9 @@ export default function Home() {
 
       {cartOpen && <div className="cart-drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title"><div className="cart-drawer-head"><div><SectionLabel>{t("COTIZACIÓN EUROTRUCK", "EUROTRUCK QUOTE")}</SectionLabel><h2 id="cart-title">{t("Tu solicitud de piezas", "Your parts request")}</h2><p className="cart-drawer-subtitle">{t("Revisa las referencias antes de enviarnos tus datos.", "Review the references before sending us your details.")}</p></div><button autoFocus className="product-modal-close" onClick={() => setCartOpen(false)} aria-label={t("Cerrar carrito", "Close cart")}><X size={17} /></button></div>{cartItems.length === 0 ? <div className="cart-empty"><ShoppingCart size={34} /><h3>{t("Tu carrito está vacío", "Your cart is empty")}</h3><p>{t("Agrega piezas del catálogo para preparar una solicitud clara y recibir atención de nuestro equipo.", "Add parts from the catalog to prepare a clear request and receive help from our team.")}</p><button className="modal-add-button" onClick={() => { setCartOpen(false); scrollToId("catalogo"); }}>{t("Ver catálogo", "View catalog")} <ArrowRight size={14} /></button></div> : <><div className="cart-items">{cartItems.map((item) => <div className="cart-item" key={item.id}><div className="cart-item-image"><img src={item.image} alt="" /></div><div className="cart-item-copy"><b>{item.name}</b>{isAuthorizedViewer && <><small>DT Spare Parts / SKU {item.sku}</small><span>{item.brand || t("Referencia catalogada", "Cataloged reference")}</span>{item.gtins?.length ? <small className="cart-item-gtin">GTIN {item.gtins.join(" · ")}</small> : null}</>}<div className="cart-item-quantity" aria-label={t(`Cantidad de ${item.name}`, `Quantity of ${item.name}`)}><button type="button" onClick={() => setCartItems((items) => items.map((cartItem) => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(1, cartItem.quantity - 1) } : cartItem))} aria-label={t(`Reducir cantidad de ${item.name}`, `Decrease quantity of ${item.name}`)}>−</button><b>{item.quantity}</b><button type="button" onClick={() => setCartItems((items) => items.map((cartItem) => cartItem.id === item.id ? { ...cartItem, quantity: Math.min(99, cartItem.quantity + 1) } : cartItem))} aria-label={t(`Aumentar cantidad de ${item.name}`, `Increase quantity of ${item.name}`)}>+</button></div></div><button className="cart-item-remove" onClick={() => setCartItems((items) => items.filter((cartItem) => cartItem.id !== item.id))} aria-label={t(`Eliminar ${item.name}`, `Remove ${item.name}`)}><X size={14} /></button></div>)}</div><div className="cart-summary"><div><span>{t("Referencias seleccionadas", "Selected references")}</span><strong>{cartItems.length}</strong></div><div><span>{t("Total de piezas", "Total parts")}</span><strong>{cartCount}</strong></div><div><span>{t("Modalidad", "Request type")}</span><strong>{t("Cotización", "Quote")}</strong></div></div><div className="cart-drawer-actions"><button className="cart-continue-button" onClick={() => { setCartOpen(false); scrollToId("catalogo"); }}><Plus size={15} />{t("Agregar otra pieza", "Add another part")}</button><button className="cart-checkout-button" onClick={() => { setCartOpen(false); scrollToId("registro"); }}><ClipboardList size={15} />{t("Continuar con mis datos", "Continue with my details")}</button></div></>}</aside></div>}
 
-      {selectedProduct && <div className="product-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}><div className="product-modal product-modal--enhanced" role="dialog" aria-modal="true" aria-labelledby="product-modal-title"><button className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label={t("Cerrar detalle", "Close details")}><X size={17} /></button><div className="product-modal-media">{selectedProduct.imageFull || selectedProduct.image ? <img src={selectedProduct.imageFull || selectedProduct.image} alt={`${selectedProduct.name} — ${selectedProduct.sku}`} /> : <div className="product-no-image"><PackageCheck size={48} /><span>{t("Imagen no disponible en la fuente", "Image unavailable from source")}</span></div>}<span className="product-modal-zoom-note">{t("Pasa el cursor para ampliar", "Hover to zoom")}</span></div><div className="product-modal-copy"><div className="product-modal-heading"><SectionLabel>{t("FICHA DEL ARTÍCULO", "PART PROFILE")}</SectionLabel>{isAuthorizedViewer && <span className="product-modal-sku">SKU {selectedProduct.sku}</span>}</div><h2 id="product-modal-title">{selectedProduct.name}</h2>{isAuthorizedViewer && <><p className="product-modal-description">{selectedProduct.description}</p>{(() => { const inventory = inventoryLocations.get(selectedProduct.id); return <div className={`product-modal-availability${inventory?.totalQuantity ? inventory.totalQuantity <= 3 ? " is-low" : " is-available" : " is-pending"}`}><div><PackageCheck size={22} /><span><small>{t("Existencia en almacén", "Warehouse stock")}</small><strong>{inventory?.totalQuantity ? `${inventory.totalQuantity} ${t("unidades", "units")}` : t("Sin existencia registrada", "No stock recorded")}</strong></span></div><div><MapPin size={19} /><span><small>{t("Ubicación", "Location")}</small><strong>{inventory ? `${inventory.lastTramo || "—"} / ${inventory.lastGondola || "—"}` : t("Pendiente", "Pending")}</strong></span></div><div><span className="product-modal-currency">RD$</span><span><small>{t("Precio final", "Final price")}</small><strong>{Number(inventory?.salePrice || 0) > 0 ? Number(inventory?.salePrice || 0).toLocaleString("es-DO", { minimumFractionDigits: 2 }) : t("Por cotizar", "To be quoted")}</strong></span></div></div>; })()}<div className="product-modal-facts"><span><b>{t("Marca", "Brand")}</b>{selectedProduct.brand}</span><span><b>{t("Aplicación", "Application")}</b>{selectedProduct.usage.slice(0, 3).join(", ") || selectedProduct.manufacturer || "Multibrand"}</span><span><b>{t("Categoría", "Category")}</b>{selectedProduct.category}</span><span><b>{t("Empaque", "Pack")}</b>{selectedProduct.packagingAmount} {selectedProduct.salesUnit}</span><span><b>GTIN</b>{selectedProduct.gtins?.join(" · ") || t("No registrado", "Not registered")}</span><span><b>{t("Código interno Zebra", "Internal Zebra code")}</b>{selectedProduct.internalCode || "No asignado"}</span><span><b>{t("Código de barras", "Barcode")}</b>{selectedProduct.barcode || selectedProduct.gtins?.[0] || t("No registrado", "Not registered")}</span><span><b>{t("Referencia interna", "Internal reference")}</b>{selectedProduct.id}</span></div>{selectedProduct.replaces && <p className="product-modal-replaces"><b>{t("Reemplaza:", "Replaces:")}</b> {selectedProduct.replaces}</p>}</>}<div className="product-modal-actions">{isAuthorizedViewer && <a className="modal-source-link" href={selectedProduct.url} target="_blank" rel="noreferrer">{t("Ver fuente técnica", "View technical source")} <ArrowUpRight size={14} /></a>}<button className="modal-add-button" onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); setCartOpen(true); }}><Plus size={14} />{t("Agregar a cotización", "Add to quote")}</button></div></div></div></div>}
+      {selectedProduct && <div className="product-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}><div className="product-modal product-modal--enhanced" role="dialog" aria-modal="true" aria-labelledby="product-modal-title"><button className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label={t("Cerrar detalle", "Close details")}><X size={17} /></button><div className="product-modal-media">{selectedProduct.imageFull || selectedProduct.image ? <img src={selectedProduct.imageFull || selectedProduct.image} alt={`${selectedProduct.name} — ${selectedProduct.sku}`} /> : <div className="product-no-image"><PackageCheck size={48} /><span>{t("Imagen no disponible en la fuente", "Image unavailable from source")}</span></div>}<span className="product-modal-zoom-note">{t("Pasa el cursor para ampliar", "Hover to zoom")}</span></div><div className="product-modal-copy"><div className="product-modal-heading"><SectionLabel>{t("FICHA DEL ARTÍCULO", "PART PROFILE")}</SectionLabel>{isAuthorizedViewer && <span className="product-modal-sku">SKU {selectedProduct.sku}</span>}</div><h2 id="product-modal-title">{selectedProduct.name}</h2>{isAuthorizedViewer && <><p className="product-modal-description">{selectedProduct.description}</p>{(() => { const inventory = inventoryLocations.get(selectedProduct.id); return <div className={`product-modal-availability${inventory?.totalQuantity ? inventory.totalQuantity <= 3 ? " is-low" : " is-available" : " is-pending"}`}><div><PackageCheck size={22} /><span><small>{t("Existencia en almacén", "Warehouse stock")}</small><strong>{inventory?.totalQuantity ? `${inventory.totalQuantity} ${t("unidades", "units")}` : t("Sin existencia registrada", "No stock recorded")}</strong></span></div><div><MapPin size={19} /><span><small>{t("Ubicación", "Location")}</small><strong>{inventory ? `${inventory.lastTramo || "—"} / ${inventory.lastGondola || "—"}` : t("Pendiente", "Pending")}</strong></span></div><div><span className="product-modal-currency">RD$</span><span><small>{t("Precio final", "Final price")}</small><strong>{Number(inventory?.salePrice || 0) > 0 ? Number(inventory?.salePrice || 0).toLocaleString("es-DO", { minimumFractionDigits: 2 }) : t("Por cotizar", "To be quoted")}</strong></span></div></div>; })()}<div className="product-modal-facts"><span><b>{t("Marca", "Brand")}</b>{selectedProduct.brand}</span><span><b>{t("Aplicación", "Application")}</b>{selectedProduct.usage.slice(0, 3).join(", ") || selectedProduct.manufacturer || "Multibrand"}</span><span><b>{t("Categoría", "Category")}</b>{selectedProduct.category}</span><span><b>{t("Empaque", "Pack")}</b>{selectedProduct.packagingAmount} {selectedProduct.salesUnit}</span><span><b>GTIN</b>{selectedProduct.gtins?.join(" · ") || t("No registrado", "Not registered")}</span><span><b>{t("Código interno Zebra", "Internal Zebra code")}</b>{selectedProduct.internalCode || "No asignado"}</span><span><b>{t("Código de barras", "Barcode")}</b>{selectedProduct.barcode || selectedProduct.gtins?.[0] || t("No registrado", "Not registered")}</span><span><b>{t("Referencia interna", "Internal reference")}</b>{selectedProduct.id}</span></div>{selectedProduct.replaces && <p className="product-modal-replaces"><b>{t("Reemplaza:", "Replaces:")}</b> {selectedProduct.replaces}</p>}</>}<div className="product-modal-actions">{isAuthorizedViewer && <a className="modal-source-link" href={selectedProduct.url} target="_blank" rel="noreferrer">{t("Ver fuente técnica", "View technical source")} <ArrowUpRight size={14} /></a>}{isInventoryOperator && <button className="inventory-home-sale-button" type="button" onClick={() => { setSaleProduct(selectedProduct); setSaleError(""); setSaleQuantity("1"); }}><TrendingDown size={14} />Descontar cantidad</button>}<button className="modal-add-button" onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); setCartOpen(true); }}><Plus size={14} />{t("Agregar a cotización", "Add to quote")}</button></div></div></div></div>}
+
+      {saleProduct && <div className="inventory-sale-dialog" role="dialog" aria-modal="true" aria-labelledby="home-sale-dialog-title"><form className="inventory-sale-dialog-card" onSubmit={submitHomeSale}><div className="inventory-sale-dialog-icon"><TrendingDown size={22} /></div><span className="orders-eyebrow">SALIDA DE ALMACÉN</span><h2 id="home-sale-dialog-title">Descontar cantidad</h2><p>Se descontará únicamente del inventario la cantidad indicada para <strong>{saleProduct.sku}</strong>. El artículo base no se elimina.</p><label>Cantidad<input type="number" min="1" max="9999" value={saleQuantity} onChange={event => setSaleQuantity(event.target.value)} autoFocus /></label>{saleError && <div className="inventory-alert inventory-alert--error" role="alert"><AlertTriangle size={16} />{saleError}</div>}<div className="inventory-sale-dialog-actions"><button type="button" className="orders-button orders-button--ghost" onClick={() => { setSaleProduct(null); setSaleError(""); }}>Cancelar</button><button type="submit" className="orders-button inventory-row-sale-confirm" disabled={recordSaleMutation.isPending}>{recordSaleMutation.isPending ? "Procesando…" : "Confirmar descuento"}</button></div></form></div>}
 
       <footer className="site-footer" id="contacto">
         <div className="footer-portal-strip"><div className="container-wide footer-portal-strip-inner"><span>EUROTRUCK / {t("PORTAL DE PIEZAS", "PARTS PORTAL")}</span><span>{t("Consulta por nombre de pieza", "Search by part name")}</span><a href="mailto:eurotruckcxa@yahoo.com">{t("Contactar HelpDesk", "Contact HelpDesk")} <ArrowUpRight size={13} /></a></div></div>
