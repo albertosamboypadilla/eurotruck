@@ -390,3 +390,10 @@
 - [x] Cambiar el fondo y todos los colores del módulo Inventario a una paleta oscura profesional y legible.
 - [x] Mantener accesibles los estados de stock, escaneo, alertas y acciones en escritorio y móvil.
 - [x] Añadir o actualizar pruebas, validar TypeScript, Vitest, build y revisión visual antes de publicar.
+
+# Importación Diesel Technic: Muelle de válvula
+
+- [x] Identificar los resultados públicos verificables de la búsqueda “Muelle de válvula” (15 referencias localizadas en fichas indexadas).
+- [x] Verificar e incorporar sin duplicados; las 15 referencias localizadas ya estaban en el catálogo con nombre, imagen y URL. No se añadieron copias.
+- [x] Validar que las 15 referencias existentes funcionen en catálogo e Inventario; conservan sus códigos internos y quedan disponibles para búsqueda.
+- [x] Confirmar que no se requiere cambio funcional ni migración; el catálogo publicado ya contiene las referencias verificadas.
