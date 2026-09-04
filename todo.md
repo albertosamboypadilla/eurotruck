@@ -459,3 +459,11 @@
 - [x] Convertir “Artículos contados” en un botón de descarga del inventario.
 - [x] Replicar el formato del archivo de referencia incluyendo encabezados, ubicación, cantidades, SKU y GTIN.
 - [x] Validar archivo descargado, contenido, pruebas, TypeScript y build; publicar checkpoint.
+
+# Hoja imprimible por área activa e importación de segmentos de pistón
+
+- [x] Añadir un botón para imprimir el inventario del tramo y góndola activos con fecha/hora de impresión.
+- [x] Replicar en la hoja imprimible los datos necesarios para conteo manual: SKU, descripción, referencia interna, cantidad, costo y precio.
+- [x] Revisar todas las páginas de Diesel Technic para “Juego de segmentos de pistón” y recopilar referencias verificables.
+- [x] Comparar e integrar únicamente los artículos faltantes con imagen, SKU y GTIN confirmado; 4 SKU añadidos, con GTIN cuando fue verificable.
+- [x] Validar impresión, catálogo, búsqueda, 55 pruebas Vitest, TypeScript y build; publicar checkpoint.

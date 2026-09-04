@@ -8,8 +8,8 @@ import { attachGtins, getGtinsForSku, normalizeCatalogIdentifier, productMatches
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
 import { buildInventoryExportHtml, buildLowStockPurchaseRows, buildPhysicalInventoryExportHtml } from "@shared/inventoryExport";
 
-const catalogIndexUrl = "/manus-storage/catalog-deduped-by-sku-20260904_299a38e2.json";
-const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-valvulas-xlsx_20260904_0d871d83.json";
+const catalogIndexUrl = "/manus-storage/catalog-with-piston-rings-20260904_49f56a02.json";
+const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-piston-rings-20260904_4f3d2c53.json";
 const emptyArticle = { sku: "", barcode: "", name: "", description: "", brand: "", application: "", image: "", costPrice: "0", salePrice: "0", initialQuantity: "0" };
 const catalogPageSize = 60;
 
@@ -468,6 +468,31 @@ export default function Inventory() {
     anchor.remove();
     URL.revokeObjectURL(url);
   };
+  const printActiveInventoryArea = () => {
+    const activeItems = (inventoryQuery.data || []).filter(item => (item.lastTramo || "GENERAL") === tramo && (item.lastGondola || "GENERAL") === gondola);
+    const rows = activeItems.map(item => ({
+      warehouse: "01",
+      productNumber: item.sku,
+      description: item.name,
+      counter: item.countedBy || "admin1",
+      unitQuantity: item.totalQuantity,
+      reference: item.internalCode || allProducts.find(product => product.id === item.productId)?.internalCode || "",
+      shelf: item.lastGondola || gondola,
+      tramo: item.lastTramo || tramo,
+      cost: item.costPrice || "0.00",
+      price: item.salePrice || "0.00",
+    }));
+    const printWindow = window.open("", "_blank", "width=1200,height=800");
+    if (!printWindow) {
+      setError("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes e inténtalo nuevamente.");
+      return;
+    }
+    printWindow.document.write(buildPhysicalInventoryExportHtml(rows, new Date(), { tramo, gondola }));
+    printWindow.document.close();
+    printWindow.focus();
+    window.setTimeout(() => printWindow.print(), 250);
+  };
+
   const downloadZebraLabels = () => {
     if (!selectedProduct) return;
     const quantityToPrint = Number(labelQuantity);
@@ -499,7 +524,7 @@ export default function Inventory() {
     <section className="inventory-kpis" aria-label="Resumen de inventario"><button type="button" className={`inventory-kpi-button${countedItems.length === 0 ? " is-disabled" : ""}`} onClick={downloadCountedInventoryExcel} disabled={countedItems.length === 0} aria-label="Descargar reporte de artículos contados"><Boxes size={22} /><span><small>Artículos contados</small><strong>{countedItems.length.toLocaleString("es-DO")}</strong><em>Descargar inventario</em></span><Download size={15} /></button><article><Barcode size={22} /><span><small>Unidades en almacén</small><strong>{totalUnits.toLocaleString("es-DO")}</strong></span></article><button type="button" className={`inventory-kpi-button${lowStockItems ? " is-warning" : ""}`} onClick={downloadLowStockExcel} disabled={!lowStockItems} aria-label="Descargar Excel de artículos bajo stock"><AlertTriangle size={22} /><span><small>Bajo stock</small><strong>{lowStockItems}</strong><em>Descargar compras</em></span><Download size={15} /></button><article><MapPin size={22} /><span><small>Área activa</small><strong>{tramo} / {gondola}</strong></span></article></section>
     <section className="inventory-workspace">
       <div className="inventory-scan-panel">
-        <div className="inventory-scan-location"><div><span className="orders-eyebrow">01 / ÁREA DE CONTEO</span><strong>Ubicación activa</strong><small>Selecciona o agrega el tramo y la góndola antes de escanear. Cada lectura se guardará automáticamente en esta área hasta que la cambies.</small><div className="inventory-location-picker"><select value={activeLocationId} onChange={event => selectLocation(event.target.value)} aria-label="Seleccionar ubicación activa">{savedLocations.map(location => <option key={location.id} value={location.id}>{location.tramo} / {location.gondola}</option>)}</select><button type="button" className="inventory-location-delete" disabled={activeLocationId === defaultInventoryLocation.id} onClick={() => { if (window.confirm("¿Eliminar esta área guardada? Las lecturas existentes conservarán su ubicación histórica.")) removeLocation(activeLocationId); }}><Trash2 size={14} />Eliminar área</button></div><button type="button" className="inventory-location-add" onClick={() => setShowLocationForm(current => !current)}><Plus size={13} />{showLocationForm ? "Cerrar alta de área" : "Agregar otra área"}</button></div><div className="inventory-scan-location-fields"><label>Tramo<input value={tramo} readOnly aria-readonly="true" /></label><label>Góndola<input value={gondola} readOnly aria-readonly="true" /></label></div>{showLocationForm && <form className="inventory-location-form" onSubmit={submitNewLocation}><label>Nuevo tramo<input required value={newLocationTramo} onChange={event => setNewLocationTramo(event.target.value)} placeholder="Ej. T-03" /></label><label>Nueva góndola<input required value={newLocationGondola} onChange={event => setNewLocationGondola(event.target.value)} placeholder="Ej. G-12" /></label><button type="submit" className="orders-button orders-button--inventory"><Plus size={14} />Guardar y activar</button></form>}</div>
+        <div className="inventory-scan-location"><div><span className="orders-eyebrow">01 / ÁREA DE CONTEO</span><strong>Ubicación activa</strong><small>Selecciona o agrega el tramo y la góndola antes de escanear. Cada lectura se guardará automáticamente en esta área hasta que la cambies.</small><div className="inventory-location-picker"><select value={activeLocationId} onChange={event => selectLocation(event.target.value)} aria-label="Seleccionar ubicación activa">{savedLocations.map(location => <option key={location.id} value={location.id}>{location.tramo} / {location.gondola}</option>)}</select><button type="button" className="inventory-location-delete" disabled={activeLocationId === defaultInventoryLocation.id} onClick={() => { if (window.confirm("¿Eliminar esta área guardada? Las lecturas existentes conservarán su ubicación histórica.")) removeLocation(activeLocationId); }}><Trash2 size={14} />Eliminar área</button></div><button type="button" className="inventory-location-add" onClick={() => setShowLocationForm(current => !current)}><Plus size={13} />{showLocationForm ? "Cerrar alta de área" : "Agregar otra área"}</button><button type="button" className="inventory-location-print" onClick={printActiveInventoryArea}><Printer size={14} />Imprimir área activa</button></div><div className="inventory-scan-location-fields"><label>Tramo<input value={tramo} readOnly aria-readonly="true" /></label><label>Góndola<input value={gondola} readOnly aria-readonly="true" /></label></div>{showLocationForm && <form className="inventory-location-form" onSubmit={submitNewLocation}><label>Nuevo tramo<input required value={newLocationTramo} onChange={event => setNewLocationTramo(event.target.value)} placeholder="Ej. T-03" /></label><label>Nueva góndola<input required value={newLocationGondola} onChange={event => setNewLocationGondola(event.target.value)} placeholder="Ej. G-12" /></label><button type="submit" className="orders-button orders-button--inventory"><Plus size={14} />Guardar y activar</button></form>}</div>
         <div className="inventory-panel-heading"><div><span className="orders-eyebrow">02 / ENTRADA</span><h2>Registrar artículos</h2></div><div className="inventory-panel-heading-actions"><button type="button" className="inventory-history-trigger" onClick={() => setShowRecentIngress(true)}><RefreshCw size={16} />Últimos ingresos</button><Barcode size={30} /></div></div>
         <div className="inventory-mode-switch" role="tablist" aria-label="Modo de entrada"><button type="button" className={entryMode === "scan" ? "is-active" : ""} onClick={() => { setEntryMode("scan"); setLastScanAutoRecorded(false); }}><ScanLine size={17} /><span><b>Escaneo automático</b><small>Cada lectura suma +1</small></span></button><button type="button" className={entryMode === "manual" ? "is-active" : ""} onClick={() => { setEntryMode("manual"); setLastScanAutoRecorded(false); }}><Keyboard size={17} /><span><b>Entrada manual</b><small>Busca y escribe la cantidad</small></span></button></div>
         <form className="inventory-scan-form" onSubmit={submitScan}><label htmlFor="inventory-scan">Referencia, SKU o GTIN</label><div><ScanLine size={18} /><input ref={inputRef} id="inventory-scan" autoFocus value={scanCode} onChange={event => setScanCode(event.target.value)} placeholder={catalogLoading ? "Cargando catálogo…" : entryMode === "scan" ? "Escanea y pulsa Enter: suma +1 automáticamente" : "Escribe o escanea para abrir el artículo…"} disabled={catalogLoading || recordCount.isPending} />{entryMode === "manual" && <button className="orders-button" type="submit" disabled={catalogLoading || recordCount.isPending || !scanCode.trim()}><PackageSearch size={15} />Abrir artículo</button>}</div></form>

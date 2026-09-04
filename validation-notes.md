@@ -40,3 +40,15 @@ Home incorpora la consulta pública `inventory.publicGtins` y fusiona sus alias 
 ## Deduplicación por SKU — 2026-09-04
 
 La auditoría encontró 39.894 registros, 36.725 SKU únicos, 2.119 grupos duplicados y 3.169 filas repetidas. El catálogo deduplicado conserva 36.725 artículos, cero SKU duplicados y cero violaciones de unión/máximo de GTIN. La base de datos contiene 15 registros de inventario, 14 SKU y ninguna fila con existencia positiva; no se eliminaron movimientos ni datos persistentes. Home mostró 36.725 resultados y cargó tarjetas/GTIN correctamente.
+
+## Búsqueda Diesel Technic: Juego de segmentos de pistón — 2026-09-04
+
+La búsqueda directa quedó detrás de Azure WAF. Las fichas indexadas identificadas incluyen 2.90126, 1.33134, 4.90617, 4.92041, 3.90031, 2.90125, 7.94509, 5.94224, 4.92038, 6.91171, 2.94579, 6.91174, 1.31881 y 13.00630. La ficha 1.33134 respondió con tres GTIN confirmados: 4057795904064, 4057795904071 y 4057795762442; aplicación Scania y referencia de ficha 1.33134. Las demás fichas requieren reintento o fuente indexada adicional antes de importarse.
+
+La búsqueda indexada confirmó datos adicionales: 5.94224 tiene GTIN 4070174094231 y 4057795786639, aplicación DAF; 6.91171 tiene GTIN 4047755617752 y 4047755365707, aplicación Renault; 13.00630 tiene GTIN 4070174135699, aplicación Ford. La ficha española de 6.91174 fue localizada, pero todavía no expone un GTIN verificable en los resultados indexados.
+
+## Revisión visual 2026-09-04
+
+Inventario muestra el botón “Imprimir área activa” junto a la ubicación GENERAL/GENERAL y mantiene “Artículos contados — Descargar inventario”. La página administrativa carga el catálogo y conserva el resumen, bajo stock e historial. La sesión de previsualización mostró temporalmente “Comprobando acceso…” durante la carga y después renderizó la vista completa.
+
+La revisión de Home confirmó que el catálogo carga 36.729 resultados después de integrar los cuatro SKU faltantes. La revisión de Inventario mostró “Imprimir área activa” junto a la ubicación activa y la carga del catálogo administrativo. La búsqueda visual se mantuvo operativa; el filtro de referencia puede utilizarse para localizar 5.94224, 6.91171, 6.91174 y 13.00630.

@@ -13,7 +13,7 @@ describe("inventory export", () => {
   it("builds the physical inventory template with the reference layout", () => {
     const html = buildPhysicalInventoryExportHtml([
       { productNumber: "1.00001", description: "Filtro de prueba", counter: "admin1", unitQuantity: 4, reference: "00001", shelf: "G-02", tramo: "T-01", cost: "10.00", price: "15.00" },
-    ], new Date("2026-09-03T21:10:10Z"));
+    ], new Date("2026-09-03T21:10:10Z"), { tramo: "T-01", gondola: "G-02" });
     expect(html).toContain("EUROTRUCK SRL");
     expect(html).toContain("SISTEMA DE INVENTARIO");
     expect(html).toContain("NO. PRODUCTO");
@@ -23,6 +23,8 @@ describe("inventory export", () => {
     expect(html).toContain("G-02");
     expect(html).toContain("#1f497d");
     expect(html).toContain("colspan=\"11\"");
+    expect(html).toContain("TRAMO T-01");
+    expect(html).toContain("GÓNDOLA G-02");
   });
 
   it("includes zero-stock products and calculates purchase units", () => {
