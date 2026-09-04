@@ -995,3 +995,23 @@
 .footer-map-card strong { font-size: .95rem; }
 .footer-map-card small { color: #93c5fd; font-size: .72rem; line-height: 1.35; }
 @media (max-width:640px) { .public-sale-dialog { padding: 24px 18px; } .public-sale-actions > * { flex: 1 1 140px; } .modal-sale-button { width: 100%; } }
+
+/* Reporte detallado de salidas y mapa interactivo */
+.inventory-report-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.inventory-sales-history { margin-top: 14px; padding: 16px; border: 1px solid rgba(96,165,250,.2); border-radius: 14px; background: rgba(15,23,42,.55); }
+.inventory-sales-history-list { display: grid; gap: 8px; max-height: 320px; overflow: auto; }
+.inventory-sales-history-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 12px; border-left: 3px solid #f87171; border-radius: 9px; background: rgba(127,29,29,.16); }
+.inventory-sales-history-row > div { display: grid; gap: 3px; min-width: 0; }
+.inventory-sales-history-row strong { color: #bfdbfe; font: 800 .9rem var(--technical); }
+.inventory-sales-history-row span { overflow: hidden; color: #e2e8f0; font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+.inventory-sales-history-row b { color: #fca5a5; font-size: .86rem; text-align: right; }
+.inventory-sales-history-row small { color: #a5b4fc; font-size: .7rem; text-align: right; }
+.footer-map-card { display: grid; gap: 10px; padding: 0; overflow: hidden; border: 1px solid rgba(96,165,250,.28); border-radius: 14px; background: linear-gradient(135deg,rgba(30,64,175,.28),rgba(15,23,42,.8)); }
+.footer-interactive-map { width: 100%; height: 180px !important; min-height: 180px; }
+.footer-map-meta { display: grid; grid-template-columns: 24px 1fr; gap: 2px 8px; align-items: center; padding: 0 12px 12px; }
+.footer-map-meta > svg { grid-row: span 2; color: #93c5fd; }
+.footer-map-meta span { display: grid; gap: 2px; }
+.footer-map-meta strong { color: #f8fafc; font-size: .92rem; }
+.footer-map-meta small { color: #93c5fd; font-size: .7rem; }
+.footer-map-meta a { grid-column: 2; color: #60a5fa; font-size: .72rem; text-decoration: underline; }
+@media (max-width:640px) { .inventory-sales-history-row { align-items: flex-start; flex-direction: column; } .inventory-sales-history-row b, .inventory-sales-history-row small { text-align: left; } .inventory-report-actions > * { flex: 1 1 180px; } }

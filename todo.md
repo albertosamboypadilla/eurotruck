@@ -352,3 +352,11 @@
 - [x] Hacer que cada confirmación de salida descuente exactamente una unidad y actualice Home/Inventario.
 - [x] Añadir un mapa pequeño clicable en Home con la ubicación Eurotruck SRL de Google Maps.
 - [x] Validar acceso desde Cotizaciones, conteo verde, alta por escaneo/manual, precios, más vendidos, salida con clave 1989 y pruebas responsive.
+
+# Exportación, auditoría de salidas, mapa incrustado y habilidad reutilizable
+
+- [x] Añadir botón en Inventario para descargar en Excel el historial detallado de artículos más vendidos.
+- [x] Mostrar fecha y hora exacta de cada salida protegida con clave dentro del historial de Inventario.
+- [x] Reemplazar la tarjeta de ubicación de Home por un mapa interactivo incrustado que abra la ubicación sin salir de la página.
+- [x] Crear una habilidad reutilizable con el flujo de mantenimiento de Inventario, Cotizaciones, salidas, reportes, mapas y validación.
+- [x] Validar exportación, auditoría temporal, mapa, permisos, pruebas, build, publicar y entregar la habilidad.

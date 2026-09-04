@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listInventorySalesHistory, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
@@ -114,6 +114,10 @@ export const appRouter = router({
     topSold: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar reportes de inventario" });
       return listTopSoldInventory(input.month, input.year);
+    }),
+    salesHistory: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar historial de ventas" });
+      return listInventorySalesHistory(input.month, input.year);
     }),
   }),
 });
