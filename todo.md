@@ -348,3 +348,13 @@
 - [x] Retirar la foto del bloque de salida para dejar código/SKU, cantidad y acción.
 - [x] Quitar Eliminar del inventario que aparece al lado de los artículos y conservar solo el flujo central de descuento.
 - [x] Validar descuento con clave 1989, conservación del artículo, pruebas, build y responsive.
+
+# Rediseño por etapas de Inventario — primera fase
+
+- [x] Conservar intactos artículos, existencias, ubicaciones, movimientos e historial de la base de datos.
+- [x] Mantener la línea horizontal de indicadores: Artículos contados, Unidades, Bajo stock y Área activa.
+- [x] Convertir Bajo stock en un botón que descargue un Excel con los artículos que deben comprarse.
+- [x] Rediseñar Área de conteo en cuadros horizontales y ordenados de izquierda a derecha.
+- [x] Separar visualmente Agregar otra área y Eliminar área, con acciones fáciles de entender.
+- [x] Ocultar temporalmente los demás bloques de Inventario sin borrar su lógica para continuar por etapas.
+- [x] Validar la primera fase con pruebas, build y revisión responsive; publicar checkpoint.
