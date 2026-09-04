@@ -341,3 +341,10 @@
 - [x] Solicitar contraseña 1989 y cantidades por artículo antes de confirmar el lote.
 - [x] Descontar existencias sin borrar artículos ni modificar el catálogo base y conservar historial por artículo.
 - [x] Validar clave incorrecta, selección múltiple, cantidades, permisos, historial, pruebas, build y responsive; publicar.
+
+# Simplificación visual del descuento de cantidad
+
+- [x] Convertir Descontar cantidad en un botón rojo destacado junto al campo de cantidad.
+- [x] Retirar la foto del bloque de salida para dejar código/SKU, cantidad y acción.
+- [x] Quitar Eliminar del inventario que aparece al lado de los artículos y conservar solo el flujo central de descuento.
+- [x] Validar descuento con clave 1989, conservación del artículo, pruebas, build y responsive.
