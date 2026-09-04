@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { sample, createOrder, archiveOrder } = vi.hoisted(() => {
+const { sample, createOrder, archiveOrder, listPublicInventoryLocations } = vi.hoisted(() => {
   const sample = { order: { id: 9, orderNumber: "ET-2026-000009", company: "Flota Caribe", email: "cliente@example.com", phone: "8095551234", rnc: null, truckBrand: "Scania", partsNote: null, notificationRecipients: "eurotruckcxa@yahoo.com,albertosamboy89@gmail.com", afterHours: 1, status: "new" as const, deletedAt: null, deletedBy: null, createdAt: new Date(), updatedAt: new Date() }, items: [{ id: 1, orderId: 9, productId: "p1", sku: "DT-001", name: "Filtro de aceite", brand: "DT Spare Parts", application: "Scania", category: "Motor", image: null, sourceUrl: null }] };
-  return { sample, createOrder: vi.fn(async () => sample), archiveOrder: vi.fn(async () => true) };
+  const listPublicInventoryLocations = vi.fn(async () => [{ productId: "p1", totalQuantity: 5, lastTramo: "T-01", lastGondola: "G-01", salePrice: "1250.00" }]);
+  return { sample, createOrder: vi.fn(async () => sample), archiveOrder: vi.fn(async () => true), listPublicInventoryLocations };
 });
-vi.mock("./db", () => ({ createOrder, archiveOrder, purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(async () => []), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
+vi.mock("./db", () => ({ createOrder, archiveOrder, listPublicInventoryLocations, purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(async () => []), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
 
 import { appRouter } from "./routers";
 
@@ -15,6 +16,7 @@ describe("order flow", () => {
     const caller = appRouter.createCaller({ req: {} as never, res: {} as never, user: null });
     const result = await caller.orders.create({ company: "Flota Caribe", email: "cliente@example.com", phone: "8095551234", items: [{ productId: "p1", sku: "DT-001", name: "Filtro de aceite" }] });
     expect(result.orderNumber).toBe("ET-2026-000009");
+    expect(createOrder).toHaveBeenCalledWith(expect.anything(), [expect.objectContaining({ productId: "p1", unitPrice: "1250.00" })]);
     expect(Buffer.from(result.pdfBase64, "base64").subarray(0, 4).toString()).toBe("%PDF");
     expect(result.afterHoursMessage).toContain("Buenas tardes");
     vi.useRealTimers();

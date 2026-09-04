@@ -41,7 +41,12 @@ export const appRouter = router({
       company: z.string().min(2).max(180), email: z.string().email().max(320), phone: z.string().min(7).max(40), rnc: z.string().max(40).optional(), truckBrand: z.string().max(80).optional(), partsNote: z.string().max(2000).optional(), items: z.array(orderItemInput).min(1).max(100),
     })).mutation(async ({ input }) => {
       const afterHours = isEurotruckAfterHours(new Date());
-      const created = await createOrder({ company: input.company, email: input.email, phone: input.phone, rnc: input.rnc, truckBrand: input.truckBrand, partsNote: input.partsNote, notificationRecipients: "", afterHours: afterHours ? 1 : 0, status: "new" }, input.items.map(item => ({ ...item, unitPrice: String(item.unitPrice ?? 0) })));
+      const inventoryPrices = new Map((await listPublicInventoryLocations()).map(item => [item.productId, item.salePrice] as const));
+      const quoteItems = input.items.map(item => {
+        const inventoryPrice = inventoryPrices.get(item.productId);
+        return { ...item, unitPrice: Number(inventoryPrice || 0) > 0 ? String(inventoryPrice) : String(item.unitPrice ?? 0) };
+      });
+      const created = await createOrder({ company: input.company, email: input.email, phone: input.phone, rnc: input.rnc, truckBrand: input.truckBrand, partsNote: input.partsNote, notificationRecipients: "", afterHours: afterHours ? 1 : 0, status: "new" }, quoteItems);
       const pdf = await buildOrderPdf(created);
       return { orderNumber: created.order.orderNumber, pdfBase64: pdf.toString("base64"), afterHours, afterHoursMessage: afterHours ? "Buenas tardes. Recibimos tu solicitud; mañana será atendida por nuestro equipo Eurotruck." : null, afterHoursMessageEn: afterHours ? "Good afternoon. We received your request; our Eurotruck team will attend to it tomorrow." : null };
     }),

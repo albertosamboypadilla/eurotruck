@@ -476,3 +476,11 @@
 - [x] Añadir en Cotizaciones una vista Venta del día con salidas, precio final y numeración por fecha.
 - [x] Añadir junto a Agregar otro GTIN un botón rojo protegido para retirar artículos con SKU incorrecto, conservando historial.
 - [x] Validar permisos, integridad, 57 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Precios de Inventario y carrito de cotización
+
+- [x] Auditar cómo Inventario guarda precio final y cómo Cotizaciones construye sus líneas.
+- [x] Cargar automáticamente el precio final de Inventario en nuevas líneas de Cotización, manteniendo edición manual.
+- [x] Conectar el botón Agregar y la selección de artículos de Home con el carrito persistente/local.
+- [x] Permitir cotizar juntos varios artículos seleccionados desde Home y reflejarlos en el resumen del carrito.
+- [x] Validar sincronización de precios, carrito, PDF, 57 pruebas Vitest, TypeScript y build; publicar checkpoint.

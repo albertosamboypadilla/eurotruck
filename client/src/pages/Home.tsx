@@ -180,9 +180,20 @@ export default function Home() {
   const [isSliding, setIsSliding] = useState(false);
   const slideTimerRef = useRef<number | undefined>(undefined);
   const [isFleetPaused, setIsFleetPaused] = useState(false);
-  const [cartItems, setCartItems] = useState<Array<CatalogProduct & { quantity: number }>>([]);
+  const [cartItems, setCartItems] = useState<Array<CatalogProduct & { quantity: number }>>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = JSON.parse(window.localStorage.getItem("eurotruck-cart") || "[]");
+      return Array.isArray(stored) ? stored.filter(item => item && typeof item.id === "string" && Number(item.quantity) > 0) : [];
+    } catch {
+      return [];
+    }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  useEffect(() => {
+    window.localStorage.setItem("eurotruck-cart", JSON.stringify(cartItems));
+  }, [cartItems]);
   const [mobileNav, setMobileNav] = useState(false);
   const [language, setLanguage] = useState<"ES" | "EN">(() => {
     if (typeof window === "undefined") return "ES";
@@ -551,7 +562,7 @@ export default function Home() {
                   <div className="product-visual product-visual--photo">{product.image ? <img src={product.image} alt={`${product.name} — ${product.sku}`} loading="lazy" /> : <div className="product-no-image"><PackageCheck size={38} /><span>{t("Imagen no disponible en la fuente", "Image unavailable from source")}</span></div>}<span className="product-image-hint"><ArrowUpRight size={13} />{t("Abrir imagen", "Open image")}</span></div>
                   <div className="product-info"><div className="product-kicker">{isAuthorizedViewer && <b>DT Spare Parts / SKU {product.sku}</b>}{isAuthorizedViewer && <><span>{product.category}</span><span>{product.brand}</span>{product.internalCode && <small className="product-internal-code">Zebra {product.internalCode}</small>}{product.barcode && <small className="product-barcode-label">Barras {product.barcode}</small>}{product.gtins?.length ? <small className="product-gtin-label"><Barcode size={11} />GTIN {product.gtins.join(" · ")}</small> : <small className="product-gtin-label product-gtin-label--missing"><Barcode size={11} />{t("GTIN no registrado", "GTIN not registered")}</small>}</>}</div>{isAuthorizedViewer && productBadges.length > 0 && <div className="product-badges">{productBadges.slice(0, 3).map((badge) => <span key={badge}>{badge}</span>)}</div>}<h3>{product.name}</h3>{isAuthorizedViewer && <><div className="product-source-facts"><span><small>{t("Reemplaza", "Replaces")}</small>{product.replaces || "—"}</span><span><small>{t("Adecuado para", "Suitable for")}</small>{product.application}</span><span><small>{t("Empaque", "Pack")}</small>{product.packagingAmount} {product.salesUnit}</span><span><small>{t("Precio final", "Final price")}</small>{Number(inventoryLocation?.salePrice || 0) > 0 ? `RD$ ${Number(inventoryLocation?.salePrice || 0).toLocaleString("es-DO", { minimumFractionDigits: 2 })}` : t("Por cotizar", "To be quoted")}</span></div><div className={`product-availability${inventoryLocation?.totalQuantity ? inventoryLocation.totalQuantity <= 3 ? " is-low" : " is-available" : " is-pending"}`}><PackageCheck size={16} /><span><small>{t("Existencia en almacén", "Warehouse stock")}</small><strong>{inventoryLocation?.totalQuantity ? `${inventoryLocation.totalQuantity} ${t("disponibles", "available")}` : t("Sin existencia registrada", "No stock recorded")}</strong></span><span className="product-availability-location"><MapPin size={12} />{inventoryLocation ? `${inventoryLocation.lastTramo || "—"} / ${inventoryLocation.lastGondola || "—"}` : t("Ubicación pendiente", "Location pending")}</span></div></>}<div className="product-footer"><span className="product-more">{t("Ver detalle", "View details")} <ArrowUpRight size={13} /></span></div></div>
                 </button>
-                <button className="product-add-button" onClick={() => addToCart(product)}><Plus size={13} />{t("Agregar", "Add")}</button>
+                <button className="product-add-button" onClick={() => addToCart(product)} aria-label={t(`Agregar ${product.name} al carrito de cotización`, `Add ${product.name} to quote cart`)}><Plus size={13} />{t("Agregar al carrito", "Add to quote")}</button>
               </article>;
             })}</div>
             {filteredProducts.length === 0 && <div className="empty-catalog"><Search size={22} /><p>{t("No encontramos una referencia con esos filtros.", "No part number matches these filters.")}</p><button onClick={() => { setCatalogSearch(""); setBrandFilter("Todas las Marcas"); setCategoryFilter("Todas las Piezas"); }}>{t("Limpiar filtros", "Clear filters")}</button></div>}

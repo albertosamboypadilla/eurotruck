@@ -1236,3 +1236,23 @@
 .daily-sales-table td { color: #cbd5e1; }
 .daily-sales-table tr:last-child td { border-bottom: 0; }
 @media (max-width: 700px) { .daily-sales-header { flex-direction: column; } .daily-sales-summary { grid-template-columns: 1fr; } .inventory-detail-actions, .inventory-delete-article-actions { flex-direction: column; align-items: stretch; } .inventory-detail-actions button, .inventory-delete-article-actions button { width: 100%; } }
+
+/* Cotizaciones: precio sincronizado desde Inventario, con edición manual visible */
+.quote-price-source {
+  display: block;
+  margin-top: 0.2rem;
+  color: #65d6a2;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.quote-line input[type="number"] {
+  border-color: rgba(101, 214, 162, 0.42);
+}
+
+.quote-line input[type="number"]:focus {
+  border-color: #65d6a2;
+  box-shadow: 0 0 0 3px rgba(101, 214, 162, 0.14);
+}
