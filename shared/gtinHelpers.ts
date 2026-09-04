@@ -4,6 +4,7 @@ export type GtinMapEntry = {
 };
 
 export type GtinMap = Record<string, GtinMapEntry>;
+export type GtinAlias = { sku: string; gtin: string };
 
 export function normalizeCatalogIdentifier(value: unknown): string {
   return String(value ?? "").trim().replace(/\s+/g, "").toLowerCase();
@@ -16,6 +17,18 @@ export function normalizeGtins(value: unknown): string[] {
 
 export function getGtinsForSku(sku: unknown, gtinMap: GtinMap): string[] {
   return normalizeGtins(gtinMap[normalizeCatalogIdentifier(sku)]?.gtins);
+}
+
+export function mergeGtinAliases(gtinMap: GtinMap, aliases: readonly GtinAlias[]): GtinMap {
+  const merged: GtinMap = { ...gtinMap };
+  aliases.forEach(({ sku, gtin }) => {
+    const key = normalizeCatalogIdentifier(sku);
+    const normalizedGtin = String(gtin ?? "").replace(/\D/g, "");
+    if (!key || !/^\d{8,14}$/.test(normalizedGtin)) return;
+    const current = merged[key];
+    merged[key] = { sku: current?.sku || sku, gtins: normalizeGtins([...(current?.gtins || []), normalizedGtin]) };
+  });
+  return merged;
 }
 
 export function attachGtins<T extends { sku?: string; gtins?: string[] }>(product: T, gtinMap: GtinMap): T {

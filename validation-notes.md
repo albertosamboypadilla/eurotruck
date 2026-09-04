@@ -32,3 +32,7 @@ La validación técnica pasó TypeScript, 53 pruebas Vitest y el build de produc
 ## Acceso visible para agregar GTIN — 2026-09-04
 
 Inventario carga el catálogo completo con búsqueda por referencia, SKU o GTIN. Al abrir cualquier artículo, el detalle mantiene el panel de GTIN aunque no exista ningún código y muestra el botón visible “Agregar otro GTIN”, que lleva el foco y desplaza la pantalla al campo de captura. La validación técnica pasó TypeScript, 53 pruebas Vitest y build de producción.
+
+## Sincronización GTIN Inventario/Home — 2026-09-04
+
+Home incorpora la consulta pública `inventory.publicGtins` y fusiona sus alias con el mapa estático usando el SKU normalizado. La comprobación desde la página principal respondió correctamente con un registro de muestra que contiene únicamente `productId`, `sku` y `gtin`; el catálogo público conserva búsqueda y visualización por todos los códigos asociados.

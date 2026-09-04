@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { attachGtins, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
+import { attachGtins, mergeGtinAliases, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { getOrderFormValidationError } from "@shared/orderFormHelpers";
 import { INVENTORY_SALE_CONFIRMATION_KEY, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
 import {
@@ -235,6 +235,7 @@ export default function Home() {
   const [bulkSaleKey, setBulkSaleKey] = useState("");
   const [bulkSaleError, setBulkSaleError] = useState("");
   const publicInventoryLocationsQuery = trpc.inventory.publicLocations.useQuery(undefined, { staleTime: 5_000, refetchInterval: 5_000, refetchIntervalInBackground: false, refetchOnWindowFocus: true, retry: 1 });
+  const publicGtinAliasesQuery = trpc.inventory.publicGtins.useQuery(undefined, { staleTime: 5_000, refetchOnWindowFocus: true, retry: 1 });
   const inventoryLocations = useMemo(() => new Map((publicInventoryLocationsQuery.data || []).map((location: PublicInventoryLocation) => [location.productId, location] as const)), [publicInventoryLocationsQuery.data]);
 
   function addToCart(product: CatalogProduct) {
@@ -320,10 +321,10 @@ export default function Home() {
       fetch(catalogFileUrl).then((response) => { if (!response.ok) throw new Error(`Catalog ${response.status}`); return response.json() as Promise<CatalogProduct[]>; }),
       fetch(gtinMapFileUrl).then((response) => { if (!response.ok) throw new Error(`GTIN map ${response.status}`); return response.json() as Promise<GtinMap>; }),
     ])
-      .then(([items, map]) => { if (!cancelled) { setGtinMap(map); setCatalog(items.map(item => attachGtins(item, map))); setCatalogLoading(false); } })
+      .then(([items, map]) => { if (!cancelled) { const mergedMap = mergeGtinAliases(map, publicGtinAliasesQuery.data || []); setGtinMap(mergedMap); setCatalog(items.map(item => attachGtins(item, mergedMap))); setCatalogLoading(false); } })
       .catch(() => { if (!cancelled) { setCatalogError(true); setCatalogLoading(false); } });
     return () => { cancelled = true; };
-  }, []);
+  }, [publicGtinAliasesQuery.data]);
 
   useEffect(() => {
     setCatalogPage(1);

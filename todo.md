@@ -438,3 +438,10 @@
 - [x] Mantener visible el campo de entrada aunque el artículo no tenga GTIN registrado.
 - [x] Confirmar que el código agregado queda asociado al SKU y funciona en búsqueda y escaneo.
 - [x] Validar responsive, permisos admin1, pruebas, TypeScript y build; publicar checkpoint.
+
+# Sincronización GTIN entre Inventario y página principal
+
+- [x] Exponer una consulta segura de GTIN administrados para que Home use los alias agregados desde Inventario.
+- [x] Combinar en Home los GTIN originales y adicionales por SKU sin duplicar artículos.
+- [x] Hacer que la búsqueda principal encuentre un artículo mediante cualquier GTIN agregado.
+- [x] Validar que Inventario y Home compartan los mismos GTIN, además de pruebas, TypeScript y build; publicar checkpoint.

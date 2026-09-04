@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { storagePut } from "./storage";
 import { COOKIE_NAME } from "@shared/const";
@@ -71,6 +71,7 @@ export const appRouter = router({
   }),
   inventory: router({
     publicLocations: publicProcedure.query(() => listPublicInventoryLocations()),
+    publicGtins: publicProcedure.query(() => listPublicInventoryGtins()),
     gtins: adminProcedure.query(async ({ ctx }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar los GTIN del inventario" });
       return listInventoryGtins();

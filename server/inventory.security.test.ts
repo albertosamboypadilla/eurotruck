@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { addInventoryGtin, createInventoryItem, deleteInventoryScan, listInventory, listInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
+const { addInventoryGtin, createInventoryItem, deleteInventoryScan, listInventory, listInventoryGtins, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
   addInventoryGtin: vi.fn(async (input: any) => ({ id: 4, ...input })),
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
   listInventory: vi.fn(async () => []),
   listInventoryGtins: vi.fn(async () => [{ id: 4, productId: "p-1", sku: "SKU-1", gtin: "1234567890123", addedBy: "admin1", createdAt: new Date() }]),
+  listPublicInventoryGtins: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", gtin: "1234567890123" }]),
   listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
   recordInventorySale: vi.fn(async (input: any) => ({ sku: input.sku, totalQuantity: 4, soldQuantity: input.quantity })),
@@ -19,6 +20,7 @@ vi.mock("./db", () => ({
   deleteInventoryScan,
   listInventory,
   listInventoryGtins,
+  listPublicInventoryGtins,
   listPublicInventoryLocations,
   listTopSoldInventory,
   recordInventoryCount,
@@ -47,6 +49,11 @@ describe("inventory procedures", () => {
   it("expone al catálogo público existencia, ubicación y venta final", async () => {
     await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]);
     expect(listPublicInventoryLocations).toHaveBeenCalledTimes(1);
+  });
+
+  it("expone alias GTIN mínimos al catálogo público", async () => {
+    await expect(appRouter.createCaller(context(undefined)).inventory.publicGtins()).resolves.toEqual([{ productId: "p-1", sku: "SKU-1", gtin: "1234567890123" }]);
+    expect(listPublicInventoryGtins).toHaveBeenCalledTimes(1);
   });
 
   it("permite listar a admin1 y rechaza admin2", async () => {

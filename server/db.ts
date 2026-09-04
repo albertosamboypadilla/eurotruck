@@ -307,6 +307,11 @@ export async function listInventoryGtins() {
   return db.select().from(inventoryGtins).orderBy(desc(inventoryGtins.createdAt), desc(inventoryGtins.id));
 }
 
+export async function listPublicInventoryGtins() {
+  const rows = await listInventoryGtins();
+  return rows.map(({ productId, sku, gtin }) => ({ productId, sku, gtin }));
+}
+
 export type InventoryGtinInput = { productId: string; sku: string; gtin: string; addedBy: string };
 
 export async function addInventoryGtin(input: InventoryGtinInput) {
