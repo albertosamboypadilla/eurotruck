@@ -313,7 +313,42 @@
 # Ajuste solicitado: salida en catálogo y exportación Excel
 
 - [x] Mover el botón rojo de salida del listado Artículos contados al catálogo principal, a la izquierda de Agregar.
-- [x] Mantener la confirmación con clave 0000 y descontar la existencia usando SKU, código Zebra o barcode.
+- [x] Mantener la confirmación protegida y descontar la existencia usando SKU, código Zebra o barcode; la clave vigente quedó actualizada a 1989.
 - [x] Verificar que el código interno Zebra use formato normal de cinco dígitos y no se duplique.
 - [x] Añadir descarga Excel con todos los artículos, identificadores, GTIN, barcode, existencia, ubicación, costo, precio y movimientos disponibles.
 - [x] Validar permisos de admin1, descarga Excel, salida, códigos y responsive; ejecutar pruebas y publicar.
+
+# Ajuste solicitado: DT Spare Parts, salida por unidad y mapa
+
+- [x] Mostrar el número original DT Spare Parts / SKU claramente y mantenerlo separado del código Zebra.
+- [x] Mover el botón Eliminar del inventario al detalle del artículo y descontar exactamente una unidad por pulsación.
+- [x] Evitar que el catálogo principal tenga una acción de borrado independiente por fila.
+- [x] Añadir un mapa pequeño y clicable en Home que abra la ubicación del negocio en Google Maps.
+- [x] Validar identificadores, salida por unidad, existencia, mapa, permisos, pruebas y responsive; publicar.
+
+# Ajuste solicitado: precio unitario y orden visual de Inventario
+
+- [x] Mostrar en Cotizaciones el precio final por unidad en cada línea.
+- [x] Permitir editar el precio unitario de cada línea y recalcular subtotal/total automáticamente.
+- [x] Persistir el precio unitario modificado y reflejarlo en el PDF de cotización.
+- [x] Reorganizar Inventario en filas horizontales a lo largo del área disponible.
+- [x] Mover Artículos contados con su ubicación al fondo de la página, debajo de todo el contenido operativo.
+- [x] Validar cálculos, guardado, PDF, escaneo, ubicación, responsive, pruebas y publicación.
+
+# Ajuste solicitado: inventario operativo y salida desde Home
+
+- [x] Confirmar botón Inventario junto a Página principal en Cotizaciones y acceso exclusivo admin1.
+- [x] Mantener listado completo con fotos, alta manual/escaneo, ubicación, existencia verde y códigos.
+- [x] Mostrar costo y precio final en Inventario y cargarlos en Cotizaciones con edición persistente.
+- [x] Mantener historial de más vendidos por mes y año.
+- [x] Añadir en el detalle público la salida protegida con clave 1989 y cantidad variable, descontando existencias.
+- [x] Validar sincronización pública, permisos, escaneo, salida, reporte, PDF, pruebas y responsive.
+
+# Ajuste solicitado: identificador DT, salida en detalle y mapa
+
+- [x] Mostrar el número original DT Spare Parts / SKU sin sustituirlo por el código Zebra.
+- [x] Mantener el código Zebra como identificador separado y visible para etiquetas.
+- [x] Quitar el botón de borrado del listado principal de Inventario y colocarlo dentro del detalle del artículo.
+- [x] Hacer que cada confirmación de salida descuente exactamente una unidad y actualice Home/Inventario.
+- [x] Añadir un mapa pequeño clicable en Home con la ubicación Eurotruck SRL de Google Maps.
+- [x] Validar acceso desde Cotizaciones, conteo verde, alta por escaneo/manual, precios, más vendidos, salida con clave 1989 y pruebas responsive.

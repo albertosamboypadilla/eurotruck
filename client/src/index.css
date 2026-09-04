@@ -973,3 +973,25 @@
 .inventory-catalog-sale-button:active { transform: scale(.97); }
 .inventory-catalog-sale-button:focus-visible { outline: 2px solid #fca5a5; outline-offset: 2px; }
 @media (max-width: 640px) { .inventory-catalog-toolbar-actions { width: 100%; justify-content: stretch; } .inventory-catalog-toolbar-actions > button { flex: 1 1 0; } .inventory-catalog-sale-button { padding-inline: .55rem; font-size: .64rem; } }
+
+/* Acciones de salida y mapa de ubicación */
+.modal-sale-button,
+.inventory-detail-sale-button { border: 1px solid rgba(248,113,113,.55); background: #7f1d1d; color: #fff1f2; border-radius: 10px; min-height: 40px; padding: 0 14px; font-weight: 800; cursor: pointer; }
+.modal-sale-button:hover:not(:disabled),
+.inventory-detail-sale-button:hover:not(:disabled) { background: #b91c1c; }
+.modal-sale-button:disabled,
+.inventory-detail-sale-button:disabled { opacity: .45; cursor: not-allowed; }
+.inventory-detail-sale-button { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; }
+.public-sale-backdrop { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 20px; background: rgba(2,6,23,.78); backdrop-filter: blur(8px); }
+.public-sale-dialog { position: relative; width: min(460px,100%); padding: 32px; border: 1px solid rgba(96,165,250,.35); border-radius: 22px; background: linear-gradient(145deg,#101b31,#0b1222); color: #f8fafc; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+.public-sale-dialog h2 { margin: 8px 0; font-size: clamp(1.5rem,4vw,2.1rem); }
+.public-sale-dialog > p { color: #cbd5e1; margin: 0 0 22px; line-height: 1.5; }
+.public-sale-dialog label { display: grid; gap: 7px; margin-top: 16px; color: #dbeafe; font-weight: 700; }
+.public-sale-dialog input { width: 100%; min-height: 46px; border: 1px solid rgba(148,163,184,.28); border-radius: 10px; background: #0f172a; color: #fff; padding: 0 12px; font-size: 1.05rem; }
+.public-sale-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+.footer-map-card { display: grid; grid-template-columns: 58px 1fr; gap: 2px 12px; align-items: center; padding: 10px; border: 1px solid rgba(96,165,250,.25); border-radius: 14px; background: linear-gradient(135deg,rgba(30,64,175,.28),rgba(15,23,42,.75)); color: #e2e8f0; text-decoration: none; }
+.footer-map-card:hover { border-color: rgba(96,165,250,.65); }
+.footer-map-grid { grid-row: span 2; display: grid; place-items: center; min-height: 54px; border-radius: 10px; color: #93c5fd; background-color: #172554; background-image: linear-gradient(30deg,transparent 45%,rgba(147,197,253,.16) 46%,rgba(147,197,253,.16) 50%,transparent 51%),linear-gradient(150deg,transparent 45%,rgba(147,197,253,.16) 46%,rgba(147,197,253,.16) 50%,transparent 51%); }
+.footer-map-card strong { font-size: .95rem; }
+.footer-map-card small { color: #93c5fd; font-size: .72rem; line-height: 1.35; }
+@media (max-width:640px) { .public-sale-dialog { padding: 24px 18px; } .public-sale-actions > * { flex: 1 1 140px; } .modal-sale-button { width: 100%; } }
