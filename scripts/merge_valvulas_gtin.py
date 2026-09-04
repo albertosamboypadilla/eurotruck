@@ -46,8 +46,12 @@ conflicts = [{'gtin': code, 'skus': skus} for code, skus in occurrences.items() 
 map_out.write_text(json.dumps(merged, ensure_ascii=False, separators=(',', ':')))
 
 catalog = json.loads(catalog_in.read_text())
+valvula_skus = {sku_key(x.get('sku')) for x in catalog if str(x.get('id', '')).startswith('valvulas-')}
 for item in catalog:
     key = sku_key(item.get('sku'))
+    if key in valvula_skus:
+        item['id'] = key
+        item['internalReference'] = f"{key} / GTIN {' · '.join(merged.get(key, {}).get('gtins', []))}" if merged.get(key, {}).get('gtins') else key
     if key in merged and merged[key].get('gtins'):
         item['gtins'] = merged[key]['gtins']
 catalog_out.write_text(json.dumps(catalog, ensure_ascii=False, separators=(',', ':')))

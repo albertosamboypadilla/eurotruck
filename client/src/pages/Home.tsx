@@ -106,7 +106,7 @@ type CatalogProduct = {
 
 type PublicInventoryLocation = { productId: string; totalQuantity: number; lastTramo: string | null; lastGondola: string | null; salePrice: string };
 
-const catalogFileUrl = "/manus-storage/catalog-with-valvulas-gtin-xlsx_20260904_d72a9442.json";
+const catalogFileUrl = "/manus-storage/catalog-with-valvulas-gtin-xlsx_20260904_c13f65bd.json";
 const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-valvulas-xlsx_20260904_0d871d83.json";
 const catalogPageSize = 24;
 const catalogSourceCounts: Record<string, number> = { Iveco: 5897, Scania: 7005, Volvo: 8511, "Mercedes-Benz": 11299, MAN: 6958 };

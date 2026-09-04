@@ -418,3 +418,9 @@
 - [x] Cruzar los GTIN con las referencias de válvulas sin coincidencias ambiguas ni duplicados; 1.490 referencias coincidentes y 0 conflictos.
 - [x] Actualizar el mapa GTIN persistente y asociar los códigos a Home e Inventario; se agregaron 1.292 asignaciones nuevas.
 - [x] Validar búsquedas, Inventario, 52 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Corrección de referencia interna de válvulas
+
+- [x] Retirar el prefijo `valvulas-` de los identificadores internos de los artículos nuevos; ahora usan el SKU como ID.
+- [x] Asociar el GTIN correspondiente en la referencia interna y el mapa de búsqueda/escaneo, conservando SKU DT Spare Parts y código Zebra.
+- [x] Validar referencias, búsquedas, Inventario, etiquetas Zebra, pruebas, TypeScript y build; publicar checkpoint.
