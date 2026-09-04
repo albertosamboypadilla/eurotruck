@@ -397,3 +397,17 @@
 - [x] Verificar e incorporar sin duplicados; las 15 referencias localizadas ya estaban en el catálogo con nombre, imagen y URL. No se añadieron copias.
 - [x] Validar que las 15 referencias existentes funcionen en catálogo e Inventario; conservan sus códigos internos y quedan disponibles para búsqueda.
 - [x] Confirmar que no se requiere cambio funcional ni migración; el catálogo publicado ya contiene las referencias verificadas.
+
+# Importación Diesel Technic: válvulas
+
+- [ ] Inspeccionar la búsqueda pública de “válvulas” y delimitar las referencias verificables.
+- [ ] Comparar las referencias con el catálogo actual y evitar duplicados.
+- [ ] Incorporar las válvulas faltantes con nombre, imagen, ficha, aplicación y GTIN confirmado.
+- [ ] Validar búsqueda, Inventario, pruebas, TypeScript y build; guardar checkpoint publicado.
+
+# Importación Diesel Technic: válvulas — todas las páginas
+
+- [x] Determinar el total de resultados y la paginación real de la búsqueda “valvulas” (2.234 resultados, 50 por página).
+- [x] Recopilar las referencias de todas las páginas disponibles y validar sus fichas (2.233 referencias únicas).
+- [x] Comparar contra Eurotruck e integrar solo las válvulas faltantes, sin duplicados (454 incorporadas; catálogo: 39.894).
+- [x] Validar imágenes, GTIN disponibles, búsqueda, Inventario, 52 pruebas Vitest, TypeScript y build; publicar checkpoint.

@@ -8,7 +8,7 @@ import { attachGtins, getGtinsForSku, productMatchesCatalogQuery, type GtinMap }
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
 import { buildInventoryExportHtml, buildLowStockPurchaseRows } from "@shared/inventoryExport";
 
-const catalogIndexUrl = "/manus-storage/catalog-with-internal-codes_ba8546a7.json";
+const catalogIndexUrl = "/manus-storage/catalog-with-valvulas_ba8546a7_b8cb10eb.json";
 const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-bombillas-merged_7d3b08a9.json";
 const catalogShardUrls: Record<string, string> = {
   "0": "/manus-storage/shard-0_6887b77f.json",
