@@ -9,7 +9,7 @@ describe("inventory helpers", () => {
   });
 
   it("accepts only the configured sale confirmation key", () => {
-    expect(isInventorySaleConfirmationKey("1989")).toBe(true);
+    expect(isInventorySaleConfirmationKey("0000")).toBe(true);
     expect(isInventorySaleConfirmationKey("1111")).toBe(false);
     expect(isInventorySaleConfirmationKey("00000")).toBe(false);
   });

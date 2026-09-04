@@ -3,12 +3,12 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listInventorySalesHistory, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
 import { isEurotruckAfterHours } from "@shared/orderHelpers";
-import { isInventoryAdmin, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
+import { isInventoryAdmin } from "@shared/inventoryHelpers";
 
 const orderItemInput = z.object({
   productId: z.string().max(180), quantity: z.number().int().min(1).max(9999).default(1), sku: z.string().max(100), name: z.string().max(500), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), category: z.string().max(160).optional(), image: z.string().max(2000).optional(), sourceUrl: z.string().max(2000).optional(), unitPrice: z.number().min(0).max(100000000).optional(),
@@ -101,9 +101,8 @@ export const appRouter = router({
       if (!result.found) throw new TRPCError({ code: "NOT_FOUND", message: "La lectura ya no existe" });
       return result;
     }),
-    recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional(), confirmationKey: z.string().length(4) })).mutation(async ({ ctx, input }) => {
+    recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional() })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede descontar inventario" });
-      if (!isInventorySaleConfirmationKey(input.confirmationKey)) throw new TRPCError({ code: "FORBIDDEN", message: "Clave de salida incorrecta" });
       try {
         return await recordInventorySale({ ...input, movedBy: "admin1" });
       } catch (error) {
@@ -114,10 +113,6 @@ export const appRouter = router({
     topSold: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar reportes de inventario" });
       return listTopSoldInventory(input.month, input.year);
-    }),
-    salesHistory: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
-      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar historial de ventas" });
-      return listInventorySalesHistory(input.month, input.year);
     }),
   }),
 });

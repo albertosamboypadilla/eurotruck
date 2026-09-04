@@ -1,4 +1,4 @@
-export const INVENTORY_SALE_CONFIRMATION_KEY = "1989";
+export const INVENTORY_SALE_CONFIRMATION_KEY = "0000";
 
 export function isInventoryAdmin(username?: string | null) {
   return username?.trim().toLowerCase() === "admin1";

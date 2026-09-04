@@ -171,32 +171,6 @@ export async function recordInventoryCount(input: InventoryCountInput) {
   });
 }
 
-export type InventorySaleHistoryRow = {
-  id: number;
-  inventoryItemId: number;
-  productId: string;
-  sku: string;
-  name: string;
-  quantity: number;
-  source: string;
-  orderId: number | null;
-  movedBy: string;
-  createdAt: Date;
-};
-
-export async function listInventorySalesHistory(month: number, year: number): Promise<InventorySaleHistoryRow[]> {
-  const db = await getDb();
-  if (!db) return [];
-  if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 2200) throw new Error("Invalid report period");
-  const start = new Date(Date.UTC(year, month - 1, 1));
-  const end = new Date(Date.UTC(year, month, 1));
-  return db.select({ id: inventoryMovements.id, inventoryItemId: inventoryMovements.inventoryItemId, productId: inventoryMovements.productId, sku: inventoryMovements.sku, name: inventoryMovements.name, quantity: inventoryMovements.quantity, source: inventoryMovements.source, orderId: inventoryMovements.orderId, movedBy: inventoryMovements.movedBy, createdAt: inventoryMovements.createdAt })
-    .from(inventoryMovements)
-    .where(and(eq(inventoryMovements.movementType, "sale"), gte(inventoryMovements.createdAt, start), lt(inventoryMovements.createdAt, end)))
-    .orderBy(desc(inventoryMovements.createdAt), desc(inventoryMovements.id))
-    .limit(5000);
-}
-
 export async function listInventoryScans(inventoryItemId: number) {
   const db = await getDb();
   if (!db) return [];
