@@ -317,3 +317,11 @@
 - [x] Verificar que el código interno Zebra use formato normal de cinco dígitos y no se duplique.
 - [x] Añadir descarga Excel con todos los artículos, identificadores, GTIN, barcode, existencia, ubicación, costo, precio y movimientos disponibles.
 - [x] Validar permisos de admin1, descarga Excel, salida, códigos y responsive; ejecutar pruebas y publicar.
+
+# Vista pública limitada y descuentos sin borrado
+
+- [x] Mostrar al cliente únicamente imagen y nombre del artículo.
+- [x] Mantener para administradores todos los datos internos y las acciones autorizadas.
+- [x] Restaurar el botón de descarga Excel del inventario con historial detallado de artículos más vendidos.
+- [x] Confirmar que descontar cantidades nunca borra artículos ni modifica el catálogo base y conserva movimientos/historial.
+- [x] Validar roles, exportación, descuento de cantidades, pruebas, build y responsive; publicar.
