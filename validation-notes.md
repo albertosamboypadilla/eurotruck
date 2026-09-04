@@ -16,3 +16,9 @@ La revisión se realizó sin crear ni modificar datos de inventario.
 ## Revisión autenticada
 
 Con `admin1` se abrió el panel completo de Inventario. En el primer viewport se observan el área activa, controles de tramo y góndola, modo de escaneo automático, modo manual, registro de últimos ingresos, salida protegida, descarga Excel, alta nueva y filtro del catálogo. La tabla reciente muestra fecha/hora, SKU, artículo, código Zebra, cantidad, ubicación y usuario. El catálogo indica 39.440 artículos y 35.517 con GTIN. No se ejecutaron escaneos, altas, salidas ni eliminaciones durante la revisión.
+
+## Validación del rediseño oscuro — 2026-09-04
+
+La vista autenticada de `/inventory` carga con fondo oscuro continuo y superficies azul petróleo diferenciadas. Se verificó que la cabecera, KPIs, selector de ubicación, modos de entrada, formulario de escaneo, catálogo, estados de stock y acciones usen la nueva paleta.
+
+El historial ya no ocupa el flujo principal como tabla fija. Ahora se presenta como una tarjeta-resumen con los botones “Últimos ingresos” y “Ver historial”; ambos abren una ventana modal independiente dentro de Inventario. La ventana incluye actualización, cierre, tabla horizontal con desplazamiento, contador de lecturas y cierre haciendo clic fuera de la tarjeta. La tabla conserva fecha/hora, SKU, artículo, código Zebra, cantidad, ubicación y usuario.

@@ -383,3 +383,10 @@
 - [x] Añadir tabla debajo del registro con los últimos artículos ingresados, fecha/hora, código, nombre, cantidad y ubicación.
 - [x] Cambiar completamente la paleta de Inventario con contraste, jerarquía y estados profesionales.
 - [x] Validar audio, foto, historial, alta, permisos, pruebas, build y responsive; publicar.
+
+# Rediseño oscuro y ventana de últimos ingresos
+
+- [x] Convertir Últimos ingresos en una ventana independiente dentro de Inventario, con apertura, cierre y tabla completa.
+- [x] Cambiar el fondo y todos los colores del módulo Inventario a una paleta oscura profesional y legible.
+- [x] Mantener accesibles los estados de stock, escaneo, alertas y acciones en escritorio y móvil.
+- [x] Añadir o actualizar pruebas, validar TypeScript, Vitest, build y revisión visual antes de publicar.
