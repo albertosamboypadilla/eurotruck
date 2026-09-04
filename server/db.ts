@@ -286,6 +286,36 @@ export async function listTopSoldInventory(month: number, year: number) {
   return db.select({ sku: inventoryMovements.sku, productId: inventoryMovements.productId, name: inventoryMovements.name, soldQuantity: soldTotal }).from(inventoryMovements).where(and(eq(inventoryMovements.movementType, "sale"), gte(inventoryMovements.createdAt, start), lt(inventoryMovements.createdAt, end))).groupBy(inventoryMovements.sku, inventoryMovements.productId, inventoryMovements.name).orderBy(desc(soldTotal)).limit(100);
 }
 
+export async function listDailyInventorySales(date: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("Invalid sales date");
+  const start = new Date(`${date}T00:00:00.000Z`);
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+  const movements = await db.select().from(inventoryMovements).where(and(eq(inventoryMovements.movementType, "sale"), gte(inventoryMovements.createdAt, start), lt(inventoryMovements.createdAt, end))).orderBy(inventoryMovements.createdAt, inventoryMovements.id);
+  if (!movements.length) return [];
+  const items = await db.select().from(inventoryItems);
+  const prices = new Map(items.map(item => [item.productId, Number(item.salePrice || 0)]));
+  return movements.map((movement, index) => {
+    const unitPrice = prices.get(movement.productId) ?? 0;
+    return { ...movement, dailyNumber: index + 1, unitPrice, finalCost: unitPrice * movement.quantity };
+  }).reverse();
+}
+
+export async function deleteInventoryArticle(productId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const found = await tx.select().from(inventoryItems).where(eq(inventoryItems.productId, productId)).limit(1);
+    const item = found[0];
+    if (!item) throw new Error("Inventory article not found");
+    await tx.delete(inventoryScans).where(eq(inventoryScans.inventoryItemId, item.id));
+    await tx.delete(inventoryGtins).where(eq(inventoryGtins.productId, productId));
+    await tx.delete(inventoryItems).where(eq(inventoryItems.productId, productId));
+    return { productId, sku: item.sku, name: item.name, removedQuantity: item.totalQuantity };
+  });
+}
+
 export async function listInventory() {
   const db = await getDb();
   if (!db) return [];

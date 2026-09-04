@@ -106,8 +106,8 @@ type CatalogProduct = {
 
 type PublicInventoryLocation = { productId: string; totalQuantity: number; lastTramo: string | null; lastGondola: string | null; salePrice: string };
 
-const catalogFileUrl = "/manus-storage/catalog-with-piston-rings-20260904_49f56a02.json";
-const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-piston-rings-20260904_4f3d2c53.json";
+const catalogFileUrl = "/manus-storage/catalog-with-junta-torica-gtin-20260904_40163118.json";
+const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-junta-torica-20260904_b67682ec.json";
 const catalogPageSize = 24;
 const catalogSourceCounts: Record<string, number> = { Iveco: 5897, Scania: 7005, Volvo: 8511, "Mercedes-Benz": 11299, MAN: 6958 };
 const catalogApplications = ["Todas las aplicaciones", "Iveco", "Scania", "Volvo", "Mercedes-Benz", "MAN"];

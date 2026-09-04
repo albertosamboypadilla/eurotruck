@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryArticle, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDailyInventorySales, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { storagePut } from "./storage";
 import { COOKIE_NAME } from "@shared/const";
@@ -139,6 +139,18 @@ export const appRouter = router({
     topSold: adminProcedure.input(z.object({ month: z.number().int().min(1).max(12), year: z.number().int().min(2000).max(2200) })).query(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar reportes de inventario" });
       return listTopSoldInventory(input.month, input.year);
+    }),
+    dailySales: adminProcedure.input(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar ventas del día" });
+      return listDailyInventorySales(input.date);
+    }),
+    deleteArticle: adminProcedure.input(z.object({ productId: z.string().max(180), confirmation: z.literal("ELIMINAR") })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede eliminar artículos" });
+      try {
+        return await deleteInventoryArticle(input.productId);
+      } catch (error) {
+        throw new TRPCError({ code: "NOT_FOUND", message: error instanceof Error ? error.message : "No se pudo eliminar el artículo" });
+      }
     }),
   }),
 });

@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { addInventoryGtin, createInventoryItem, deleteInventoryScan, listInventory, listInventoryGtins, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
+const { addInventoryGtin, createInventoryItem, deleteInventoryArticle, deleteInventoryScan, listDailyInventorySales, listInventory, listInventoryGtins, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
   addInventoryGtin: vi.fn(async (input: any) => ({ id: 4, ...input })),
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
+  deleteInventoryArticle: vi.fn(async (productId: string) => ({ productId, sku: "SKU-1", name: "Filtro", removedQuantity: 2 })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
+  listDailyInventorySales: vi.fn(async () => [{ id: 1, productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 2, dailyNumber: 1, unitPrice: 1450, finalCost: 2900, source: "scan", createdAt: new Date() }]),
   listInventory: vi.fn(async () => []),
   listInventoryGtins: vi.fn(async () => [{ id: 4, productId: "p-1", sku: "SKU-1", gtin: "1234567890123", addedBy: "admin1", createdAt: new Date() }]),
   listPublicInventoryGtins: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", gtin: "1234567890123" }]),
@@ -17,7 +19,9 @@ const { addInventoryGtin, createInventoryItem, deleteInventoryScan, listInventor
 vi.mock("./db", () => ({
   addInventoryGtin,
   createInventoryItem,
+  deleteInventoryArticle,
   deleteInventoryScan,
+  listDailyInventorySales,
   listInventory,
   listInventoryGtins,
   listPublicInventoryGtins,
@@ -96,6 +100,19 @@ describe("inventory procedures", () => {
     await expect(appRouter.createCaller(context(admin1)).inventory.recordSale({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan" })).resolves.toMatchObject({ sku: "SKU-1", totalQuantity: 4 });
     expect(recordInventorySale).toHaveBeenCalledWith({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan", movedBy: "admin1" });
     await expect(appRouter.createCaller(context(admin2)).inventory.recordSale({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("permite consultar Venta del día a admin1 y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.dailySales({ date: "2026-09-04" })).resolves.toMatchObject([{ sku: "SKU-1", dailyNumber: 1, finalCost: 2900 }]);
+    expect(listDailyInventorySales).toHaveBeenCalledWith("2026-09-04");
+    await expect(appRouter.createCaller(context(admin2)).inventory.dailySales({ date: "2026-09-04" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("permite retirar el artículo completo a admin1 con confirmación y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.deleteArticle({ productId: "p-1", confirmation: "ELIMINAR" })).resolves.toMatchObject({ sku: "SKU-1" });
+    expect(deleteInventoryArticle).toHaveBeenCalledWith("p-1");
+    await expect(appRouter.createCaller(context(admin2)).inventory.deleteArticle({ productId: "p-1", confirmation: "ELIMINAR" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(context(admin1)).inventory.deleteArticle({ productId: "p-1", confirmation: "BORRAR" as "ELIMINAR" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("permite consultar más vendidos a admin1 y rechaza admin2", async () => {

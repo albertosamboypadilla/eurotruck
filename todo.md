@@ -467,3 +467,12 @@
 - [x] Revisar todas las páginas de Diesel Technic para “Juego de segmentos de pistón” y recopilar referencias verificables.
 - [x] Comparar e integrar únicamente los artículos faltantes con imagen, SKU y GTIN confirmado; 4 SKU añadidos, con GTIN cuando fue verificable.
 - [x] Validar impresión, catálogo, búsqueda, 55 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# GTIN, entradas por cantidad, ventas del día y corrección de SKU
+
+- [x] Inspeccionar el Excel de juntas tóricas y validar referencias y GTIN.
+- [x] Importar los GTIN de juntas tóricas sin duplicar ni sobrescribir códigos existentes (464 registros procesados).
+- [x] Permitir cantidad mayor que uno en Entrada manual y sumar el total en una sola operación.
+- [x] Añadir en Cotizaciones una vista Venta del día con salidas, precio final y numeración por fecha.
+- [x] Añadir junto a Agregar otro GTIN un botón rojo protegido para retirar artículos con SKU incorrecto, conservando historial.
+- [x] Validar permisos, integridad, 57 pruebas Vitest, TypeScript y build; publicar checkpoint.
