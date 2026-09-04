@@ -8,7 +8,7 @@ import { buildOrderPdf } from "./orderService";
 import { COOKIE_NAME } from "@shared/const";
 import { createAdminSession, SESSION_COOKIE, SESSION_TTL_SECONDS, verifyPassword } from "./localAuth";
 import { isEurotruckAfterHours } from "@shared/orderHelpers";
-import { isInventoryAdmin } from "@shared/inventoryHelpers";
+import { isInventoryAdmin, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
 
 const orderItemInput = z.object({
   productId: z.string().max(180), quantity: z.number().int().min(1).max(9999).default(1), sku: z.string().max(100), name: z.string().max(500), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), category: z.string().max(160).optional(), image: z.string().max(2000).optional(), sourceUrl: z.string().max(2000).optional(), unitPrice: z.number().min(0).max(100000000).optional(),
@@ -101,8 +101,9 @@ export const appRouter = router({
       if (!result.found) throw new TRPCError({ code: "NOT_FOUND", message: "La lectura ya no existe" });
       return result;
     }),
-    recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional() })).mutation(async ({ ctx, input }) => {
+    recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), confirmationKey: z.string().length(4), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional() })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede descontar inventario" });
+      if (!isInventorySaleConfirmationKey(input.confirmationKey)) throw new TRPCError({ code: "BAD_REQUEST", message: "Clave de confirmación incorrecta" });
       try {
         return await recordInventorySale({ ...input, movedBy: "admin1" });
       } catch (error) {

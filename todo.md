@@ -333,3 +333,11 @@
 - [x] Retirar la acción de salida del listado y detalle de Inventario.
 - [x] Mantener la salida como descuento de cantidad, sin borrar ni modificar el artículo base ni su historial.
 - [x] Validar datos, permisos, cantidad, historial, pruebas, build y responsive; publicar.
+
+# Selección múltiple y descuento protegido en Home
+
+- [x] Añadir selección individual y múltiple de artículos en la página principal.
+- [x] Añadir botón visible para eliminar/descontar cantidad de los artículos seleccionados.
+- [x] Solicitar contraseña 1989 y cantidades por artículo antes de confirmar el lote.
+- [x] Descontar existencias sin borrar artículos ni modificar el catálogo base y conservar historial por artículo.
+- [x] Validar clave incorrecta, selección múltiple, cantidades, permisos, historial, pruebas, build y responsive; publicar.

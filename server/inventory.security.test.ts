@@ -73,9 +73,9 @@ describe("inventory procedures", () => {
   });
 
   it("permite registrar una salida a admin1 y rechaza admin2", async () => {
-    await expect(appRouter.createCaller(context(admin1)).inventory.recordSale({ sku: "SKU-1", quantity: 1, source: "scan" })).resolves.toMatchObject({ sku: "SKU-1", totalQuantity: 4 });
-    expect(recordInventorySale).toHaveBeenCalledWith({ sku: "SKU-1", quantity: 1, source: "scan", movedBy: "admin1" });
-    await expect(appRouter.createCaller(context(admin2)).inventory.recordSale({ sku: "SKU-1", quantity: 1, source: "scan" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(context(admin1)).inventory.recordSale({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan" })).resolves.toMatchObject({ sku: "SKU-1", totalQuantity: 4 });
+    expect(recordInventorySale).toHaveBeenCalledWith({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan", movedBy: "admin1" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.recordSale({ sku: "SKU-1", quantity: 1, confirmationKey: "1989", source: "scan" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite consultar más vendidos a admin1 y rechaza admin2", async () => {

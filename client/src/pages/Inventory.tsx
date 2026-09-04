@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Barcode, Boxes, CheckCircle2, ChevronLeft, ChevronRight, DollarSign, Download, Eye, House, Keyboard, LoaderCircle, LogIn, LogOut, MapPin, PackageSearch, Plus, Printer, RefreshCw, ScanLine, Trash2, TrendingDown, X } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
+import { buildInventoryNotice, getInventoryScanLocation, INVENTORY_SALE_CONFIRMATION_KEY, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
 import { findInventoryCatalogProduct, getInventorySearchShardKeys, inventoryCatalogShardKeys, type InventoryCatalogProduct } from "@shared/inventoryCatalog";
 import { attachGtins, getGtinsForSku, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
@@ -204,7 +204,7 @@ export default function Inventory() {
       setSaleConfirmError("Indica una cantidad válida mayor que cero.");
       return;
     }
-    recordSale.mutate({ sku: saleConfirmSku, quantity: requestedQuantity, source: "manual" });
+    recordSale.mutate({ sku: saleConfirmSku, quantity: requestedQuantity, confirmationKey: saleConfirmKey, source: "manual" });
     setSaleConfirmSku(null);
     setSaleConfirmKey("");
     setSaleConfirmError("");
@@ -353,7 +353,7 @@ export default function Inventory() {
     if (!Number.isFinite(parsedCost) || !Number.isFinite(parsedSale) || parsedCost < 0 || parsedSale < 0) { setError("Indica valores válidos para costo y precio de venta."); return; }
     updatePricing.mutate({ productId: selectedProduct.id, sku: selectedProduct.sku, name: selectedProduct.name, description: selectedProduct.description, brand: selectedProduct.brand, application: selectedProduct.application, image: selectedProduct.image, costPrice: parsedCost, salePrice: parsedSale });
   };
-  const submitSale = (event: FormEvent) => { event.preventDefault(); setSaleError(""); setSaleNotice(""); const parsedQuantity = Number(saleQuantity); if (!saleCode.trim() || !Number.isInteger(parsedQuantity) || parsedQuantity < 1) { setSaleError("Indica un SKU, código Zebra o barcode y una cantidad válida."); return; } const matched = findInventoryCatalogProduct(allProducts, saleCode.trim()); recordSale.mutate({ sku: matched?.sku || saleCode.trim(), quantity: parsedQuantity, source: "scan" }); };
+  const submitSale = (event: FormEvent) => { event.preventDefault(); setSaleError(""); setSaleNotice(""); const parsedQuantity = Number(saleQuantity); if (!saleCode.trim() || !Number.isInteger(parsedQuantity) || parsedQuantity < 1) { setSaleError("Indica un SKU, código Zebra o barcode y una cantidad válida."); return; } const matched = findInventoryCatalogProduct(allProducts, saleCode.trim()); recordSale.mutate({ sku: matched?.sku || saleCode.trim(), quantity: parsedQuantity, confirmationKey: INVENTORY_SALE_CONFIRMATION_KEY, source: "scan" }); };
   const printTopSoldReport = () => { window.print(); };
   const downloadInventoryExcel = () => {
     const rows = allProducts.map(product => {
