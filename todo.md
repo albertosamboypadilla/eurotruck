@@ -424,3 +424,10 @@
 - [x] Retirar el prefijo `valvulas-` de los identificadores internos de los artículos nuevos; ahora usan el SKU como ID.
 - [x] Asociar el GTIN correspondiente en la referencia interna y el mapa de búsqueda/escaneo, conservando SKU DT Spare Parts y código Zebra.
 - [x] Validar referencias, búsquedas, Inventario, etiquetas Zebra, pruebas, TypeScript y build; publicar checkpoint.
+
+# GTIN adicionales desde Inventario
+
+- [x] Añadir en el detalle del artículo una opción para registrar GTIN antiguo y GTIN adicionales.
+- [x] Persistir los GTIN sin borrar los códigos existentes y evitar duplicados o conflictos con otros SKU.
+- [x] Hacer que búsqueda, escaneo e inventario resuelvan todos los GTIN asociados al mismo artículo.
+- [x] Validar permisos admin1, pruebas, TypeScript, build y experiencia visual; publicar checkpoint.

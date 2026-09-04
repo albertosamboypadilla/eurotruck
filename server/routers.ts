@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { storagePut } from "./storage";
 import { COOKIE_NAME } from "@shared/const";
@@ -71,6 +71,10 @@ export const appRouter = router({
   }),
   inventory: router({
     publicLocations: publicProcedure.query(() => listPublicInventoryLocations()),
+    gtins: adminProcedure.query(async ({ ctx }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar los GTIN del inventario" });
+      return listInventoryGtins();
+    }),
     list: adminProcedure.query(async ({ ctx }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede acceder al inventario" });
       return listInventory();
@@ -82,6 +86,14 @@ export const appRouter = router({
     create: adminProcedure.input(z.object({ sku: z.string().trim().min(1).max(100), name: z.string().trim().min(1).max(500), description: z.string().max(2000).optional(), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional(), barcode: z.string().max(40).optional(), costPrice: z.number().min(0).max(100000000).optional(), salePrice: z.number().min(0).max(100000000).optional(), initialQuantity: z.number().int().min(0).max(9999).optional(), tramo: z.string().trim().max(80).optional(), gondola: z.string().trim().max(80).optional() })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede agregar artículos" });
       return createInventoryItem({ ...input, costPrice: String(input.costPrice ?? 0), salePrice: String(input.salePrice ?? 0) }, "admin1");
+    }),
+    addGtin: adminProcedure.input(z.object({ productId: z.string().max(180), sku: z.string().max(100), gtin: z.string().trim().min(8).max(14) })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede agregar GTIN" });
+      try {
+        return await addInventoryGtin({ ...input, addedBy: "admin1" });
+      } catch (error) {
+        throw new TRPCError({ code: error instanceof Error && error.message.includes("ya pertenece") ? "CONFLICT" : "BAD_REQUEST", message: error instanceof Error ? error.message : "No se pudo guardar el GTIN" });
+      }
     }),
     updatePricing: adminProcedure.input(z.object({ productId: z.string().max(180), sku: z.string().max(100), name: z.string().max(500), description: z.string().max(2000).optional(), brand: z.string().max(120).optional(), application: z.string().max(120).optional(), image: z.string().max(2000).optional(), costPrice: z.number().min(0).max(100000000), salePrice: z.number().min(0).max(100000000) })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede modificar costos y precios" });

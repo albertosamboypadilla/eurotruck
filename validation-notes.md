@@ -22,3 +22,9 @@ Con `admin1` se abrió el panel completo de Inventario. En el primer viewport se
 La vista autenticada de `/inventory` carga con fondo oscuro continuo y superficies azul petróleo diferenciadas. Se verificó que la cabecera, KPIs, selector de ubicación, modos de entrada, formulario de escaneo, catálogo, estados de stock y acciones usen la nueva paleta.
 
 El historial ya no ocupa el flujo principal como tabla fija. Ahora se presenta como una tarjeta-resumen con los botones “Últimos ingresos” y “Ver historial”; ambos abren una ventana modal independiente dentro de Inventario. La ventana incluye actualización, cierre, tabla horizontal con desplazamiento, contador de lecturas y cierre haciendo clic fuera de la tarjeta. La tabla conserva fecha/hora, SKU, artículo, código Zebra, cantidad, ubicación y usuario.
+
+## GTIN adicionales — revisión visual
+
+La ruta `/inventory` carga correctamente con sesión de admin1. El catálogo muestra la referencia, código Zebra, barcode y GTIN; el campo de búsqueda acepta referencia, SKU o GTIN. El detalle de cada artículo incluye un panel para conservar el GTIN principal y registrar GTIN adicionales vinculados al mismo SKU para resolver escaneos sin duplicar artículos.
+
+La validación técnica pasó TypeScript, 53 pruebas Vitest y el build de producción; la revisión visual no mostró errores de consola ni fallos de carga.

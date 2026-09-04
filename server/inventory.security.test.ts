@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
+const { addInventoryGtin, createInventoryItem, deleteInventoryScan, listInventory, listInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
+  addInventoryGtin: vi.fn(async (input: any) => ({ id: 4, ...input })),
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
   listInventory: vi.fn(async () => []),
+  listInventoryGtins: vi.fn(async () => [{ id: 4, productId: "p-1", sku: "SKU-1", gtin: "1234567890123", addedBy: "admin1", createdAt: new Date() }]),
   listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
   recordInventorySale: vi.fn(async (input: any) => ({ sku: input.sku, totalQuantity: 4, soldQuantity: input.quantity })),
@@ -12,9 +14,11 @@ const { createInventoryItem, deleteInventoryScan, listInventory, listPublicInven
 }));
 
 vi.mock("./db", () => ({
+  addInventoryGtin,
   createInventoryItem,
   deleteInventoryScan,
   listInventory,
+  listInventoryGtins,
   listPublicInventoryLocations,
   listTopSoldInventory,
   recordInventoryCount,
@@ -49,6 +53,15 @@ describe("inventory procedures", () => {
     await expect(appRouter.createCaller(context(admin1)).inventory.list()).resolves.toEqual([]);
     await expect(appRouter.createCaller(context(admin2)).inventory.list()).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(listInventory).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite consultar y agregar GTIN a admin1 y rechaza admin2", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.gtins()).resolves.toHaveLength(1);
+    const gtinInput = { productId: "p-1", sku: "SKU-1", gtin: "1234567890123" };
+    await expect(appRouter.createCaller(context(admin1)).inventory.addGtin(gtinInput)).resolves.toMatchObject({ gtin: gtinInput.gtin, addedBy: "admin1" });
+    expect(addInventoryGtin).toHaveBeenCalledWith({ ...gtinInput, addedBy: "admin1" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.gtins()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.addGtin(gtinInput)).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite agregar un artículo a admin1 e inyecta su identidad", async () => {

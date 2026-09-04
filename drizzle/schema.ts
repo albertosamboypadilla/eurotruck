@@ -43,6 +43,15 @@ export const inventoryItems = mysqlTable("inventory_items", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const inventoryGtins = mysqlTable("inventory_gtins", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: varchar("productId", { length: 180 }).notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(),
+  gtin: varchar("gtin", { length: 20 }).notNull().unique(),
+  addedBy: varchar("addedBy", { length: 40 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const inventoryScans = mysqlTable("inventory_scans", {
   id: int("id").autoincrement().primaryKey(),
   inventoryItemId: int("inventoryItemId").notNull(),

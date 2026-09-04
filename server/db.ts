@@ -1,6 +1,6 @@
 import { eq, desc, and, gt, isNull, isNotNull, gte, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryItems, inventoryMovements, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
+import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryGtins, inventoryItems, inventoryMovements, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
 import { rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
@@ -299,6 +299,30 @@ export async function listInventory() {
     scansByItem.set(scan.inventoryItemId, history);
   });
   return items.map(item => ({ ...item, scanCount: scansByItem.get(item.id)?.length || 0, lastScanId: scansByItem.get(item.id)?.[0]?.id || null }));
+}
+
+export async function listInventoryGtins() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(inventoryGtins).orderBy(desc(inventoryGtins.createdAt), desc(inventoryGtins.id));
+}
+
+export type InventoryGtinInput = { productId: string; sku: string; gtin: string; addedBy: string };
+
+export async function addInventoryGtin(input: InventoryGtinInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const gtin = input.gtin.replace(/\D/g, "");
+  if (!/^\d{8,14}$/.test(gtin)) throw new Error("El GTIN debe contener entre 8 y 14 dígitos");
+  const existing = await db.select().from(inventoryGtins).where(eq(inventoryGtins.gtin, gtin)).limit(1);
+  if (existing[0]) {
+    if (existing[0].productId !== input.productId) throw new Error(`Este GTIN ya pertenece a ${existing[0].sku}`);
+    return existing[0];
+  }
+  await db.insert(inventoryGtins).values({ productId: input.productId, sku: input.sku, gtin, addedBy: input.addedBy });
+  const created = await db.select().from(inventoryGtins).where(eq(inventoryGtins.gtin, gtin)).limit(1);
+  if (!created[0]) throw new Error("No se pudo guardar el GTIN");
+  return created[0];
 }
 
 export async function listRecentInventoryIngress(limit = 50) {
