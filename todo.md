@@ -365,3 +365,12 @@
 - [x] Usar verde para sumas/conteos confirmados y rojo solo para bajo stock y alertas.
 - [x] Suavizar bordes, sombras, botones y estados sin perder jerarquía visual.
 - [x] Validar legibilidad, contraste, responsive y consistencia con Cotizaciones.
+
+# Ajuste de paleta y escaneo automático
+
+- [x] Sustituir la paleta actual de Inventario por un esquema profesional, sobrio y de alto contraste.
+- [x] Mantener verde para confirmaciones y sumas, y rojo solo para bajo stock, errores y alertas.
+- [x] Hacer que el escaneo reconocido registre automáticamente una unidad sin pulsar Registrar.
+- [x] Mostrar una ventana grande de alta cuando el código no exista en el catálogo.
+- [x] Incluir en el alta desconocida SKU, barcode, nombre, descripción, marca, aplicación, imagen, ubicación, cantidad, costo, precio y código Zebra automático.
+- [x] Validar escaneo reconocido, código desconocido, alta completa, permisos, pruebas, build y responsive; publicar.
