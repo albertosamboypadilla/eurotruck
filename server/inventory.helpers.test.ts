@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
+import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, rebuildInventoryAfterScanRemoval, shouldAutoRegisterInventoryScan } from "@shared/inventoryHelpers";
 
 describe("inventory helpers", () => {
   it("allows only admin1 regardless of case and whitespace", () => {
@@ -23,6 +23,19 @@ describe("inventory helpers", () => {
   it("communicates a repeated count and the accumulated total", () => {
     expect(buildInventoryNotice(true, 3, 11)).toContain("Total acumulado: 11");
     expect(buildInventoryNotice(false, 1, 1)).toContain("contado correctamente");
+  });
+
+  it("starts automatic scanning only with a complete code and no pending mutation", () => {
+    expect(shouldAutoRegisterInventoryScan(" 1234567890123 ", true, false)).toBe(true);
+    expect(shouldAutoRegisterInventoryScan("SKU-1", true, false)).toBe(true);
+    expect(shouldAutoRegisterInventoryScan("1234", false, false)).toBe(false);
+    expect(shouldAutoRegisterInventoryScan("123456", false, true)).toBe(false);
+  });
+
+  it("arms automatic scanning when a reference, SKU, or GTIN was selected by click", () => {
+    expect(shouldAutoRegisterInventoryScan("5.94224", false, false, "5.94224")).toBe(true);
+    expect(shouldAutoRegisterInventoryScan(" 4006381333931 ", false, false, "4006381333931")).toBe(true);
+    expect(shouldAutoRegisterInventoryScan("5.94224", false, true, "5.94224")).toBe(false);
   });
 
   it("normalizes an active location for every scan", () => {
