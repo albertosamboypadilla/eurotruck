@@ -492,3 +492,10 @@
 - [x] Preparar un ZIP con index.html en la raíz, CSS/JS locales, rutas relativas y carpeta images.
 - [x] Descargar o empaquetar los recursos visuales locales sin depender de URLs externas; 35.222 imágenes descargadas y 60 imágenes reemplazadas por placeholder local.
 - [x] Probar el ZIP offline, sus rutas, imágenes, carrito y cotización; entregar el archivo descargable.
+
+# Sincronización de precio final con Cotizaciones
+
+- [x] Auditar el flujo actual de precio final en Inventario y precio unitario en Cotizaciones.
+- [x] Cargar automáticamente el precio final de Inventario en cada artículo nuevo de Cotización.
+- [x] Mantener edición manual y recalcular subtotal/total según la cantidad.
+- [x] Validar el flujo completo con pruebas, TypeScript y build; publicar checkpoint.
