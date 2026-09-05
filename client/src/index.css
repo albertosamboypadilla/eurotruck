@@ -1256,3 +1256,35 @@
   border-color: #65d6a2;
   box-shadow: 0 0 0 3px rgba(101, 214, 162, 0.14);
 }
+
+/* Objetivo persistente de escaneo: la tarjeta del catálogo no es necesaria para continuar. */
+.inventory-active-scan-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(68, 196, 132, 0.38);
+  border-radius: 0.9rem;
+  background: rgba(20, 47, 42, 0.78);
+  color: #e8fff4;
+}
+.inventory-active-scan-target > div { display: grid; gap: 0.2rem; min-width: 0; }
+.inventory-active-scan-target strong { color: #8af0bc; font-size: 1rem; letter-spacing: 0.02em; }
+.inventory-active-scan-target small { color: #b7d5ca; line-height: 1.35; }
+.inventory-active-scan-clear {
+  flex: 0 0 auto;
+  border: 1px solid rgba(138, 240, 188, 0.5);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  background: transparent;
+  color: #dfffee;
+  font-weight: 700;
+  cursor: pointer;
+}
+.inventory-active-scan-clear:hover { background: rgba(138, 240, 188, 0.12); }
+@media (max-width: 640px) {
+  .inventory-active-scan-target { align-items: stretch; flex-direction: column; }
+  .inventory-active-scan-clear { width: 100%; }
+}
