@@ -513,3 +513,17 @@
 - [x] Mantener seleccionado el artículo y la ubicación activa para el siguiente escaneo.
 - [x] Registrar automáticamente un artículo reconocido sin Enter ni botón Registrar.
 - [x] Validar escaneos repetidos, códigos desconocidos, permisos, 59 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Selección por clic para escaneo múltiple
+
+- [x] Hacer clickeables por separado la referencia, SKU y GTIN para seleccionar el código objetivo.
+- [x] Mantener el código seleccionado mientras se escanean varias unidades sin pulsar Enter.
+- [x] Limpiar cada lectura y conservar artículo, ubicación y objetivo hasta elegir otro.
+- [x] Validar escaneo múltiple, scroll, alertas, 60 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Corrección final: selección por clic de código
+
+- [x] Hacer clickeables la referencia/SKU y cada GTIN para seleccionar el objetivo.
+- [x] Mantener el objetivo seleccionado durante varias lecturas sin pulsar Enter.
+- [x] Limpiar cada lectura y conservar ubicación y artículo hasta cambiar la selección.
+- [x] Validar con 60 pruebas Vitest, TypeScript y build de producción.

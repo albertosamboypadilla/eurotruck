@@ -32,6 +32,12 @@ describe("inventory helpers", () => {
     expect(shouldAutoRegisterInventoryScan("123456", false, true)).toBe(false);
   });
 
+  it("arms automatic scanning when a reference, SKU, or GTIN was selected by click", () => {
+    expect(shouldAutoRegisterInventoryScan("5.94224", false, false, "5.94224")).toBe(true);
+    expect(shouldAutoRegisterInventoryScan(" 4006381333931 ", false, false, "4006381333931")).toBe(true);
+    expect(shouldAutoRegisterInventoryScan("5.94224", false, true, "5.94224")).toBe(false);
+  });
+
   it("normalizes an active location for every scan", () => {
     expect(getInventoryScanLocation("", " ")).toEqual({ tramo: "GENERAL", gondola: "GENERAL" });
     expect(getInventoryScanLocation(" T-03 ", " G-12 ")).toEqual({ tramo: "T-03", gondola: "G-12" });

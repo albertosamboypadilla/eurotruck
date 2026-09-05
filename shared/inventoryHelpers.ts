@@ -20,9 +20,11 @@ export function buildInventoryNotice(wasAlreadyCounted: boolean, addedQuantity: 
     : `Artículo contado correctamente: ${totalQuantity} ${totalLabel}.`;
 }
 
-export function shouldAutoRegisterInventoryScan(code: string, knownProduct: boolean, scanPending: boolean) {
+export function shouldAutoRegisterInventoryScan(code: string, knownProduct: boolean, scanPending: boolean, armedTarget = "") {
   const normalized = code.trim();
+  const normalizedTarget = armedTarget.trim();
   if (scanPending || normalized.length < 4) return false;
+  if (normalizedTarget && normalized === normalizedTarget) return true;
   return knownProduct || normalized.length >= 6;
 }
 
