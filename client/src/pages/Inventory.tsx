@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Barcode, Boxes, CheckCircle2, ChevronLeft, ChevronRight, DollarSign, Download, Eye, House, Keyboard, LoaderCircle, LogIn, LogOut, MapPin, PackageSearch, Plus, Printer, RefreshCw, ScanLine, Trash2, TrendingDown, X } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { buildInventoryNotice, getInventoryScanLocation, INVENTORY_SALE_CONFIRMATION_KEY, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey } from "@shared/inventoryHelpers";
+import { buildInventoryNotice, getInventoryScanLocation, INVENTORY_SALE_CONFIRMATION_KEY, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, shouldAutoRegisterInventoryScan } from "@shared/inventoryHelpers";
 import { findInventoryCatalogProduct, type InventoryCatalogProduct } from "@shared/inventoryCatalog";
 import { attachGtins, getGtinsForSku, normalizeCatalogIdentifier, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
@@ -375,6 +375,17 @@ export default function Inventory() {
     } catch { setSelectedProduct(product); setError("No fue posible cargar el detalle completo; puedes continuar con el conteo."); }
     finally { setCatalogLoading(false); }
   };
+  useEffect(() => {
+    if (entryMode !== "scan") return;
+    const candidate = scanCode.trim();
+    const knownProduct = Boolean(findInventoryCatalogProduct(allProducts, candidate));
+    if (!shouldAutoRegisterInventoryScan(candidate, knownProduct, recordCount.isPending)) return;
+    const timer = window.setTimeout(() => {
+      void findProduct(candidate, true);
+    }, knownProduct ? 90 : 220);
+    return () => window.clearTimeout(timer);
+  }, [scanCode, entryMode, recordCount.isPending, allProducts]);
+
   const submitScan = (event: FormEvent) => { event.preventDefault(); void findProduct(scanCode, entryMode === "scan"); };
   const confirmPendingLocation = () => {
     if (!pendingLocationProduct) return;

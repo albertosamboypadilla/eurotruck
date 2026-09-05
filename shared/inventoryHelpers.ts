@@ -20,6 +20,12 @@ export function buildInventoryNotice(wasAlreadyCounted: boolean, addedQuantity: 
     : `Artículo contado correctamente: ${totalQuantity} ${totalLabel}.`;
 }
 
+export function shouldAutoRegisterInventoryScan(code: string, knownProduct: boolean, scanPending: boolean) {
+  const normalized = code.trim();
+  if (scanPending || normalized.length < 4) return false;
+  return knownProduct || normalized.length >= 6;
+}
+
 export function getInventoryScanLocation(tramo?: string | null, gondola?: string | null) {
   return {
     tramo: tramo?.trim() || "GENERAL",

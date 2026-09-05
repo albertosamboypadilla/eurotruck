@@ -506,3 +506,10 @@
 - [x] Exponer el precio final guardado aunque la existencia sea cero o no haya conteos.
 - [x] Separar visualmente precio unitario y disponibilidad en Cotizaciones.
 - [x] Validar cotización, 58 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Escaneo automático continuo
+
+- [x] Limpiar el campo de código después de cada escaneo reconocido.
+- [x] Mantener seleccionado el artículo y la ubicación activa para el siguiente escaneo.
+- [x] Registrar automáticamente un artículo reconocido sin Enter ni botón Registrar.
+- [x] Validar escaneos repetidos, códigos desconocidos, permisos, 59 pruebas Vitest, TypeScript y build; publicar checkpoint.
