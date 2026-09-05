@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryArticle, deleteInventoryScan, getLocalAdminByUsername, getOrderWithItems, listDailyInventorySales, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listRecentInventoryIngress, listOrders, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
+import { addInventoryGtin, archiveOrder, claimOrder, createInventoryItem, createOrder, deleteInventoryArticle, deleteInventoryScan, deleteInventoryScansByLocation, getLocalAdminByUsername, getOrderWithItems, listDailyInventorySales, listDeletedOrders, listInventory, listInventoryGtins, listInventoryScans, listInventoryQuotePrices, listRecentInventoryIngress, listOrders, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, purgeDeletedOrder, recordInventoryCount, recordInventorySale, updateInventoryPricing, updateQuoteItems } from "./db";
 import { buildOrderPdf } from "./orderService";
 import { storagePut } from "./storage";
 import { COOKIE_NAME } from "@shared/const";
@@ -41,7 +41,7 @@ export const appRouter = router({
       company: z.string().min(2).max(180), email: z.string().email().max(320), phone: z.string().min(7).max(40), rnc: z.string().max(40).optional(), truckBrand: z.string().max(80).optional(), partsNote: z.string().max(2000).optional(), items: z.array(orderItemInput).min(1).max(100),
     })).mutation(async ({ input }) => {
       const afterHours = isEurotruckAfterHours(new Date());
-      const inventoryPrices = new Map((await listPublicInventoryLocations()).map(item => [item.productId, item.salePrice] as const));
+      const inventoryPrices = new Map((await listInventoryQuotePrices()).map(item => [item.productId, item.salePrice] as const));
       const quoteItems = input.items.map(item => {
         const inventoryPrice = inventoryPrices.get(item.productId);
         return { ...item, unitPrice: Number(inventoryPrice || 0) > 0 ? String(inventoryPrice) : String(item.unitPrice ?? 0) };
@@ -76,6 +76,7 @@ export const appRouter = router({
   }),
   inventory: router({
     publicLocations: publicProcedure.query(() => listPublicInventoryLocations()),
+    quotePrices: adminProcedure.query(() => listInventoryQuotePrices()),
     publicGtins: publicProcedure.query(() => listPublicInventoryGtins()),
     gtins: adminProcedure.query(async ({ ctx }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede consultar los GTIN del inventario" });
@@ -130,6 +131,11 @@ export const appRouter = router({
       const result = await deleteInventoryScan(input.scanId);
       if (!result.found) throw new TRPCError({ code: "NOT_FOUND", message: "La lectura ya no existe" });
       return result;
+    }),
+    clearLocation: adminProcedure.input(z.object({ tramo: z.string().trim().min(1).max(80), gondola: z.string().trim().min(1).max(80), confirmationKey: z.string().length(4) })).mutation(async ({ ctx, input }) => {
+      if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede borrar conteos" });
+      if (!isInventorySaleConfirmationKey(input.confirmationKey)) throw new TRPCError({ code: "BAD_REQUEST", message: "Clave de confirmación incorrecta" });
+      return deleteInventoryScansByLocation(input.tramo, input.gondola);
     }),
     recordSale: adminProcedure.input(z.object({ productId: z.string().max(180).optional(), sku: z.string().trim().min(1).max(100), quantity: z.number().int().min(1).max(9999), confirmationKey: z.string().length(4), source: z.enum(["manual", "scan", "cart"]).default("manual"), orderId: z.number().int().positive().optional() })).mutation(async ({ ctx, input }) => {
       if (!isInventoryAdmin(ctx.user.name)) throw new TRPCError({ code: "FORBIDDEN", message: "Solo admin1 puede descontar inventario" });

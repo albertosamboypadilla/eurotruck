@@ -547,3 +547,10 @@
 - [x] Reemplazar el bloque por el código escaneado como único feedback visible, con estado verde tras sumar.
 - [x] Mantener la suma automática de +1 sin Enter y reenfocar/seleccionar el campo después de cada lectura.
 - [x] Conservar el sonido de éxito/alerta, retirar el aviso textual duplicado y validar 61 pruebas Vitest, TypeScript y build.
+
+# Nuevos ajustes solicitados: cantidad, precios públicos y borrado por ubicación
+
+- [x] Añadir cantidad manual para cajas o múltiples unidades en la entrada de Inventario.
+- [x] Ocultar costo y precio del catálogo público, conservándolos para Cotizaciones.
+- [x] Añadir borrado protegido de conteos por ubicación con la clave 1989 sin eliminar artículos.
+- [x] Actualizar pruebas, validar TypeScript/build y publicar checkpoint.

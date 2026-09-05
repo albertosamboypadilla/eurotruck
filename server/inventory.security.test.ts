@@ -1,15 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { addInventoryGtin, createInventoryItem, deleteInventoryArticle, deleteInventoryScan, listDailyInventorySales, listInventory, listInventoryGtins, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
+const { addInventoryGtin, createInventoryItem, deleteInventoryArticle, deleteInventoryScan, deleteInventoryScansByLocation, listDailyInventorySales, listInventory, listInventoryGtins, listInventoryQuotePrices, listPublicInventoryGtins, listPublicInventoryLocations, listTopSoldInventory, recordInventoryCount, recordInventorySale, updateInventoryPricing } = vi.hoisted(() => ({
   addInventoryGtin: vi.fn(async (input: any) => ({ id: 4, ...input })),
   createInventoryItem: vi.fn(async (input: any, countedBy: string) => ({ id: 1, productId: "custom-1", ...input, totalQuantity: 0, countedBy })),
   deleteInventoryArticle: vi.fn(async (productId: string) => ({ productId, sku: "SKU-1", name: "Filtro", removedQuantity: 2 })),
   deleteInventoryScan: vi.fn(async (scanId: number) => ({ found: true, scanId, removedQuantity: 1, totalQuantity: 1, lastTramo: "GENERAL", lastGondola: "GENERAL" })),
+  deleteInventoryScansByLocation: vi.fn(async (tramo: string, gondola: string) => ({ found: true, tramo, gondola, removedScans: 2, removedUnits: 5, affectedItems: 2 })),
   listDailyInventorySales: vi.fn(async () => [{ id: 1, productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 2, dailyNumber: 1, unitPrice: 1450, finalCost: 2900, source: "scan", createdAt: new Date() }]),
   listInventory: vi.fn(async () => []),
   listInventoryGtins: vi.fn(async () => [{ id: 4, productId: "p-1", sku: "SKU-1", gtin: "1234567890123", addedBy: "admin1", createdAt: new Date() }]),
   listPublicInventoryGtins: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", gtin: "1234567890123" }]),
-  listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]),
+  listPublicInventoryLocations: vi.fn(async () => [{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02" }]),
+  listInventoryQuotePrices: vi.fn(async () => [{ productId: "p-public", salePrice: "1450.00" }]),
   recordInventoryCount: vi.fn(async (input: any) => ({ ...input, totalQuantity: input.quantity, wasAlreadyCounted: false })),
   recordInventorySale: vi.fn(async (input: any) => ({ sku: input.sku, totalQuantity: 4, soldQuantity: input.quantity })),
   listTopSoldInventory: vi.fn(async () => [{ productId: "p-1", sku: "SKU-1", name: "Filtro", soldQuantity: 5 }]),
@@ -21,9 +23,11 @@ vi.mock("./db", () => ({
   createInventoryItem,
   deleteInventoryArticle,
   deleteInventoryScan,
+  deleteInventoryScansByLocation,
   listDailyInventorySales,
   listInventory,
   listInventoryGtins,
+  listInventoryQuotePrices,
   listPublicInventoryGtins,
   listPublicInventoryLocations,
   listTopSoldInventory,
@@ -50,14 +54,16 @@ const admin2 = { ...admin1, id: -2, openId: "local:admin2", name: "admin2" };
 const input = { productId: "p-1", sku: "SKU-1", name: "Filtro", quantity: 2, tramo: "A", gondola: "G1" };
 
 describe("inventory procedures", () => {
-  it("expone al catálogo público existencia, ubicación y venta final", async () => {
-    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02", salePrice: "1450.00" }]);
+  it("expone al catálogo público existencia y ubicación, pero no precios", async () => {
+    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-public", totalQuantity: 8, lastTramo: "T-01", lastGondola: "G-02" }]);
     expect(listPublicInventoryLocations).toHaveBeenCalledTimes(1);
   });
 
-  it("mantiene disponible el precio de un artículo sin movimientos", async () => {
-    listPublicInventoryLocations.mockResolvedValueOnce([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null, salePrice: "980.00" }]);
-    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null, salePrice: "980.00" }]);
+  it("mantiene separado el precio interno aunque el stock sea cero", async () => {
+    listPublicInventoryLocations.mockResolvedValueOnce([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null }]);
+    listInventoryQuotePrices.mockResolvedValueOnce([{ productId: "p-zero", salePrice: "980.00" }]);
+    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null }]);
+    await expect(appRouter.createCaller(context(admin1)).inventory.quotePrices()).resolves.toEqual([{ productId: "p-zero", salePrice: "980.00" }]);
   });
 
   it("expone alias GTIN mínimos al catálogo público", async () => {
@@ -118,6 +124,13 @@ describe("inventory procedures", () => {
     expect(deleteInventoryArticle).toHaveBeenCalledWith("p-1");
     await expect(appRouter.createCaller(context(admin2)).inventory.deleteArticle({ productId: "p-1", confirmation: "ELIMINAR" })).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(appRouter.createCaller(context(admin1)).inventory.deleteArticle({ productId: "p-1", confirmation: "BORRAR" as "ELIMINAR" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("borra todos los conteos de la ubicación solo con la clave 1989", async () => {
+    await expect(appRouter.createCaller(context(admin1)).inventory.clearLocation({ tramo: "T-01", gondola: "G-02", confirmationKey: "1989" })).resolves.toMatchObject({ found: true, removedUnits: 5 });
+    expect(deleteInventoryScansByLocation).toHaveBeenCalledWith("T-01", "G-02");
+    await expect(appRouter.createCaller(context(admin1)).inventory.clearLocation({ tramo: "T-01", gondola: "G-02", confirmationKey: "0000" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(appRouter.createCaller(context(admin2)).inventory.clearLocation({ tramo: "T-01", gondola: "G-02", confirmationKey: "1989" })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("permite consultar más vendidos a admin1 y rechaza admin2", async () => {

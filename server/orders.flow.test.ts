@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { sample, createOrder, archiveOrder, listPublicInventoryLocations } = vi.hoisted(() => {
+const { sample, createOrder, archiveOrder, listInventoryQuotePrices } = vi.hoisted(() => {
   const sample = { order: { id: 9, orderNumber: "ET-2026-000009", company: "Flota Caribe", email: "cliente@example.com", phone: "8095551234", rnc: null, truckBrand: "Scania", partsNote: null, notificationRecipients: "eurotruckcxa@yahoo.com,albertosamboy89@gmail.com", afterHours: 1, status: "new" as const, deletedAt: null, deletedBy: null, createdAt: new Date(), updatedAt: new Date() }, items: [{ id: 1, orderId: 9, productId: "p1", sku: "DT-001", name: "Filtro de aceite", brand: "DT Spare Parts", application: "Scania", category: "Motor", image: null, sourceUrl: null }] };
-  const listPublicInventoryLocations = vi.fn(async () => [{ productId: "p1", totalQuantity: 5, lastTramo: "T-01", lastGondola: "G-01", salePrice: "1250.00" }]);
-  return { sample, createOrder: vi.fn(async () => sample), archiveOrder: vi.fn(async () => true), listPublicInventoryLocations };
+  const listInventoryQuotePrices = vi.fn(async () => [{ productId: "p1", salePrice: "1250.00" }]);
+  return { sample, createOrder: vi.fn(async () => sample), archiveOrder: vi.fn(async () => true), listInventoryQuotePrices };
 });
-vi.mock("./db", () => ({ createOrder, archiveOrder, listPublicInventoryLocations, purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(async () => []), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
+vi.mock("./db", () => ({ createOrder, archiveOrder, listInventoryQuotePrices, purgeDeletedOrder: vi.fn(), listDeletedOrders: vi.fn(async () => []), getLocalAdminByUsername: vi.fn(), listOrders: vi.fn(async () => []) }));
 
 import { appRouter } from "./routers";
 

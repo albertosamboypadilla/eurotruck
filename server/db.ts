@@ -194,6 +194,25 @@ export async function deleteInventoryScan(scanId: number) {
   });
 }
 
+export async function deleteInventoryScansByLocation(tramo: string, gondola: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const targets = await tx.select().from(inventoryScans).where(and(eq(inventoryScans.tramo, tramo), eq(inventoryScans.gondola, gondola)));
+    if (!targets.length) return { found: false as const, tramo, gondola, removedScans: 0, removedUnits: 0, affectedItems: 0 };
+    const targetIds = new Set(targets.map(scan => scan.id));
+    const affectedItemIds = Array.from(new Set(targets.map(scan => scan.inventoryItemId)));
+    for (const inventoryItemId of affectedItemIds) {
+      const history = await tx.select().from(inventoryScans).where(eq(inventoryScans.inventoryItemId, inventoryItemId)).orderBy(desc(inventoryScans.createdAt), desc(inventoryScans.id));
+      const remaining = history.filter(scan => !targetIds.has(scan.id));
+      const latest = remaining[0];
+      await tx.update(inventoryItems).set({ totalQuantity: remaining.reduce((total, scan) => total + scan.quantity, 0), lastTramo: latest?.tramo ?? null, lastGondola: latest?.gondola ?? null }).where(eq(inventoryItems.id, inventoryItemId));
+    }
+    await tx.delete(inventoryScans).where(and(eq(inventoryScans.tramo, tramo), eq(inventoryScans.gondola, gondola)));
+    return { found: true as const, tramo, gondola, removedScans: targets.length, removedUnits: targets.reduce((total, scan) => total + scan.quantity, 0), affectedItems: affectedItemIds.length };
+  });
+}
+
 export type NewInventoryItemInput = {
   sku: string;
   name: string;
@@ -373,6 +392,12 @@ export async function listRecentInventoryIngress(limit = 50) {
 export async function listPublicInventoryLocations() {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ productId: inventoryItems.productId, totalQuantity: inventoryItems.totalQuantity, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola, salePrice: inventoryItems.salePrice })
+  return db.select({ productId: inventoryItems.productId, totalQuantity: inventoryItems.totalQuantity, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola })
     .from(inventoryItems);
+}
+
+export async function listInventoryQuotePrices() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ productId: inventoryItems.productId, salePrice: inventoryItems.salePrice }).from(inventoryItems);
 }

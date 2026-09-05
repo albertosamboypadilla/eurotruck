@@ -1320,3 +1320,14 @@
   from { opacity: 0.45; transform: translateY(-2px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Ajustes de cantidad por caja y borrado protegido de conteos por ubicación. */
+.inventory-location-picker{grid-template-columns:minmax(0,1fr) auto auto}
+.inventory-location-clear{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;border:1px solid #c34a54;border-radius:9px;background:#fff0f1;color:#9b2632;padding:0 10px;font:700 .68rem var(--technical);cursor:pointer}
+.inventory-location-clear:hover{background:#ffdfe2;border-color:#a82f3a}
+.inventory-field-hint{display:block;margin-top:3px;color:#71808a;font-size:.68rem;line-height:1.35;text-transform:none;letter-spacing:0}
+.inventory-location-clear-dialog .inventory-location-dialog-card{border-color:rgba(219,91,102,.85)}
+.inventory-location-clear-dialog .inventory-location-dialog-icon{border-color:rgba(219,91,102,.6);background:rgba(219,91,102,.15);color:#ff9ba3}
+.inventory-location-clear-confirm{border-color:#b43d49!important;background:#b43d49!important}
+.inventory-location-clear-confirm:hover{background:#932f39!important}
+@media(max-width:800px){.inventory-location-picker{grid-template-columns:1fr}.inventory-location-clear{width:100%}}
