@@ -484,3 +484,11 @@
 - [x] Conectar el botón Agregar y la selección de artículos de Home con el carrito persistente/local.
 - [x] Permitir cotizar juntos varios artículos seleccionados desde Home y reflejarlos en el resumen del carrito.
 - [x] Validar sincronización de precios, carrito, PDF, 57 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Precio por cantidad y exportación ZIP autónoma
+
+- [x] Confirmar que Cotizaciones use el precio final de Inventario como precio unitario para todos los artículos.
+- [x] Confirmar que el subtotal y total multipliquen correctamente precio unitario por cantidad.
+- [x] Preparar un ZIP con index.html en la raíz, CSS/JS locales, rutas relativas y carpeta images.
+- [x] Descargar o empaquetar los recursos visuales locales sin depender de URLs externas; 35.222 imágenes descargadas y 60 imágenes reemplazadas por placeholder local.
+- [x] Probar el ZIP offline, sus rutas, imágenes, carrito y cotización; entregar el archivo descargable.
