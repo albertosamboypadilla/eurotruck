@@ -527,3 +527,10 @@
 - [x] Mantener el objetivo seleccionado durante varias lecturas sin pulsar Enter.
 - [x] Limpiar cada lectura y conservar ubicación y artículo hasta cambiar la selección.
 - [x] Validar con 60 pruebas Vitest, TypeScript y build de producción.
+
+# Corrección de clic y escaneo en campo de código
+
+- [x] Restaurar el clic de la tarjeta para abrir/seleccionar sin sumar cantidad.
+- [x] Mantener la selección persistente únicamente desde Referencia, SKU o GTIN.
+- [x] Sumar automáticamente solo las lecturas que entren por el campo de código, sin Enter.
+- [x] Validar tarjetas, escaneo, limpieza, ubicación, 60 pruebas Vitest, TypeScript y build; publicar checkpoint.
