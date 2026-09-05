@@ -374,6 +374,5 @@ export async function listPublicInventoryLocations() {
   const db = await getDb();
   if (!db) return [];
   return db.select({ productId: inventoryItems.productId, totalQuantity: inventoryItems.totalQuantity, lastTramo: inventoryItems.lastTramo, lastGondola: inventoryItems.lastGondola, salePrice: inventoryItems.salePrice })
-    .from(inventoryItems)
-    .where(gt(inventoryItems.totalQuantity, 0));
+    .from(inventoryItems);
 }

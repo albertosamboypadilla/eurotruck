@@ -55,6 +55,11 @@ describe("inventory procedures", () => {
     expect(listPublicInventoryLocations).toHaveBeenCalledTimes(1);
   });
 
+  it("mantiene disponible el precio de un artículo sin movimientos", async () => {
+    listPublicInventoryLocations.mockResolvedValueOnce([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null, salePrice: "980.00" }]);
+    await expect(appRouter.createCaller(context(undefined)).inventory.publicLocations()).resolves.toEqual([{ productId: "p-zero", totalQuantity: 0, lastTramo: null, lastGondola: null, salePrice: "980.00" }]);
+  });
+
   it("expone alias GTIN mínimos al catálogo público", async () => {
     await expect(appRouter.createCaller(context(undefined)).inventory.publicGtins()).resolves.toEqual([{ productId: "p-1", sku: "SKU-1", gtin: "1234567890123" }]);
     expect(listPublicInventoryGtins).toHaveBeenCalledTimes(1);

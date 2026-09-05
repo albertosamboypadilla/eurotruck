@@ -499,3 +499,10 @@
 - [x] Cargar automáticamente el precio final de Inventario en cada artículo nuevo de Cotización.
 - [x] Mantener edición manual y recalcular subtotal/total según la cantidad.
 - [x] Validar el flujo completo con pruebas, TypeScript y build; publicar checkpoint.
+
+# Precio de Cotización sin movimientos de inventario
+
+- [x] Auditar artículos con precio configurado pero sin movimientos o existencia.
+- [x] Exponer el precio final guardado aunque la existencia sea cero o no haya conteos.
+- [x] Separar visualmente precio unitario y disponibilidad en Cotizaciones.
+- [x] Validar cotización, 58 pruebas Vitest, TypeScript y build; publicar checkpoint.
