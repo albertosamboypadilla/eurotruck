@@ -1263,3 +1263,23 @@
 .inventory-code-target--gtin { font-size:.72rem; font-weight:800; }
 .inventory-gtin-targets { display:flex; flex-wrap:wrap; gap:5px; grid-column:1/-1; }
 .inventory-catalog-copy > .inventory-code-target { justify-self:start; }
+
+/* Corrección de scroll del formulario de creación de Inventario. */
+.inventory-page--redesigned .inventory-new-article {
+  max-height: calc(100dvh - 2rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+.inventory-page--redesigned .inventory-new-article-form {
+  min-height: 0;
+  overflow: visible;
+}
+@media (max-width: 640px) {
+  .inventory-page--redesigned .inventory-new-article {
+    max-height: calc(100dvh - 1rem);
+    border-radius: 14px;
+  }
+}

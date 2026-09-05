@@ -534,3 +534,9 @@
 - [x] Mantener la selección persistente únicamente desde Referencia, SKU o GTIN.
 - [x] Sumar automáticamente solo las lecturas que entren por el campo de código, sin Enter.
 - [x] Validar tarjetas, escaneo, limpieza, ubicación, 60 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Corrección de scroll en área de creación
+
+- [x] Identificar el contenedor del formulario de alta que impide subir y bajar.
+- [x] Corregir overflow, altura, foco y overlay del formulario de creación.
+- [x] Validar desplazamiento completo, carga de foto, campos, modal, escaneo, 60 pruebas Vitest, TypeScript y build; publicar checkpoint.
