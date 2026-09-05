@@ -1256,10 +1256,3 @@
   border-color: #65d6a2;
   box-shadow: 0 0 0 3px rgba(101, 214, 162, 0.14);
 }
-
-/* Códigos seleccionables como objetivo de escaneo */
-.inventory-code-target { display:inline-flex; align-items:center; width:max-content; max-width:100%; border:1px solid rgba(78,163,255,.38); border-radius:7px; padding:3px 7px; background:rgba(8,24,42,.86); color:#dceeff; cursor:pointer; font:inherit; text-align:left; }
-.inventory-code-target:hover, .inventory-code-target:focus-visible { border-color:#36d6c0; background:rgba(23,69,82,.9); color:#fff; outline:2px solid rgba(54,214,192,.22); outline-offset:2px; }
-.inventory-code-target--gtin { font-size:.72rem; font-weight:800; }
-.inventory-gtin-targets { display:flex; flex-wrap:wrap; gap:5px; grid-column:1/-1; }
-.inventory-catalog-copy > .inventory-code-target { justify-self:start; }
