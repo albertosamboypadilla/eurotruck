@@ -540,3 +540,10 @@
 - [x] Identificar el contenedor del formulario de alta que impide subir y bajar.
 - [x] Corregir overflow, altura, foco y overlay del formulario de creación.
 - [x] Validar desplazamiento completo, carga de foto, campos, modal, escaneo, 60 pruebas Vitest, TypeScript y build; publicar checkpoint.
+
+# Feedback compacto para escaneo continuo
+
+- [x] Revisar la captura y confirmar que el bloque de objetivo mostraba nombre, ubicación y el botón Cambiar selección.
+- [x] Reemplazar el bloque por el código escaneado como único feedback visible, con estado verde tras sumar.
+- [x] Mantener la suma automática de +1 sin Enter y reenfocar/seleccionar el campo después de cada lectura.
+- [x] Conservar el sonido de éxito/alerta, retirar el aviso textual duplicado y validar 61 pruebas Vitest, TypeScript y build.

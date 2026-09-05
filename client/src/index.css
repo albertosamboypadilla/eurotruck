@@ -1283,3 +1283,40 @@
     border-radius: 14px;
   }
 }
+
+/* Feedback compacto para escaneo continuo: solo el código queda visible. */
+.inventory-page--redesigned .inventory-active-scan-target {
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+  margin-top: 0.55rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(97, 115, 138, 0.34);
+  border-radius: 0.55rem;
+  background: rgba(10, 20, 33, 0.52);
+}
+.inventory-page--redesigned .inventory-active-scan-target strong {
+  color: #d6e1ee;
+  font-family: "Space Grotesk", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  line-height: 1;
+}
+.inventory-page--redesigned .inventory-active-scan-target.is-success {
+  border-color: rgba(74, 222, 128, 0.58);
+  background: rgba(20, 83, 45, 0.24);
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.08), 0 0 22px rgba(34, 197, 94, 0.1);
+}
+.inventory-page--redesigned .inventory-active-scan-target.is-success strong {
+  color: #4ade80;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .inventory-page--redesigned .inventory-active-scan-target.is-success {
+    animation: inventory-scan-confirmed 180ms ease-out;
+  }
+}
+@keyframes inventory-scan-confirmed {
+  from { opacity: 0.45; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}

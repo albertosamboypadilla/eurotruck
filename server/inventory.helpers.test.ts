@@ -55,3 +55,11 @@ describe("inventory helpers", () => {
     expect(rebuildInventoryAfterScanRemoval([{ id: 12, quantity: 1, tramo: "T-01", gondola: "G-01", createdAt: "2026-08-28T10:00:00.000Z" }], 12)).toMatchObject({ found: true, removedQuantity: 1, totalQuantity: 0, lastTramo: null, lastGondola: null });
   });
 });
+
+
+describe("continuous scan feedback", () => {
+  it("keeps a selected GTIN eligible for the next automatic read after the input is cleared", () => {
+    expect(shouldAutoRegisterInventoryScan("4057795315921", false, false, "4057795315921")).toBe(true);
+    expect(shouldAutoRegisterInventoryScan("4057795315921", false, true, "4057795315921")).toBe(false);
+  });
+});
