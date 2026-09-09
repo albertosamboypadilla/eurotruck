@@ -587,7 +587,7 @@
 
 # Credenciales empresariales y persistencia de artículos
 
-- [x] Actualizar las credenciales locales de admin1, admin2, admin3 y admin4 según lo solicitado.
-- [x] Verificar que admin1 tenga acceso total y los demás usuarios conserven sus permisos limitados.
-- [x] Garantizar que artículos, imágenes, SKU, GTIN, precios e inventario permanezcan almacenados aunque se oculten o retiren del catálogo público.
-- [x] Validar login, permisos, persistencia, 63 pruebas Vitest, TypeScript/build y publicar checkpoint.
+- [ ] Actualizar las credenciales locales de admin1, admin2, admin3 y admin4 según lo solicitado.
+- [ ] Verificar que admin1 tenga acceso total y los demás usuarios conserven sus permisos limitados.
+- [ ] Garantizar que artículos, imágenes, SKU, GTIN, precios e inventario permanezcan almacenados aunque se oculten o retiren del catálogo público.
+- [ ] Validar login, permisos, persistencia, pruebas, TypeScript/build y publicar checkpoint.
