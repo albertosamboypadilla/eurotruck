@@ -554,3 +554,40 @@
 - [x] Ocultar costo y precio del catálogo público, conservándolos para Cotizaciones.
 - [x] Añadir borrado protegido de conteos por ubicación con la clave 1989 sin eliminar artículos.
 - [x] Actualizar pruebas, validar TypeScript/build y publicar checkpoint.
+
+# Formato EUROTRUCK para artículos contados
+
+- [ ] Inspeccionar el Excel adjunto y reproducir su estructura en la hoja de artículos contados.
+- [ ] Añadir SKU y código de barras al reporte y a cada fila de artículo/ubicación.
+- [ ] Colocar el control Borrar conteo junto a ubicación y artículo con confirmación protegida.
+- [ ] Mantener la clave oculta y validar exportación, pruebas, TypeScript/build y publicar checkpoint.
+
+# Nuevo formato EUROTRUCKINVENTARIO y acceso Inventario
+
+- [x] Inspeccionar EUROTRUCKINVENTARIO.xlsx y documentar hojas, columnas, encabezados, estilos y campos.
+- [x] Adaptar Artículos contados para descargar el mismo formato y completar cada campo con los datos disponibles.
+- [x] Restaurar el botón Inventario en el acceso visible para admin1 y conservar sus permisos.
+- [x] Validar descarga, contenido, permisos, pruebas, TypeScript/build y publicar checkpoint.
+
+# Ajuste exclusivo de plantilla de Artículos contados
+
+- [x] Reproducir exclusivamente EUROTRUCKINVENTARIO.xlsx en la descarga de Artículos contados, sin modificar otros módulos.
+
+# Corrección de descarga XLSX real
+
+- [x] Reemplazar la descarga HTML/XLS actual de Artículos contados por un archivo XLSX real compatible con Excel.
+- [x] Validar que el XLSX conserve la plantilla EUROTRUCKINVENTARIO, sus datos y estilos, y publicar el checkpoint.
+
+# Reorganización de Inventario y pedidos de bajo stock
+
+- [ ] Cambiar las etiquetas de ubicación para usar Estante y Tramo de forma consistente.
+- [ ] Mover Imprimir área activa al encabezado de Artículos contados y conservar su función.
+- [ ] Rediseñar Bajo stock como un pedido claro con artículo, SKU, ubicación, existencia y cantidad sugerida.
+- [ ] Validar interfaz, exportaciones, pruebas, TypeScript/build y publicar checkpoint.
+
+# Credenciales empresariales y persistencia de artículos
+
+- [x] Actualizar las credenciales locales de admin1, admin2, admin3 y admin4 según lo solicitado.
+- [x] Verificar que admin1 tenga acceso total y los demás usuarios conserven sus permisos limitados.
+- [x] Garantizar que artículos, imágenes, SKU, GTIN, precios e inventario permanezcan almacenados aunque se oculten o retiren del catálogo público.
+- [x] Validar login, permisos, persistencia, 63 pruebas Vitest, TypeScript/build y publicar checkpoint.

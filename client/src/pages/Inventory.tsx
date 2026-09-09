@@ -7,11 +7,41 @@ import { findInventoryCatalogProduct, type InventoryCatalogProduct } from "@shar
 import { attachGtins, getGtinsForSku, normalizeCatalogIdentifier, productMatchesCatalogQuery, type GtinMap } from "@shared/gtinHelpers";
 import { buildZebraLabelSequence, defaultZebraLabelFields, normalizeInternalLabelCode, type ZebraLabelFields } from "@shared/zebraLabel";
 import { buildInventoryExportHtml, buildLowStockPurchaseRows, buildPhysicalInventoryExportHtml } from "@shared/inventoryExport";
+import * as XLSX from "xlsx-js-style";
 
 const catalogIndexUrl = "/manus-storage/catalog-with-junta-torica-gtin-20260904_40163118.json";
 const gtinMapFileUrl = "/manus-storage/diesel-gtin-map-junta-torica-20260904_b67682ec.json";
 const emptyArticle = { sku: "", barcode: "", name: "", description: "", brand: "", application: "", image: "", costPrice: "0", salePrice: "0", initialQuantity: "0" };
 const catalogPageSize = 60;
+
+const buildPhysicalInventoryXlsx = (rows: Array<{ warehouse?: string; productNumber: string; description: string; counter?: string; majorPackageQuantity?: number | string | null; unitQuantity?: number | string | null; reference?: string | null; shelf?: string | null; tramo?: string | null; cost?: number | string | null; price?: number | string | null }>) => {
+  const dateText = new Date().toLocaleString("es-DO", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  const headers = ["ALMACÉN", "NO. PRODUCTO", "DESCRIPCIÓN PRODUCTO", "CONTADOR", "CANTIDAD EMP. MAYOR", "CANTIDAD UNIDADES", "REFERENCIA", "ESTANTE", "TRAMO", "COSTO", "PRECIO"];
+  const aoa: Array<Array<string | number>> = [
+    ["EUROTRUCK SRL"],
+    ["SISTEMA DE INVENTARIO"],
+    [`REPORTE DE PRODUCTOS PARA CONTEO FÍSICO DE FECHA ${dateText}`, "", "", "ESTA COLUMNA ES OBLIGATORIA", "", "", "ESTAS TRES COLUMNAS SON INFORMATIVAS, NO SE CARGAN"],
+    headers,
+    ...rows.map(row => [row.warehouse || "01", row.productNumber, row.description, row.counter || "admin1", row.majorPackageQuantity ?? "", row.unitQuantity ?? "", row.reference || "", row.shelf || "", row.tramo || "", row.cost ?? "0.00", row.price ?? "0.00"]),
+  ];
+  const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+  worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } }, { s: { r: 2, c: 3 }, e: { r: 2, c: 5 } }, { s: { r: 2, c: 6 }, e: { r: 2, c: 10 } }];
+  worksheet["!cols"] = [10.85, 20.85, 45.85, 18.85, 22.85, 20.85, 22.85, 15.85, 15.85, 14.85, 14.85].map(wch => ({ wch }));
+  worksheet["!rows"] = [{ hpt: 26 }, { hpt: 22 }, { hpt: 24 }, { hpt: 30 }];
+  const darkTitle = { fill: { fgColor: { rgb: "1B365D" } }, font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "left", vertical: "center" }, border: { bottom: { style: "thin", color: { rgb: "7F7F7F" } } } };
+  const darkSubtitle = { ...darkTitle, font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } } };
+  const note = { fill: { fgColor: { rgb: "D9E2F3" } }, font: { name: "Calibri", sz: 9, bold: true, color: { rgb: "1F1F1F" } }, alignment: { horizontal: "left", vertical: "center", wrapText: true }, border: { top: { style: "thin", color: { rgb: "7F7F7F" } }, bottom: { style: "thin", color: { rgb: "7F7F7F" } }, left: { style: "thin", color: { rgb: "7F7F7F" } }, right: { style: "thin", color: { rgb: "7F7F7F" } } } };
+  const headerStyle = { fill: { fgColor: { rgb: "1F497D" } }, font: { name: "Calibri", sz: 9, bold: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: { style: "thin", color: { rgb: "7F7F7F" } }, bottom: { style: "thin", color: { rgb: "7F7F7F" } }, left: { style: "thin", color: { rgb: "7F7F7F" } }, right: { style: "thin", color: { rgb: "7F7F7F" } } } };
+  const cellBorder = { top: { style: "thin", color: { rgb: "7F7F7F" } }, bottom: { style: "thin", color: { rgb: "7F7F7F" } }, left: { style: "thin", color: { rgb: "7F7F7F" } }, right: { style: "thin", color: { rgb: "7F7F7F" } } };
+  worksheet["A1"].s = darkTitle;
+  worksheet["A2"].s = darkSubtitle;
+  ["A3", "D3", "G3"].forEach(address => { worksheet[address].s = note; });
+  for (let column = 0; column < 11; column += 1) worksheet[XLSX.utils.encode_cell({ r: 3, c: column })].s = headerStyle;
+  for (let row = 4; row < aoa.length; row += 1) for (let column = 0; column < 11; column += 1) worksheet[XLSX.utils.encode_cell({ r: row, c: column })].s = { font: { name: "Calibri", sz: 10, color: { rgb: "111111" } }, alignment: { vertical: "center", wrapText: true }, border: cellBorder, fill: row % 2 === 0 ? { fgColor: { rgb: "F2F6FB" } } : { fgColor: { rgb: "FFFFFF" } } };
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Conteo Físico");
+  return XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
+};
 
 type NewArticleForm = typeof emptyArticle;
 type InventoryLocation = { id: string; tramo: string; gondola: string };
@@ -476,6 +506,8 @@ export default function Inventory() {
       return {
         warehouse: "01",
         productNumber: item.sku,
+        sku: item.sku,
+        barcode: item.barcode || product?.barcode || product?.gtins?.[0] || "",
         description: item.name,
         counter: item.countedBy || "admin1",
         unitQuantity: item.totalQuantity,
@@ -486,12 +518,12 @@ export default function Inventory() {
         price: item.salePrice || "0.00",
       };
     });
-    const table = buildPhysicalInventoryExportHtml(rows);
-    const blob = new Blob(["\\ufeff", table], { type: "application/vnd.ms-excel;charset=utf-8" });
+    const workbookBytes = buildPhysicalInventoryXlsx(rows);
+    const blob = new Blob([workbookBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `EUROTRUCK_Reporte_Inventario_${new Date().toISOString().slice(0, 10)}.xls`;
+    anchor.download = `EUROTRUCK_Reporte_Inventario_${new Date().toISOString().slice(0, 10)}.xlsx`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -518,18 +550,23 @@ export default function Inventory() {
   };
   const printActiveInventoryArea = () => {
     const activeItems = (inventoryQuery.data || []).filter(item => (item.lastTramo || "GENERAL") === tramo && (item.lastGondola || "GENERAL") === gondola);
-    const rows = activeItems.map(item => ({
-      warehouse: "01",
-      productNumber: item.sku,
-      description: item.name,
-      counter: item.countedBy || "admin1",
+    const rows = activeItems.map(item => {
+      const product = allProducts.find(candidate => candidate.id === item.productId);
+      return {
+        warehouse: "01",
+        productNumber: item.sku,
+        sku: item.sku,
+        barcode: item.barcode || product?.barcode || product?.gtins?.[0] || "",
+        description: item.name,
+        counter: item.countedBy || "admin1",
       unitQuantity: item.totalQuantity,
       reference: item.internalCode || allProducts.find(product => product.id === item.productId)?.internalCode || "",
       shelf: item.lastGondola || gondola,
       tramo: item.lastTramo || tramo,
       cost: item.costPrice || "0.00",
       price: item.salePrice || "0.00",
-    }));
+      };
+    });
     const printWindow = window.open("", "_blank", "width=1200,height=800");
     if (!printWindow) {
       setError("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes e inténtalo nuevamente.");

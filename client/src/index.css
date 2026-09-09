@@ -1331,3 +1331,9 @@
 .inventory-location-clear-confirm{border-color:#b43d49!important;background:#b43d49!important}
 .inventory-location-clear-confirm:hover{background:#932f39!important}
 @media(max-width:800px){.inventory-location-picker{grid-template-columns:1fr}.inventory-location-clear{width:100%}}
+
+/* Acceso visible al inventario, protegido por la ruta para admin1. */
+.company-access-button--inventory{border-color:rgba(0,207,133,.56)!important;background:rgba(0,207,133,.12)!important;color:#b8ffdc!important}
+.company-access-button--inventory:hover{border-color:#00cf85!important;background:rgba(0,207,133,.24)!important;color:#fff!important}
+.mobile-inventory-access-top{border-color:rgba(0,207,133,.55)!important;color:#7ff0b6!important}
+.mobile-inventory-access{border-color:rgba(0,207,133,.55)!important;background:rgba(0,207,133,.1)!important;color:#b8ffdc!important}

@@ -457,7 +457,7 @@ export default function Home() {
                 <button className={language === "ES" ? "is-selected" : ""} onClick={() => setLanguage("ES")}>ES</button>
                 <button className={language === "EN" ? "is-selected" : ""} onClick={() => setLanguage("EN")}>EN</button>
               </div>
-              <a className="company-access-button" href="/orders" aria-label={t("Abrir acceso de empresa y cotizaciones", "Open company access and quotes")}><ShieldCheck size={14} />{t("Acceso empresa", "Company access")}</a><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingCart size={14} />{t("Carrito", "Cart")} <b>{cartCount}</b></button>
+              <a className="company-access-button" href="/orders" aria-label={t("Abrir acceso de empresa y cotizaciones", "Open company access and quotes")}><ShieldCheck size={14} />{t("Acceso empresa", "Company access")}</a><a className="company-access-button company-access-button--inventory" href="/inventory" aria-label={t("Abrir inventario", "Open inventory")}><Boxes size={14} />{t("Inventario", "Inventory")}</a><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingCart size={14} />{t("Carrito", "Cart")} <b>{cartCount}</b></button>
             </div>
             <div className="contact-lines">
               <a href="tel:8098930258"><span>COTIZACIONES (KELVIN)</span><strong>(809) 893-0258</strong></a>
@@ -465,9 +465,9 @@ export default function Home() {
               <a href="tel:8095911222"><span>OFICINA CENTRAL</span><strong>(809) 591-1222</strong></a>
             </div>
           </div>
-          <a className="mobile-company-access-top" href="/orders" aria-label={t("Abrir acceso empresa", "Open company access")}><ShieldCheck size={16} /></a><button className="mobile-menu-button" onClick={() => setMobileNav((value) => !value)} aria-label={t("Abrir menú", "Open menu")}>{mobileNav ? <X /> : <Menu />}</button>
+          <a className="mobile-company-access-top" href="/orders" aria-label={t("Abrir acceso empresa", "Open company access")}><ShieldCheck size={16} /></a><a className="mobile-company-access-top mobile-inventory-access-top" href="/inventory" aria-label={t("Abrir inventario", "Open inventory")}><Boxes size={16} /></a><button className="mobile-menu-button" onClick={() => setMobileNav((value) => !value)} aria-label={t("Abrir menú", "Open menu")}>{mobileNav ? <X /> : <Menu />}</button>
         </div>
-        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label={t("Navegación principal", "Main navigation")}><div className="portal-nav-links">{[[t("Inicio", "Home"), "inicio"], [t("Venta de Piezas", "Parts sales"), "catalogo"], [t("Servicio a Domicilio", "On-site service"), "registro"], [t("Marcas", "Brands"), "hero-fleet"], [t("Preguntas Frecuentes", "FAQ"), "faq"], [t("Contacto", "Contact"), "contacto"]].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div><a className="mobile-company-access" href="/orders"><ShieldCheck size={14} />{t("Acceso empresa / Cotizaciones", "Company access / Quotes")}</a></nav>
+        <nav className={`main-nav container-wide ${mobileNav ? "main-nav--open" : ""}`} aria-label={t("Navegación principal", "Main navigation")}><div className="portal-nav-links">{[[t("Inicio", "Home"), "inicio"], [t("Venta de Piezas", "Parts sales"), "catalogo"], [t("Servicio a Domicilio", "On-site service"), "registro"], [t("Marcas", "Brands"), "hero-fleet"], [t("Preguntas Frecuentes", "FAQ"), "faq"], [t("Contacto", "Contact"), "contacto"]].map(([label, id], index) => <button key={id} className={index === 0 ? "nav-active" : ""} onClick={() => { scrollToId(id); setMobileNav(false); }}>{label}</button>)}</div><a className="mobile-company-access" href="/orders"><ShieldCheck size={14} />{t("Acceso empresa / Cotizaciones", "Company access / Quotes")}</a><a className="mobile-company-access mobile-inventory-access" href="/inventory"><Boxes size={14} />{t("Inventario", "Inventory")}</a></nav>
       </header>
 
       <main>
