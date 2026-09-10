@@ -557,10 +557,10 @@
 
 # Formato EUROTRUCK para artículos contados
 
-- [ ] Inspeccionar el Excel adjunto y reproducir su estructura en la hoja de artículos contados.
-- [ ] Añadir SKU y código de barras al reporte y a cada fila de artículo/ubicación.
-- [ ] Colocar el control Borrar conteo junto a ubicación y artículo con confirmación protegida.
-- [ ] Mantener la clave oculta y validar exportación, pruebas, TypeScript/build y publicar checkpoint.
+- [x] Inspeccionar el Excel adjunto y reproducir su estructura en la hoja de artículos contados.
+- [x] Añadir SKU y código de barras al reporte y a cada fila de artículo/ubicación.
+- [x] Colocar el control Borrar conteo junto a ubicación y artículo con confirmación protegida.
+- [x] Mantener la clave oculta y validar exportación, pruebas, TypeScript/build y publicar checkpoint.
 
 # Nuevo formato EUROTRUCKINVENTARIO y acceso Inventario
 
@@ -580,10 +580,10 @@
 
 # Reorganización de Inventario y pedidos de bajo stock
 
-- [ ] Cambiar las etiquetas de ubicación para usar Estante y Tramo de forma consistente.
-- [ ] Mover Imprimir área activa al encabezado de Artículos contados y conservar su función.
-- [ ] Rediseñar Bajo stock como un pedido claro con artículo, SKU, ubicación, existencia y cantidad sugerida.
-- [ ] Validar interfaz, exportaciones, pruebas, TypeScript/build y publicar checkpoint.
+- [x] Cambiar las etiquetas de ubicación para usar Estante y Tramo de forma consistente.
+- [x] Mover Imprimir área activa al encabezado de Artículos contados y conservar su función.
+- [x] Rediseñar Bajo stock como un pedido claro con artículo, SKU, ubicación, existencia y cantidad sugerida.
+- [x] Validar interfaz, exportaciones, pruebas, TypeScript/build y publicar checkpoint.
 
 # Credenciales empresariales y persistencia de artículos
 
@@ -591,3 +591,10 @@
 - [x] Verificar que admin1 tenga acceso total y los demás usuarios conserven sus permisos limitados.
 - [x] Garantizar que artículos, imágenes, SKU, GTIN, precios e inventario permanezcan almacenados aunque se oculten o retiren del catálogo público.
 - [x] Validar login, permisos, persistencia, 63 pruebas Vitest, TypeScript/build y publicar checkpoint.
+
+# Códigos Zebra únicos para todo el catálogo
+
+- [x] Auditar códigos Zebra actuales y detectar vacíos, duplicados o valores fuera de 7 dígitos.
+- [x] Asignar códigos Zebra únicos a todos los artículos existentes sin modificar SKU, GTIN, imagen, precios ni demás datos.
+- [x] Asignar automáticamente un código Zebra no repetido al crear cada artículo nuevo.
+- [x] Mantener el código Zebra en escaneo, exportaciones y etiquetas ZPL, y validar pruebas/build antes de publicar.

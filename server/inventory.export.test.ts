@@ -24,7 +24,7 @@ describe("inventory export", () => {
     expect(html).toContain("#1f497d");
     expect(html).toContain("colspan=\"11\"");
     expect(html).toContain("TRAMO T-01");
-    expect(html).toContain("GÓNDOLA G-02");
+    expect(html).toContain("ESTANTE G-02");
   });
 
   it("includes zero-stock products and calculates purchase units", () => {

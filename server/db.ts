@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { InsertOrder, InsertOrderItem, Order, OrderItem, InsertUser, inventoryGtins, inventoryItems, inventoryMovements, inventoryScans, localAdmins, orderItems, orders, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { formatOrderNumber } from "@shared/orderHelpers";
-import { rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
+import { nextAvailableZebraCode, rebuildInventoryAfterScanRemoval } from "@shared/inventoryHelpers";
 import { buildRecentIngressRow, normalizeIngressLimit } from "@shared/inventoryIngress";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -232,10 +232,10 @@ export async function createInventoryItem(input: NewInventoryItemInput, countedB
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   const productId = `custom-${crypto.randomUUID()}`;
-  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, barcode: input.barcode, costPrice: input.costPrice ?? "0.00", salePrice: input.salePrice ?? "0.00", totalQuantity: input.initialQuantity ?? 0, lastTramo: input.initialQuantity ? input.tramo : undefined, lastGondola: input.initialQuantity ? input.gondola : undefined, countedBy }).execute();
+  const existingCodes = await db.select({ internalCode: inventoryItems.internalCode }).from(inventoryItems);
+  const internalCode = nextAvailableZebraCode(existingCodes.map(row => row.internalCode));
+  const inserted = await db.insert(inventoryItems).values({ productId, sku: input.sku, name: input.name, description: input.description, brand: input.brand, application: input.application, image: input.image, barcode: input.barcode, internalCode, costPrice: input.costPrice ?? "0.00", salePrice: input.salePrice ?? "0.00", totalQuantity: input.initialQuantity ?? 0, lastTramo: input.initialQuantity ? input.tramo : undefined, lastGondola: input.initialQuantity ? input.gondola : undefined, countedBy }).execute();
   const inventoryItemId = Number((inserted as unknown as Array<{ insertId: number }>)[0]?.insertId);
-  const internalCode = String(900000 + inventoryItemId).padStart(5, "0");
-  await db.update(inventoryItems).set({ internalCode }).where(eq(inventoryItems.id, inventoryItemId));
   const created = await db.select().from(inventoryItems).where(eq(inventoryItems.id, inventoryItemId)).limit(1);
   if (!created[0]) throw new Error("Unable to create inventory item");
   return created[0];

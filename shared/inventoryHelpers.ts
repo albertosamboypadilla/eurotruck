@@ -68,3 +68,18 @@ export function rebuildInventoryAfterScanRemoval(scans: InventoryScanSnapshot[],
     lastGondola: latest?.gondola ?? null,
   };
 }
+
+export function normalizeZebraCode(value: string | number) {
+  const digits = String(value).replace(/\D/g, "");
+  if (!digits || digits.length > 7 || Number(digits) < 1) return null;
+  return digits.padStart(5, "0");
+}
+
+export function nextAvailableZebraCode(existingCodes: Array<string | null | undefined>) {
+  const used = new Set(existingCodes.map(code => normalizeZebraCode(code ?? "")).filter((code): code is string => Boolean(code)));
+  for (let number = 1; number <= 9_999_999; number += 1) {
+    const candidate = String(number).padStart(5, "0");
+    if (!used.has(candidate)) return candidate;
+  }
+  throw new Error("No quedan códigos Zebra disponibles");
+}

@@ -65,7 +65,7 @@ export type PhysicalInventoryExportRow = {
 
 export function buildPhysicalInventoryExportHtml(rows: PhysicalInventoryExportRow[], generatedAt = new Date(), area?: { tramo?: string | null; gondola?: string | null }) {
   const dateText = generatedAt.toLocaleString("es-DO", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-  const areaText = area?.tramo || area?.gondola ? ` · TRAMO ${area.tramo || "—"} · GÓNDOLA ${area.gondola || "—"}` : "";
+  const areaText = area?.tramo || area?.gondola ? ` · TRAMO ${area.tramo || "—"} · ESTANTE ${area.gondola || "—"}` : "";
   const headers = ["ALMACÉN", "NO. PRODUCTO", "DESCRIPCIÓN PRODUCTO", "CONTADOR", "CANTIDAD EMP. MAYOR", "CANTIDAD UNIDADES", "REFERENCIA", "ESTANTE", "TRAMO", "COSTO", "PRECIO"];
   const body = rows.map(row => `<tr>${[
     row.warehouse || "01",

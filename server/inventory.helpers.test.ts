@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, rebuildInventoryAfterScanRemoval, shouldAutoRegisterInventoryScan } from "@shared/inventoryHelpers";
+import { buildInventoryNotice, getInventoryScanLocation, isInventoryAdmin, isInventoryItemCounted, isInventorySaleConfirmationKey, nextAvailableZebraCode, normalizeZebraCode, rebuildInventoryAfterScanRemoval, shouldAutoRegisterInventoryScan } from "@shared/inventoryHelpers";
 
 describe("inventory helpers", () => {
+  it("normaliza códigos Zebra y elige uno libre sin repetir", () => {
+    expect(normalizeZebraCode("123")).toBe("00123");
+    expect(normalizeZebraCode("1234567")).toBe("1234567");
+    expect(normalizeZebraCode("12345678")).toBeNull();
+    expect(nextAvailableZebraCode(["00001", "00002", "00004", null])).toBe("00003");
+  });
   it("allows only admin1 regardless of case and whitespace", () => {
     expect(isInventoryAdmin(" admin1 ")).toBe(true);
     expect(isInventoryAdmin("admin2")).toBe(false);

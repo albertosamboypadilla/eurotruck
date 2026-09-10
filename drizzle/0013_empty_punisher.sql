@@ -1,0 +1,2 @@
+ALTER TABLE `inventory_items` MODIFY COLUMN `internalCode` varchar(7);--> statement-breakpoint
+ALTER TABLE `inventory_items` ADD CONSTRAINT `inventory_items_internalCode_unique` UNIQUE(`internalCode`);
